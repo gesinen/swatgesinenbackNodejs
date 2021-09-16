@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
-const capacityModuleRoutes_1 = __importDefault(require("./routes/capacityModuleRoutes"));
+const exampleRoutes_1 = __importDefault(require("./routes/exampleRoutes"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -21,7 +21,7 @@ class Server {
         this.app.use(express_1.default.urlencoded({ extended: false }));
     }
     routes() {
-        this.app.use('/v2/capacity', capacityModuleRoutes_1.default);
+        this.app.use('/v2/capacity', exampleRoutes_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {
