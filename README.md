@@ -7,23 +7,19 @@ The developement application is inside the `\src` folder. The production applica
 We use jsdoc to make the documentation, that is stored in `\doc` folder.
 
 ## Install
-
-    ```bash
-        npm install
-    ```
+    
+```shell
+npm install
+```
 
 ## Run the app in dev mode
 
 You must run this commands in different cmd windows at the same time. Build command is for compile .ts to .js, and dev is for run the express server with nodemon
 
-    ```bash
-        npm run build
-        npm run dev
-    ````
-
-## Run the tests
-
-    ./run-tests.sh
+```shell
+npm run build
+npm run dev
+```
 
 # Routes
 
