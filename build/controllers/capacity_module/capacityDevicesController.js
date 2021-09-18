@@ -13,28 +13,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../../database"));
-/**
- * Route: /capacity/devices
+/*
+ * /capacity/devices
  */
 class CapacityDevicesController {
     /**
+     * POST ('/')
      * Creating a new capacity device
-     * POST (/)
      *
-     * @param name
-     * @param description
-     * @param sensor_id
-     * @param user_id
-     * @param capacity
-     * @param max_capacity
-     * @param type
-     * @param address
-     * @param coordinates_x
-     * @param coordinates_y
+     * @async
+     * @param name - The name of the capacity device
+     * @param description - The description of the capacity device
+     * @param sensor_id - The ID of the sensor that is assigned to capacity device
+     * @param user_id - The ID of the user that has the capacity device
+     * @param capacity - The current capacity of the device
+     * @param max_capacity - The maximum capacity that the device can have
+     * @param type - The capacity device type. It can be TOF, parking_individual or parking_area
+     * @param address - The address where is installed the capacity device
+     * @param coordinates_x - The coordinates in X axis of the capacity devices
+     * @param coordinates_y - The coordinates in Y axis of the capacity devices
      *
-     * @returns A promise
+     * @return
      */
-    createCapacityDevice(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y) {
+    createCapacityDevice(name, description = "", sensor_id, user_id, capacity = 0, max_capacity, type, address = "", coordinates_x = "", coordinates_y = "") {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.query("INSERT INTO capacity_devices" +
@@ -45,21 +46,173 @@ class CapacityDevicesController {
                     }
                     else {
                         resolve({
-                            status: 200,
-                            response: 'The capacity device has been created succesfully',
-                            capacity_device: {
-                                name: name,
-                                description: description,
-                                sensor_id: sensor_id,
-                                user_id: user_id,
-                                capacity: capacity,
-                                max_capacity: max_capacity,
-                                type: type,
-                                address: address,
-                                coordinates_x: coordinates_x,
-                                coordinates_y: coordinates_y
-                            }
+                            http: 200,
+                            status: 'Success',
+                            response: "The capacity device has been created succesfully"
                         });
+                    }
+                });
+            });
+        });
+    } // createCapacityDevice ()
+    /**
+     * GET ('/:id')
+     * Getting information about a capacity device with the device ID
+     *
+     * @param id The ID of the capacity device that you want to get the information from
+     *
+     * @return
+     */
+    getCapacityDeviceById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                var query = "SELECT * FROM capacity_devices WHERE id = " + id;
+                database_1.default.query(query, (err, results) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    else {
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "There are no capacity devices with this ID",
+                                capacity_device: {}
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                capacity_device: results[0]
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    } // getCapacityDeviceById()
+    /**
+     * PUT ('/:id')
+     * Updating data of a capacity device
+     *
+     * @async
+     * @param name - The name of the capacity device
+     * @param description - The description of the capacity device
+     * @param sensor_id - The ID of the sensor that is assigned to capacity device
+     * @param user_id - The ID of the user that has the capacity device
+     * @param capacity - The current capacity of the device
+     * @param max_capacity - The maximum capacity that the device can have
+     * @param type - The capacity device type. It can be TOF, parking_individual or parking_area
+     * @param address - The address where is installed the capacity device
+     * @param coordinates_x - The coordinates in X axis of the capacity devices
+     * @param coordinates_y - The coordinates in Y axis of the capacity devices
+     *
+     * @returns
+     */
+    updateCapacityDevice(id, name, description, sensor_id, type, address, coordinates_x, coordinates_y) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                if (!name && !description && !sensor_id && !type && !address && !coordinates_x && !coordinates_y) {
+                    reject({
+                        http: 406,
+                        status: 'Failed',
+                        error: "All fields are empty"
+                    });
+                }
+                var query = "UPDATE capacity_devices SET";
+                // Checking if each param is not empty and adding it to the query
+                if (name) {
+                    query += " name = '" + name + "',";
+                }
+                if (description) {
+                    query += " description = '" + description + "',";
+                }
+                if (sensor_id) {
+                    query += " sensor_id = " + sensor_id + ",";
+                }
+                if (type) {
+                    query += " type = '" + type + "',";
+                }
+                if (address) {
+                    query += " address = '" + address + "',";
+                }
+                if (coordinates_x) {
+                    query += " coordinates_x = '" + coordinates_x + "',";
+                }
+                if (coordinates_y) {
+                    query += " coordinates_y = '" + coordinates_y + "',";
+                }
+                // Removing the last comma
+                query = query.slice(0, -1);
+                // Adding the WHERE condition 
+                query += " WHERE id = " + id;
+                // Running the query
+                database_1.default.query(query, (err, results) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: "There are no capacity devices with this ID",
+                        });
+                    }
+                    else {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: "The capacity device has been updated successfully"
+                        });
+                    }
+                });
+            });
+        });
+    } // updateCapacityDevice()
+    /**
+     * GET ('/list/:userId')
+     *
+     * @async
+     * @param user_id
+     * @returns
+     */
+    getUserCapacityDevices(user_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                var query = "SELECT * FROM capacity_devices WHERE user_id = " + user_id;
+                database_1.default.query(query, (err, results) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    else {
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "This user has no capacity devices",
+                                capacity_devices: []
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                capacity_devices: results
+                            });
+                        }
                     }
                 });
             });
