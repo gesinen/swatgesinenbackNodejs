@@ -12,14 +12,14 @@ class CapacityModuleRoutes {
             const params = req.body;
             capacityDevicesController_1.default.createCapacityDevice(params.name, params.description, parseInt(params.sensor_id), parseInt(params.user_id), parseInt(params.capacity), parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
                 .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
                 res.send({
-                    response: response
+                    http: 401,
+                    status: 'Failed',
+                    error: err
                 });
-                /* if (response == true) {
-                    res.send({
-
-                    })
-                } */
             });
         });
         this.createCapacityDeviceAction();

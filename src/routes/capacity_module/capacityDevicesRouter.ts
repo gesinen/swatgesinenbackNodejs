@@ -11,18 +11,18 @@ class CapacityModuleRoutes {
 
     public createCapacityDeviceAction = () => this.router.post('/', (req: Request, res: Response) => {
         const params = req.body;
+
         capacityDevicesController.createCapacityDevice(params.name, params.description, parseInt(params.sensor_id), parseInt(params.user_id), parseInt(params.capacity), parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
             .then( (response) => {
-                res.send({
-                    response: response
-                })
-                /* if (response == true) {
-                    res.send({
-
-                    })
-                } */
+                res.send(response)
             })
-
+            .catch( (err) => {
+                res.send({
+                    http: 401,
+                    status: 'Failed',
+                    error: err
+                })
+            })
     })
 
 }

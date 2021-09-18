@@ -7,7 +7,8 @@ const mysql_1 = __importDefault(require("mysql"));
 const conn = mysql_1.default.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Al8987154St12',
+    //password: 'Al8987154St12',
+    password: 'root',
     database: 'swat_gesinen'
 });
 conn.connect((err) => {
