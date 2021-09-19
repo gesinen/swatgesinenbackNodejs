@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const capacityDevicesRouter_1 = __importDefault(require("./routes/capacity_module/capacityDevicesRouter"));
+const usersRouter_1 = __importDefault(require("./routes/usersRouter"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -21,6 +22,7 @@ class Server {
         this.app.use(express_1.default.urlencoded({ extended: false }));
     }
     routes() {
+        this.app.use('/v2/users', usersRouter_1.default);
         this.app.use('/v2/capacity/devices', capacityDevicesRouter_1.default);
     }
     start() {

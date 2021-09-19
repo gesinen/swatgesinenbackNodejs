@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import capacityDevicesController from '../../controllers/capacity_module/capacityDevicesController';
 
-class CapacityModuleRoutes {
+class CapacityModuleRouter {
 
     public router: Router = Router();
 
@@ -85,5 +85,5 @@ class CapacityModuleRoutes {
 
 }
 
-const capacityModuleRoutes = new CapacityModuleRoutes();
+const capacityModuleRoutes = new CapacityModuleRouter();
 export default capacityModuleRoutes.router;

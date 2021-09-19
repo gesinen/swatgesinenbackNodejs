@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 import capacityDevicesRouter from './routes/capacity_module/capacityDevicesRouter';
+import usersRouter from './routes/usersRouter';
 
 class Server {
 
@@ -23,6 +24,7 @@ class Server {
     }
 
     routes(): void {
+        this.app.use('/v2/users', usersRouter);
         this.app.use('/v2/capacity/devices', capacityDevicesRouter);
     }
 

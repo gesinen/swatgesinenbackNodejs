@@ -1,6 +1,6 @@
 import mysql from 'mysql';
 
-const conn = mysql.createConnection({
+const conn = mysql.createPool({
     host: 'localhost',
     user: 'root',
     //password: 'Al8987154St12',
@@ -9,10 +9,10 @@ const conn = mysql.createConnection({
 });
 
 
-conn.connect((err) => {
+/*conn.connect((err) => {
     if (err) {
         console.error('Error connecting: ' + err.stack)
     }
-})
+})*/
 
 export default conn;

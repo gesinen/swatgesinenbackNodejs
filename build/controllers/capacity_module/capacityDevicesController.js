@@ -38,19 +38,22 @@ class CapacityDevicesController {
     createCapacityDevice(name, description = "", sensor_id, user_id, capacity = 0, max_capacity, type, address = "", coordinates_x = "", coordinates_y = "") {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                database_1.default.query("INSERT INTO capacity_devices" +
-                    "(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y)" +
-                    " VALUES ('" + name + "','" + description + "'," + sensor_id + "," + user_id + "," + capacity + "," + max_capacity + ",'" + type + "','" + address + "','" + coordinates_x + "','" + coordinates_y + "')", (error, results, fields) => {
-                    if (error) {
-                        reject({ error: error });
-                    }
-                    else {
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            response: "The capacity device has been created succesfully"
-                        });
-                    }
+                database_1.default.getConnection((err, conn) => {
+                    conn.query("INSERT INTO capacity_devices" +
+                        "(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y)" +
+                        " VALUES ('" + name + "','" + description + "'," + sensor_id + "," + user_id + "," + capacity + "," + max_capacity + ",'" + type + "','" + address + "','" + coordinates_x + "','" + coordinates_y + "')", (error, results, fields) => {
+                        conn.release();
+                        if (error) {
+                            reject({ error: error });
+                        }
+                        else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                response: "The capacity device has been created succesfully"
+                            });
+                        }
+                    });
                 });
             });
         });
@@ -66,32 +69,34 @@ class CapacityDevicesController {
     getCapacityDeviceById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                var query = "SELECT * FROM capacity_devices WHERE id = " + id;
-                database_1.default.query(query, (err, results) => {
-                    if (err) {
-                        reject({
-                            http: 401,
-                            status: 'Failed',
-                            error: err
-                        });
-                    }
-                    else {
-                        if (results.length == 0) {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                result: "There are no capacity devices with this ID",
-                                capacity_device: {}
+                database_1.default.getConnection((err, conn) => {
+                    var query = "SELECT * FROM capacity_devices WHERE id = " + id;
+                    conn.query(query, (err, results) => {
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
                             });
                         }
                         else {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                capacity_device: results[0]
-                            });
+                            if (results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: 'Success',
+                                    result: "There are no capacity devices with this ID",
+                                    capacity_device: {}
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    capacity_device: results[0]
+                                });
+                            }
                         }
-                    }
+                    });
                 });
             });
         });
@@ -152,28 +157,31 @@ class CapacityDevicesController {
                 // Adding the WHERE condition 
                 query += " WHERE id = " + id;
                 // Running the query
-                database_1.default.query(query, (err, results) => {
-                    if (err) {
-                        reject({
-                            http: 401,
-                            status: 'Failed',
-                            error: err
-                        });
-                    }
-                    if (results.length == 0) {
-                        resolve({
-                            http: 204,
-                            status: 'Success',
-                            result: "There are no capacity devices with this ID",
-                        });
-                    }
-                    else {
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            result: "The capacity device has been updated successfully"
-                        });
-                    }
+                database_1.default.getConnection((err, conn) => {
+                    conn.query(query, (err, results) => {
+                        conn.release();
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "There are no capacity devices with this ID",
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: "The capacity device has been updated successfully"
+                            });
+                        }
+                    });
                 });
             });
         });
@@ -189,31 +197,34 @@ class CapacityDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 var query = "SELECT * FROM capacity_devices WHERE user_id = " + user_id;
-                database_1.default.query(query, (err, results) => {
-                    if (err) {
-                        reject({
-                            http: 401,
-                            status: 'Failed',
-                            error: err
-                        });
-                    }
-                    else {
-                        if (results.length == 0) {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                result: "This user has no capacity devices",
-                                capacity_devices: []
+                database_1.default.getConnection((err, conn) => {
+                    conn.query(query, (err, results) => {
+                        conn.release();
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
                             });
                         }
                         else {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                capacity_devices: results
-                            });
+                            if (results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: 'Success',
+                                    result: "This user has no capacity devices",
+                                    capacity_devices: []
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    capacity_devices: results
+                                });
+                            }
                         }
-                    }
+                    });
                 });
             });
         });

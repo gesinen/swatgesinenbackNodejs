@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const capacityDevicesController_1 = __importDefault(require("../../controllers/capacity_module/capacityDevicesController"));
-class CapacityModuleRoutes {
+class CapacityModuleRouter {
     constructor() {
         this.router = (0, express_1.Router)();
         /**
@@ -79,5 +79,5 @@ class CapacityModuleRoutes {
         this.getUserCapacityDevicesAction();
     }
 }
-const capacityModuleRoutes = new CapacityModuleRoutes();
+const capacityModuleRoutes = new CapacityModuleRouter();
 exports.default = capacityModuleRoutes.router;

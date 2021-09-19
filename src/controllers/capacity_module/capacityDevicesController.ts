@@ -26,24 +26,28 @@ class CapacityDevicesController {
 	public async createCapacityDevice (name: string, description: string = "", sensor_id: number, user_id: number, capacity: number = 0, max_capacity: number, type: string, address:string = "", coordinates_x:string = "", coordinates_y:string = ""): Promise<object> {
 
         return new Promise( (resolve, reject) => {
+            
+            db.getConnection((err, conn) => {
+                conn.query(
+                    "INSERT INTO capacity_devices"+
+                    "(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y)" +
+                    " VALUES ('" + name + "','" + description + "'," + sensor_id + "," + user_id + "," + capacity + "," + max_capacity + ",'" + type + "','" + address + "','" + coordinates_x + "','" + coordinates_y + "')" , 
+                    
+                    (error, results, fields) => {   
+                        conn.release()
 
-            db.query(
-                "INSERT INTO capacity_devices"+
-                "(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y)" +
-				" VALUES ('" + name + "','" + description + "'," + sensor_id + "," + user_id + "," + capacity + "," + max_capacity + ",'" + type + "','" + address + "','" + coordinates_x + "','" + coordinates_y + "')" , 
-                
-                (error, results, fields) => {   
-                    if (error) {
-                        reject({ error: error })
-                    } else {
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            response: "The capacity device has been created succesfully"
-                        })
+                        if (error) {
+                            reject({ error: error })
+                        } else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                response: "The capacity device has been created succesfully"
+                            })
+                        }
                     }
-                }
-            )
+                )
+            })
         })
 	} // createCapacityDevice ()
 
@@ -59,34 +63,35 @@ class CapacityDevicesController {
 
         return new Promise( (resolve, reject) => {
 
-            var query = "SELECT * FROM capacity_devices WHERE id = " + id;
+            db.getConnection((err, conn) => {
+                var query = "SELECT * FROM capacity_devices WHERE id = " + id;
 
-            db.query(query, (err, results) => {
-                if (err) {
-                    reject({
-                        http: 401,
-                        status: 'Failed',
-                        error: err
-                    })
-                } else {
-
-                    if ( results.length == 0 ){
-                        resolve({
-                            http: 204,
-                            status: 'Success',
-                            result: "There are no capacity devices with this ID",
-                            capacity_device: {}
+                conn.query(query, (err, results) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
                         })
                     } else {
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            capacity_device: results[0]
-                        })
-                    }
-                }
-            })
 
+                        if ( results.length == 0 ){
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "There are no capacity devices with this ID",
+                                capacity_device: {}
+                            })
+                        } else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                capacity_device: results[0]
+                            })
+                        }
+                    }
+                })
+            })
         });
     } // getCapacityDeviceById()
 
@@ -152,28 +157,32 @@ class CapacityDevicesController {
             query += " WHERE id = " + id;
 
             // Running the query
-            db.query(query, (err, results) => {
-                if (err) {
-                    reject({
-                        http: 401,
-                        status: 'Failed',
-                        error: err
-                    })
-                }
+            db.getConnection((err, conn) => {
+                conn.query(query, (err, results) => {
+                    conn.release()
 
-                if (results.length == 0){
-                    resolve({
-                        http: 204,
-                        status: 'Success',
-                        result: "There are no capacity devices with this ID",
-                    })
-                } else {
-                    resolve({
-                        http: 200,
-                        status: 'Success',
-                        result: "The capacity device has been updated successfully"
-                    })
-                }
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    }
+
+                    if (results.length == 0){
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: "There are no capacity devices with this ID",
+                        })
+                    } else {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: "The capacity device has been updated successfully"
+                        })
+                    }
+                })
             })
         })
     } // updateCapacityDevice()
@@ -191,30 +200,34 @@ class CapacityDevicesController {
 
             var query = "SELECT * FROM capacity_devices WHERE user_id = " + user_id;
 
-            db.query(query, (err, results) => {
-                if (err) {
-                    reject({
-                        http: 401,
-                        status: 'Failed',
-                        error: err
-                    })
-                } else {
+            db.getConnection((err, conn) => {
+                conn.query(query, (err, results) => {
+                    conn.release()
 
-                    if ( results.length == 0 ){
-                        resolve({
-                            http: 204,
-                            status: 'Success',
-                            result: "This user has no capacity devices",
-                            capacity_devices: []
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
                         })
                     } else {
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            capacity_devices: results
-                        })
+    
+                        if ( results.length == 0 ){
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "This user has no capacity devices",
+                                capacity_devices: []
+                            })
+                        } else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                capacity_devices: results
+                            })
+                        }
                     }
-                }
+                })
             })
         })
     }
