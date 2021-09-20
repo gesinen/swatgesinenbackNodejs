@@ -22,10 +22,10 @@ class WaterDevicesRouter {
             })
     })
 
-    public getWaterDeviceListingAction = () => this.router.get('/page', (req: Request, res: Response) => {
-        const params = req.body;
-
-        waterDevicesController.getWaterDevicesListing(params.user_id, params.page_index, params.page_size)
+    public getWaterDeviceListingAction = () => this.router.get('/page/:user_id/:page_index/:page_size', (req: Request, res: Response) => {
+        const params = req.params;
+        
+        waterDevicesController.getWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
             .then(response => {
                 res.send(response)
             })
