@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const capacityDevicesController_1 = __importDefault(require("../../controllers/capacity_module/capacityDevicesController"));
-class CapacityModuleRouter {
+class CapacityDevicesRouter {
     constructor() {
         this.router = (0, express_1.Router)();
         /**
@@ -52,7 +52,7 @@ class CapacityModuleRouter {
         this.updateCapacityDeviceAction = () => this.router.put('/:id', (req, res) => {
             const id = parseInt(req.params.id);
             const params = req.body;
-            capacityDevicesController_1.default.updateCapacityDevice(id, params.name, params.description, parseInt(params.sensor_id), params.type, params.address, params.coordinates_x, params.coordinates_y)
+            capacityDevicesController_1.default.updateCapacityDevice(id, params.name, params.description, parseInt(params.sensor_id), parseInt(params.capacity), parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
                 .then(response => {
                 res.send(response);
             })
@@ -73,11 +73,39 @@ class CapacityModuleRouter {
                 res.send(err);
             });
         });
+        /**
+         * Get most capacity devices of a user
+         * GET ('/most/:userId')
+         */
+        this.getMostCapacityDevicesAction = () => this.router.get('/most/:userId', (req, res) => {
+            capacityDevicesController_1.default.getMostCapacityDevices(parseInt(req.params.userId))
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
+        /**
+         * Get less capacity devices of a user
+         * GET ('/less/:userId')
+         */
+        this.getLessCapacityDevicesAction = () => this.router.get('/less/:userId', (req, res) => {
+            capacityDevicesController_1.default.getLessCapacityDevices(parseInt(req.params.userId))
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
         this.createCapacityDeviceAction();
         this.getCapacityDeviceByIdAction();
         this.updateCapacityDeviceAction();
         this.getUserCapacityDevicesAction();
+        this.getMostCapacityDevicesAction();
+        this.getLessCapacityDevicesAction();
     }
 }
-const capacityModuleRoutes = new CapacityModuleRouter();
-exports.default = capacityModuleRoutes.router;
+const capacityDevicesRoutes = new CapacityDevicesRouter();
+exports.default = capacityDevicesRoutes.router;

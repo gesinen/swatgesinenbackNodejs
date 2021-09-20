@@ -1,4 +1,3 @@
-import { Request, Response } from "express";
 import db from "../../database";
 
 /*
@@ -103,7 +102,6 @@ class CapacityDevicesController {
 	 * @param name - The name of the capacity device
 	 * @param description - The description of the capacity device
 	 * @param sensor_id - The ID of the sensor that is assigned to capacity device
-	 * @param user_id - The ID of the user that has the capacity device
 	 * @param capacity - The current capacity of the device
 	 * @param max_capacity - The maximum capacity that the device can have
 	 * @param type - The capacity device type. It can be TOF, parking_individual or parking_area
@@ -113,11 +111,11 @@ class CapacityDevicesController {
      * 
      * @returns 
      */
-    public async updateCapacityDevice (id: number, name?: string, description?: string, sensor_id?: number, type?: string, address?: string, coordinates_x?: string, coordinates_y?: string): Promise<object> {
+    public async updateCapacityDevice (id: number, name?: string, description?: string, sensor_id?: number, capacity?: number, max_capacity?: number, type?: string, address?: string, coordinates_x?: string, coordinates_y?: string): Promise<object> {
 
         return new Promise ((resolve, reject) => {
 
-            if (!name && !description && !sensor_id && !type && !address && !coordinates_x && !coordinates_y) {
+            if (!name && !description && !sensor_id && !capacity && !max_capacity && !type && !address && !coordinates_x && !coordinates_y) {
                 reject({
                     http: 406,
                     status: 'Failed',
@@ -136,6 +134,12 @@ class CapacityDevicesController {
             }
             if (sensor_id) {
                 query += " sensor_id = " + sensor_id + ","
+            }
+            if (capacity) {
+                query += " capacity = " + capacity + ","
+            }
+            if (max_capacity) {
+                query += " max_capacity = " + max_capacity + ","
             }
             if (type) {
                 query += " type = '" + type + "',"
@@ -185,13 +189,15 @@ class CapacityDevicesController {
                 })
             })
         })
-    } // updateCapacityDevice()
+    } // ()
 
     /**
      * GET ('/list/:userId')
+     * Getting a list with all capacity devices from a user
      * 
      * @async
-     * @param user_id 
+     * @param user_id - The user's Id
+     * 
      * @returns 
      */
     public async getUserCapacityDevices(user_id: number): Promise<object> {
@@ -230,7 +236,101 @@ class CapacityDevicesController {
                 })
             })
         })
-    }
+    } // ()
+
+    /**
+     *  GET ('/most/:id')
+     * Getting the most capacity devices from a user
+     * 
+     * @async
+     * @param user_id - The user's Id
+     * 
+     * @returns 
+     */
+     public async getMostCapacityDevices(user_id: number): Promise<object> {
+
+        return new Promise ((resolve, reject) => {
+
+            var query = "SELECT * FROM capacity_devices ORDER BY capacity DESC LIMIT 4";
+
+            db.getConnection((err, conn) => {
+                
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error, results) => {
+                    conn.release();
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        capacity_devices: results    
+                    })
+                })
+            })
+
+        })
+    } // ()
+
+    /**
+     *  GET ('/less/:id')
+     * Getting the less capacity devices from a user
+     * 
+     * @async
+     * @param user_id - The user's Id
+     * 
+     * @returns 
+     */
+    public async getLessCapacityDevices(user_id: number): Promise<object> {
+
+        return new Promise ((resolve, reject) => {
+
+            var query = "SELECT * FROM capacity_devices ORDER BY capacity ASC LIMIT 4";
+
+            db.getConnection((err, conn) => {
+                
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error, results) => {
+                    conn.release();
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        capacity_devices: results    
+                    })
+                })
+            })
+
+        })
+    } // ()
 }
 
 export default new CapacityDevicesController();
