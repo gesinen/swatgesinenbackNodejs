@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import capacityModuleRoutes from './routes/exampleRoutes';
 import capacityDevicesRouter from './routes/capacity_module/capacityDevicesRouter';
+import waterRouter from './routes/water_module/waterRouter';
 
 class Server {
 
@@ -26,6 +27,7 @@ class Server {
     routes(): void {
         this.app.use('/v2/capacity/devices', capacityDevicesRouter);
         this.app.use('/v2/capacity/other', capacityModuleRoutes);
+        this.app.use('/v2/water/', waterRouter);
     }
 
     start(): void {
