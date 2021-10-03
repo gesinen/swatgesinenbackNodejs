@@ -46,8 +46,8 @@ class WaterDevicesController {
         
         var query = "INSERT INTO water_devices (name, sensor_id, variable_name, water_group_id, water_user_id, user_id, municipality_id, description, units, contract_number, device_diameter, sewer_rate_id, installation_address) VALUES (" + name + ","  + sensor_id + ","  + variable_name + ","  + water_group_id + ","  + water_user_id + ","  + user_id + ","  + municipality_id + ","  + description + ","  + units + ","  + contract_number + ","  + device_diameter + ","  + sewer_rate_id + ","  + installation_address + ")";
 
-        return new Promise ((resolve, reject) => {
-            db.getConnection((error, conn) => {
+        return new Promise ((resolve: any, reject: any) => {
+            db.getConnection((error: any, conn: any) => {
 
                 // If the connection with the database fails
                 if (error) {
@@ -58,7 +58,7 @@ class WaterDevicesController {
                     })
                 }
     
-                conn.query(query, (err, results) => {
+                conn.query(query, (err: any, results: any) => {
                     conn.release()
                     
                     // If the query fails
@@ -100,9 +100,9 @@ class WaterDevicesController {
 
         var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = "+user_id+" ORDER BY w.id DESC LIMIT "+ first_value + ', ' + second_value;
 
-        return new Promise ((resolve, reject) => {
+        return new Promise ((resolve:any, reject:any) => {
 
-            db.getConnection((error, conn) => {
+            db.getConnection((error:any, conn:any) => {
 
                 // If the connection with the database fails
                 if (error) {
@@ -113,7 +113,7 @@ class WaterDevicesController {
                     })
                 }
 
-                conn.query(query, (err, results) => {
+                conn.query(query, (err:any, results:any) => {
                     conn.release()
                     
                     // If the query fails

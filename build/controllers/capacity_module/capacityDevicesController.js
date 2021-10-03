@@ -163,9 +163,9 @@ class CapacityDevicesController {
                 query += " WHERE id = " + id;
                 // Running the query
                 database_1.default.getConnection((err, conn) => {
-                    conn.query(query, (err, results) => {
+                    conn.query(query, (error, results) => {
                         conn.release();
-                        if (err) {
+                        if (error) {
                             reject({
                                 http: 401,
                                 status: 'Failed',

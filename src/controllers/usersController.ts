@@ -15,13 +15,13 @@ class UsersController {
      */
     public async getUserInformation (id:number): Promise<object> {
         
-        return new Promise ((resolve, reject) => {
+        return new Promise ((resolve:any, reject:any) => {
             
-            db.getConnection((err, conn) => {
+            db.getConnection((err:any, conn:any) => {
                 
                 let query = "SELECT id, email, user_name, first_name, last_name, phone, address, city, state, country FROM users WHERE id = " + id;
                 
-                conn.query(query, (error, results) => {
+                conn.query(query, (error:any, results:any) => {
                     conn.release()
 
                     if (error) {

@@ -24,15 +24,15 @@ class CapacityDevicesController {
 	 */
 	public async createCapacityDevice (name: string, description: string = "", sensor_id: number, user_id: number, capacity: number = 0, max_capacity: number, type: string, address:string = "", coordinates_x:string = "", coordinates_y:string = ""): Promise<object> {
 
-        return new Promise( (resolve, reject) => {
+        return new Promise( (resolve: any, reject: any) => {
             
-            db.getConnection((err, conn) => {
+            db.getConnection((err: any, conn: any) => {
                 conn.query(
                     "INSERT INTO capacity_devices"+
                     "(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y)" +
                     " VALUES ('" + name + "','" + description + "'," + sensor_id + "," + user_id + "," + capacity + "," + max_capacity + ",'" + type + "','" + address + "','" + coordinates_x + "','" + coordinates_y + "')" , 
                     
-                    (error, results, fields) => {   
+                    (error: any, results: any, fields: any) => {   
                         conn.release()
 
                         if (error) {
@@ -60,12 +60,12 @@ class CapacityDevicesController {
      */
     public async getCapacityDeviceById (id: number): Promise<object> {
 
-        return new Promise( (resolve, reject) => {
+        return new Promise( (resolve: any, reject: any) => {
 
-            db.getConnection((err, conn) => {
+            db.getConnection((err: any, conn: any) => {
                 var query = "SELECT * FROM capacity_devices WHERE id = " + id;
 
-                conn.query(query, (err, results) => {
+                conn.query(query, (err: any, results: any) => {
                     if (err) {
                         reject({
                             http: 401,
@@ -161,11 +161,11 @@ class CapacityDevicesController {
             query += " WHERE id = " + id;
 
             // Running the query
-            db.getConnection((err, conn) => {
-                conn.query(query, (err, results) => {
+            db.getConnection((err: any, conn: any) => {
+                conn.query(query, (error: any, results: any) => {
                     conn.release()
 
-                    if (err) {
+                    if (error) {
                         reject({
                             http: 401,
                             status: 'Failed',
@@ -206,8 +206,8 @@ class CapacityDevicesController {
 
             var query = "SELECT * FROM capacity_devices WHERE user_id = " + user_id;
 
-            db.getConnection((err, conn) => {
-                conn.query(query, (err, results) => {
+            db.getConnection((err: any, conn: any) => {
+                conn.query(query, (err: any, results: any) => {
                     conn.release()
 
                     if (err) {
@@ -249,11 +249,11 @@ class CapacityDevicesController {
      */
      public async getMostCapacityDevices(user_id: number): Promise<object> {
 
-        return new Promise ((resolve, reject) => {
+        return new Promise ((resolve: any, reject: any) => {
 
             var query = "SELECT * FROM capacity_devices ORDER BY capacity DESC LIMIT 4";
 
-            db.getConnection((err, conn) => {
+            db.getConnection((err: any, conn: any) => {
                 
                 if (err) {
                     reject({
@@ -263,7 +263,7 @@ class CapacityDevicesController {
                     })
                 }
 
-                conn.query(query, (error, results) => {
+                conn.query(query, (error: any, results: any) => {
                     conn.release();
 
                     if (error) {
@@ -296,11 +296,11 @@ class CapacityDevicesController {
      */
     public async getLessCapacityDevices(user_id: number): Promise<object> {
 
-        return new Promise ((resolve, reject) => {
+        return new Promise ((resolve: any, reject: any) => {
 
             var query = "SELECT * FROM capacity_devices ORDER BY capacity ASC LIMIT 4";
 
-            db.getConnection((err, conn) => {
+            db.getConnection((err: any, conn: any) => {
                 
                 if (err) {
                     reject({
@@ -310,7 +310,7 @@ class CapacityDevicesController {
                     })
                 }
 
-                conn.query(query, (error, results) => {
+                conn.query(query, (error: any, results: any) => {
                     conn.release();
 
                     if (error) {
