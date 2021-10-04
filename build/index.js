@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
-const exampleRoutes_1 = __importDefault(require("./routes/exampleRoutes"));
+const usersRouter_1 = __importDefault(require("./routes/usersRouter"));
+const waterDevicesRouter_1 = __importDefault(require("./routes/water_module/waterDevicesRouter"));
+const waterUsersRouter_1 = __importDefault(require("./routes/water_module/waterUsersRouter"));
 const capacityDevicesRouter_1 = __importDefault(require("./routes/capacity_module/capacityDevicesRouter"));
 class Server {
     constructor() {
@@ -22,8 +24,10 @@ class Server {
         this.app.use(express_1.default.urlencoded({ extended: false }));
     }
     routes() {
+        this.app.use('/v2/users', usersRouter_1.default);
         this.app.use('/v2/capacity/devices', capacityDevicesRouter_1.default);
-        this.app.use('/v2/capacity/other', exampleRoutes_1.default);
+        this.app.use('/v2/water/devices', waterDevicesRouter_1.default);
+        this.app.use('/v2/water/users', waterUsersRouter_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {

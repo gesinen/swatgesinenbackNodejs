@@ -2,7 +2,9 @@ import express, { Application } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 
-import capacityModuleRoutes from './routes/exampleRoutes';
+import usersRouter from './routes/usersRouter';
+import waterDevicesRouter from './routes/water_module/waterDevicesRouter';
+import waterUsersRouter from './routes/water_module/waterUsersRouter';
 import capacityDevicesRouter from './routes/capacity_module/capacityDevicesRouter';
 
 class Server {
@@ -24,8 +26,10 @@ class Server {
     }
 
     routes(): void {
+        this.app.use('/v2/users', usersRouter);
         this.app.use('/v2/capacity/devices', capacityDevicesRouter);
-        this.app.use('/v2/capacity/other', capacityModuleRoutes);
+        this.app.use('/v2/water/devices', waterDevicesRouter);
+        this.app.use('/v2/water/users', waterUsersRouter);
     }
 
     start(): void {

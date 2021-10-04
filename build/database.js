@@ -4,15 +4,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mysql_1 = __importDefault(require("mysql"));
-const conn = mysql_1.default.createConnection({
+const conn = mysql_1.default.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'Al8987154St12',
+    //password: 'Al8987154St12',
+    password: 'root',
     database: 'swat_gesinen'
 });
-conn.connect((err) => {
+/*conn.connect((err) => {
     if (err) {
-        console.error('Error connecting: ' + err.stack);
+        console.error('Error connecting: ' + err.stack)
     }
-});
+})*/
 exports.default = conn;
