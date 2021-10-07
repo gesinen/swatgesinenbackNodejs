@@ -1,0 +1,34 @@
+import { Router, Request, Response } from 'express';
+import waterObservationsController from '../../controllers/water_module/waterObservationsController';
+//const formidable = require('formidable');
+
+class WaterObservationsRouter {
+
+    public router: Router = Router();
+
+    constructor() {
+        this.importFileAction();
+    }
+
+    /**
+     * Import observations file
+     * POST ('/import')
+     */
+    public importFileAction = () => this.router.post('/import/', (req: Request, res: Response) => {
+        const params = req.body;
+        console.log("importFileAction -- waterRouter")
+        //console.log(req.body)
+        waterObservationsController.importFile(params,waterObservationsController.insertNewWaterObservations)
+            .then( response => {
+                res.send(response)
+            })
+            .catch( err => {
+
+                res.send(err)
+            })
+    })
+
+}
+
+const waterObservationsRouter = new WaterObservationsRouter();
+export default waterObservationsRouter.router;
