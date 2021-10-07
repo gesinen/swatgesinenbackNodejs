@@ -25,7 +25,23 @@ class WaterObservationsRouter {
                 res.send(err);
             });
         });
+        /**
+         * Get observations by device id in date range
+         * POST ('/observationsByDeviceId')
+         */
+        this.getObservationsByDeviceId = () => this.router.post('/observationsByDeviceId/', (req, res) => {
+            const params = req.body;
+            //console.log(req.body)
+            waterObservationsController_1.default.getObservationValuesByDeviceId(params.devicesIdArray, params.fromDate, params.toDate, params.userColSelection)
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
         this.importFileAction();
+        this.getObservationsByDeviceId();
     }
 }
 const waterObservationsRouter = new WaterObservationsRouter();
