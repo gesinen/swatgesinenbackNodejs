@@ -8,7 +8,7 @@ class WaterObservationsController {
 
     /**
      * POST ('/import')
-     * Importing water_obeservation_value records from xls file
+     * Importing water_observation_value records from xls file
      *
      * @param json_file_data xls file info formated on json
      * @param resolveCbFn fn called when values to insert are prepared
@@ -93,7 +93,69 @@ class WaterObservationsController {
             })
         });
     } // insertNewWaterObservations()
-    
+
+    /**
+     * POST ('/getObservationValuesByDeviceId')
+     * Getting al the observation records by device id in a range date
+     *
+     * @param devicesIdArray array storing the water_device ids
+     * @param fromDate start date range
+     * @param toDate end date range
+     * @param userColumnSelection column user has selected to be shown
+     * @return
+     */
+    public async getObservationValuesByDeviceId(devicesIdArray: any, fromDate: any, toDate: any, userColumnSelection: any): Promise<object> {
+        return new Promise((resolve, reject) => {
+            var devicesIdPreparedSql = "";
+            devicesIdArray.forEach((deviceId: any) => devicesIdPreparedSql += deviceId + ",");
+            console.log("controller()")
+            db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+                console.log("connected")
+                var select_query = "";
+                if (userColumnSelection == "contract_number"){
+                    select_query = "SELECT water_devices."+userColumnSelection+" AS user_column_selection";
+                } else {
+                    select_query = "SELECT water_module_observation."+userColumnSelection+" AS user_column_selection";
+                }
+                select_query += ", water_module_observation.observation_value, " +
+                    "water_module_observation.message_timestamp FROM `water_devices` INNER JOIN water_module_observation " +
+                    "ON water_devices.id = water_module_observation.device_id WHERE water_devices.id IN (" + devicesIdPreparedSql.slice(0, -1) + ") AND " +
+                    "water_module_observation.time BETWEEN '" + fromDate + "' AND '" + toDate + "' " +
+                    "ORDER BY `water_module_observation`.`message_timestamp` DESC;"
+                console.log(select_query)
+                conn.query(select_query, async (err: any, results: any) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    } else {
+                        if (results && results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "There are no water_module_observations with the giving device ids",
+                            })
+                        } else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: results
+                            })
+                        }
+                    }
+                })
+            })
+        })
+    } // getObservationValuesByContractNum()
 }
 
 export default new WaterObservationsController();
