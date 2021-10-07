@@ -5,7 +5,9 @@ import cors from 'cors';
 import usersRouter from './routes/usersRouter';
 import waterDevicesRouter from './routes/water_module/waterDevicesRouter';
 import waterUsersRouter from './routes/water_module/waterUsersRouter';
+import waterObservationsRouter from './routes/water_module/waterObservationsRouter';
 import capacityDevicesRouter from './routes/capacity_module/capacityDevicesRouter';
+import waterRouter from './routes/water_module/waterRouter';
 
 class Server {
 
@@ -30,6 +32,7 @@ class Server {
         this.app.use('/v2/capacity/devices', capacityDevicesRouter);
         this.app.use('/v2/water/devices', waterDevicesRouter);
         this.app.use('/v2/water/users', waterUsersRouter);
+        this.app.use('/v2/water/observations', waterObservationsRouter);
     }
 
     start(): void {

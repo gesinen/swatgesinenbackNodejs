@@ -9,7 +9,9 @@ const cors_1 = __importDefault(require("cors"));
 const usersRouter_1 = __importDefault(require("./routes/usersRouter"));
 const waterDevicesRouter_1 = __importDefault(require("./routes/water_module/waterDevicesRouter"));
 const waterUsersRouter_1 = __importDefault(require("./routes/water_module/waterUsersRouter"));
+const waterObservationsRouter_1 = __importDefault(require("./routes/water_module/waterObservationsRouter"));
 const capacityDevicesRouter_1 = __importDefault(require("./routes/capacity_module/capacityDevicesRouter"));
+const waterRouter_1 = __importDefault(require("./routes/water_module/waterRouter"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -28,6 +30,7 @@ class Server {
         this.app.use('/v2/capacity/devices', capacityDevicesRouter_1.default);
         this.app.use('/v2/water/devices', waterDevicesRouter_1.default);
         this.app.use('/v2/water/users', waterUsersRouter_1.default);
+        this.app.use('/v2/water/observations', waterObservationsRouter_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {
