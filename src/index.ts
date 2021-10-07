@@ -7,6 +7,7 @@ import waterDevicesRouter from './routes/water_module/waterDevicesRouter';
 import waterUsersRouter from './routes/water_module/waterUsersRouter';
 import waterObservationsRouter from './routes/water_module/waterObservationsRouter';
 import capacityDevicesRouter from './routes/capacity_module/capacityDevicesRouter';
+import waterRouter from './routes/water_module/waterRouter';
 
 class Server {
 

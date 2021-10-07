@@ -11,6 +11,7 @@ const waterDevicesRouter_1 = __importDefault(require("./routes/water_module/wate
 const waterUsersRouter_1 = __importDefault(require("./routes/water_module/waterUsersRouter"));
 const waterObservationsRouter_1 = __importDefault(require("./routes/water_module/waterObservationsRouter"));
 const capacityDevicesRouter_1 = __importDefault(require("./routes/capacity_module/capacityDevicesRouter"));
+const waterRouter_1 = __importDefault(require("./routes/water_module/waterRouter"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
