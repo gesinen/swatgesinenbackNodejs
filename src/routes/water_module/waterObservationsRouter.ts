@@ -36,7 +36,7 @@ class WaterObservationsRouter {
     public getObservationsByDeviceId = () => this.router.post('/observationsByDeviceId/', (req: Request, res: Response) => {
         const params = req.body;
         //console.log(req.body)
-        waterObservationsController.getObservationValuesByDeviceId(params.devicesIdArray,params.fromDate,params.toDate,params.userColSelection)
+        waterObservationsController.getObservationValuesByDeviceId(params.devicesIdArray,params.fromDate,params.userColSelection)
             .then( response => {
                 res.send(response)
             })
