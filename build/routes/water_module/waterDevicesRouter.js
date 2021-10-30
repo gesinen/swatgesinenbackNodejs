@@ -28,8 +28,19 @@ class WaterDevicesRouter {
                 res.send(err);
             });
         });
+        this.getAdminWaterDeviceListingAction = () => this.router.get('/admin_page/:user_id/:page_index/:page_size', (req, res) => {
+            const params = req.params;
+            waterDevicesController_1.default.getAdminWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
         this.createWaterDeviceAction();
         this.getWaterDeviceListingAction();
+        this.getAdminWaterDeviceListingAction();
     }
 }
 const waterDevicesRoutes = new WaterDevicesRouter();

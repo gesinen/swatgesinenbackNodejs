@@ -101,9 +101,54 @@ class WaterDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             const first_value = (page_size * page_index) - page_size;
             const second_value = (page_size * page_index);
-            //var query = "SELECT * FROM water_devices WHERE user_id = " + user_id + " ORDER BY id DESC LIMIT " + first_value + ', ' + second_value ;
-            //var query = "SELECT water_devices.*, water_module_observation.observation_value, water_module_observation.message_timestamp FROM water_devices INNER JOIN water_module_observation ON water_devices.id = water_module_observation.device_id WHERE water_devices.user_id = " + user_id + " ORDER BY water_devices.id DESC LIMIT " + first_value + ', ' + second_value ;
             var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w.id DESC LIMIT " + first_value + ', ' + second_value;
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((error, conn) => {
+                    // If the connection with the database fails
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        });
+                    }
+                    conn.query(query, (err, results) => {
+                        conn.release();
+                        // If the query fails
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        // Response
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            water_devices: results
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/admin_page')
+     *
+     * @async
+     * @param user_id
+     * @param page_index
+     * @param page_size
+     *
+     * @returns
+     */
+    getAdminWaterDevicesListing(user_id, page_index, page_size) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Pagination limit values
+            const first_value = (page_size * page_index) - page_size;
+            const second_value = (page_size * page_index);
+            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN (SELECT * FROM users WHERE under_admin = " + user_id + ") u ON (w.user_id = u.id) ORDER BY w.id DESC LIMIT " + first_value + ', ' + second_value;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails
