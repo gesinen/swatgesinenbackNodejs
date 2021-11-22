@@ -53,10 +53,52 @@ class LoraDashboardRouter {
                 res.status(401).send(err);
             });
         });
+        this.getNetworkServerGeneralInformationRoot = () => this.router.get('/root/information', (req, res) => {
+            this.loraDashboardController.getNetworkServerGeneralInformationRoot()
+                .then(response => {
+                res.status(200).send(response);
+            })
+                .catch(err => {
+                res.status(401).send(err);
+            });
+        });
+        this.getNetworkServerSensorStatusRoot = () => this.router.get('/root/sensor', (req, res) => {
+            this.loraDashboardController.getNetworkServerSensorStatusRoot()
+                .then(response => {
+                res.status(200).send(response);
+            })
+                .catch(err => {
+                res.status(401).send(err);
+            });
+        });
+        this.getNetworkServerSensorSignalRoot = () => this.router.get('/root/signal', (req, res) => {
+            const userId = parseInt(req.params.userId);
+            this.loraDashboardController.getNetworkServerSensorSignalRoot()
+                .then(response => {
+                res.status(200).send(response);
+            })
+                .catch(err => {
+                res.status(401).send(err);
+            });
+        });
+        this.getNetworkServerPackagesRoot = () => this.router.get('/root/packages', (req, res) => {
+            const userId = parseInt(req.params.userId);
+            this.loraDashboardController.getNetworkServerPackagesRoot()
+                .then(response => {
+                res.status(200).send(response);
+            })
+                .catch(err => {
+                res.status(401).send(err);
+            });
+        });
         this.getNetworkServerGeneralInformation();
         this.getNetworkServerSensorStatus();
         this.getNetworkServerSensorSignal();
         this.getNetworkServerPackages();
+        this.getNetworkServerGeneralInformationRoot();
+        this.getNetworkServerSensorStatusRoot();
+        this.getNetworkServerSensorSignalRoot();
+        this.getNetworkServerPackagesRoot();
     }
 }
 const loraDashboardRouter = new LoraDashboardRouter();

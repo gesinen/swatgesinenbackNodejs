@@ -15,6 +15,10 @@ class LoraDashboardRouter {
         this.getNetworkServerSensorStatus();
         this.getNetworkServerSensorSignal();
         this.getNetworkServerPackages();
+        this.getNetworkServerGeneralInformationRoot();
+        this.getNetworkServerSensorStatusRoot();
+        this.getNetworkServerSensorSignalRoot();
+        this.getNetworkServerPackagesRoot();
     }
 
     // Methods
@@ -58,6 +62,50 @@ class LoraDashboardRouter {
         const userId = parseInt(req.params.userId);
 
         this.loraDashboardController.getNetworkServerPackages(userId)
+            .then( response => {
+                res.status(200).send(response)
+            })
+            .catch( err => {
+                res.status(401).send(err)
+            })
+    })
+
+    public getNetworkServerGeneralInformationRoot = () => this.router.get('/root/information',  (req: Request, res: Response) => {
+        this.loraDashboardController.getNetworkServerGeneralInformationRoot()
+            .then( response => {
+                res.status(200).send(response)
+            })
+            .catch( err => {
+                res.status(401).send(err)
+            })
+    })
+
+    public getNetworkServerSensorStatusRoot = () => this.router.get('/root/sensor',  (req: Request, res: Response) => {
+        this.loraDashboardController.getNetworkServerSensorStatusRoot()
+            .then( response => {
+                res.status(200).send(response)
+            })
+            .catch( err => {
+                res.status(401).send(err)
+            })
+    })
+
+    public getNetworkServerSensorSignalRoot = () => this.router.get('/root/signal',  (req: Request, res: Response) => {
+        const userId = parseInt(req.params.userId);
+
+        this.loraDashboardController.getNetworkServerSensorSignalRoot()
+            .then( response => {
+                res.status(200).send(response)
+            })
+            .catch( err => {
+                res.status(401).send(err)
+            })
+    })
+
+    public getNetworkServerPackagesRoot = () => this.router.get('/root/packages',  (req: Request, res: Response) => {
+        const userId = parseInt(req.params.userId);
+
+        this.loraDashboardController.getNetworkServerPackagesRoot()
             .then( response => {
                 res.status(200).send(response)
             })
