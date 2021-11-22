@@ -186,7 +186,7 @@ class LoraDashboardController {
     } // ()
     getNetworkServerPackages(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query = "SELECT id, name, lost_fCnt FROM sensor_info WHERE user_id = " + userId;
+            var query = "SELECT id, name, lost_fCnt, first_frame_counter_fCnt, latest_frame_counter_fCnt FROM sensor_info WHERE user_id = " + userId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {

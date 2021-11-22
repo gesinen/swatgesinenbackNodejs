@@ -186,7 +186,7 @@ export default class LoraDashboardController {
     } // ()
     
     public async getNetworkServerPackages( userId:number ) {
-        var query = "SELECT id, name, lost_fCnt FROM sensor_info WHERE user_id = " + userId;
+        var query = "SELECT id, name, lost_fCnt, first_frame_counter_fCnt, latest_frame_counter_fCnt FROM sensor_info WHERE user_id = " + userId;
         
         return new Promise((resolve, reject) => {
             
