@@ -132,7 +132,7 @@ class LoraDashboardController {
     } // ()
     getNetworkServerSensorSignal(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query = "SELECT id, rssi FROM sensor_info WHERE user_id = " + userId;
+            var query = "SELECT id, rssi, dr FROM sensor_info WHERE user_id = " + userId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {

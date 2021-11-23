@@ -144,7 +144,7 @@ export default class LoraDashboardController {
 
     public async getNetworkServerSensorSignal( userId: number ) {
 
-        var query = "SELECT id, rssi FROM sensor_info WHERE user_id = " + userId;
+        var query = "SELECT id, rssi, dr FROM sensor_info WHERE user_id = " + userId;
 
         return new Promise((resolve, reject) => {
             
