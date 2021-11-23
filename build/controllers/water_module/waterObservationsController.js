@@ -19,7 +19,7 @@ const database_1 = __importDefault(require("../../database"));
 class WaterObservationsController {
     /**
      * POST ('/import')
-     * Importing water_obeservation_value records from xls file
+     * Importing water_observation_value records from xls file
      *
      * @param json_file_data xls file info formated on json
      * @param resolveCbFn fn called when values to insert are prepared
@@ -106,5 +106,76 @@ class WaterObservationsController {
             });
         });
     } // insertNewWaterObservations()
+    /**
+     * POST ('/getObservationValuesByDeviceId')
+     * Getting al the observation records by device id in a range date
+     *
+     * @param devicesIdArray array storing the water_device ids
+     * @param fromDate date of the observations
+     * @param userColumnSelection column user has selected to be shown
+     * @return
+     */
+    getObservationValuesByDeviceId(devicesIdArray, fromDate, userColumnSelection) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                var date = new Date(fromDate);
+                var fromDateFormated = date.getFullYear() + "-" + (parseInt(String(date.getMonth())) + 1) + "-" + date.getDate();
+                var devicesIdPreparedSql = "";
+                devicesIdArray.forEach((deviceId) => devicesIdPreparedSql += deviceId + ",");
+                console.log("controller()");
+                database_1.default.getConnection((err, conn) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    console.log("connected");
+                    var select_query = "";
+                    if (userColumnSelection == "contract_number") {
+                        select_query = "SELECT water_devices." + userColumnSelection + " AS user_column_selection, water_module_observation.observation_value, " +
+                            "water_module_observation.message_timestamp FROM `water_devices` INNER JOIN water_module_observation " +
+                            "ON water_devices.id = water_module_observation.device_id WHERE water_devices.id IN (" + devicesIdPreparedSql.slice(0, -1) + ") AND " +
+                            "water_module_observation.message_timestamp BETWEEN '" + fromDateFormated + " 00:00:00' AND '" + fromDateFormated + " 23:59:00'" +
+                            " ORDER BY `water_module_observation`.`message_timestamp` DESC;";
+                    }
+                    else {
+                        select_query = "SELECT sensor_info." + userColumnSelection + " AS user_column_selection, water_module_observation.observation_value, " +
+                            "water_module_observation.message_timestamp FROM `water_devices` INNER JOIN water_module_observation " +
+                            "ON water_devices.id = water_module_observation.device_id INNER JOIN sensor_info ON sensor_info.id = water_module_observation.sensor_id WHERE water_devices.id IN (" + devicesIdPreparedSql.slice(0, -1) + ") AND " +
+                            "water_module_observation.message_timestamp BETWEEN '" + fromDateFormated + " 00:00:00' AND '" + fromDateFormated + " 23:59:00'" +
+                            " ORDER BY `water_module_observation`.`message_timestamp` DESC;";
+                    }
+                    console.log(select_query);
+                    conn.query(select_query, (err, results) => __awaiter(this, void 0, void 0, function* () {
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        else {
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: 'Success',
+                                    result: [],
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    result: results
+                                });
+                            }
+                        }
+                    }));
+                });
+            });
+        });
+    } // getObservationValuesByContractNum()
 }
 exports.default = new WaterObservationsController();

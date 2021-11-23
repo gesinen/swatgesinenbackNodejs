@@ -8,6 +8,7 @@ class WaterDevicesRouter {
     constructor() {
         this.createWaterDeviceAction();
         this.getWaterDeviceListingAction();
+        this.getAdminWaterDeviceListingAction();
     }
 
     public createWaterDeviceAction = () => this.router.post('/', (req: Request, res: Response) => {
@@ -26,6 +27,18 @@ class WaterDevicesRouter {
         const params = req.params;
         
         waterDevicesController.getWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
+            .then(response => {
+                res.send(response)
+            })
+            .catch(err => {
+                res.send(err)
+            })
+    })
+
+    public getAdminWaterDeviceListingAction = () => this.router.get('/admin_page/:user_id/:page_index/:page_size', (req: Request, res: Response) => {
+        const params = req.params;
+        
+        waterDevicesController.getAdminWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
             .then(response => {
                 res.send(response)
             })

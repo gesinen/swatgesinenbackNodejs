@@ -11,7 +11,7 @@ const waterDevicesRouter_1 = __importDefault(require("./routes/water_module/wate
 const waterUsersRouter_1 = __importDefault(require("./routes/water_module/waterUsersRouter"));
 const waterObservationsRouter_1 = __importDefault(require("./routes/water_module/waterObservationsRouter"));
 const capacityDevicesRouter_1 = __importDefault(require("./routes/capacity_module/capacityDevicesRouter"));
-const waterRouter_1 = __importDefault(require("./routes/water_module/waterRouter"));
+const loraDashboardRouter_1 = __importDefault(require("./routes/lora_module/loraDashboardRouter"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -31,6 +31,7 @@ class Server {
         this.app.use('/v2/water/devices', waterDevicesRouter_1.default);
         this.app.use('/v2/water/users', waterUsersRouter_1.default);
         this.app.use('/v2/water/observations', waterObservationsRouter_1.default);
+        this.app.use('/v2/lora/dashboard', loraDashboardRouter_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {
