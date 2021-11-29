@@ -91,6 +91,26 @@ class LoraDashboardRouter {
                 res.status(401).send(err);
             });
         });
+        this.getNetworkServerGeneralInformationSelected = () => this.router.get('/information/gateway/:gatewayId', (req, res) => {
+            const gatewayId = parseInt(req.params.gatewayId);
+            this.loraDashboardController.getNetworkServerGeneralInformationSelected(gatewayId)
+                .then(response => {
+                res.status(200).send(response);
+            })
+                .catch(err => {
+                res.status(401).send(err);
+            });
+        });
+        this.getNetworkServers = () => this.router.get('/network_servers/:userId', (req, res) => {
+            const userId = parseInt(req.params.userId);
+            this.loraDashboardController.getNetworkServers(userId)
+                .then(response => {
+                res.status(200).send(response);
+            })
+                .catch(err => {
+                res.status(401).send(err);
+            });
+        });
         this.getNetworkServerGeneralInformation();
         this.getNetworkServerSensorStatus();
         this.getNetworkServerSensorSignal();
@@ -99,6 +119,7 @@ class LoraDashboardRouter {
         this.getNetworkServerSensorStatusRoot();
         this.getNetworkServerSensorSignalRoot();
         this.getNetworkServerPackagesRoot();
+        this.getNetworkServers();
     }
 }
 const loraDashboardRouter = new LoraDashboardRouter();

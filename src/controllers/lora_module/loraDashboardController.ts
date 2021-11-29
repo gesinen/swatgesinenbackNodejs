@@ -5,13 +5,7 @@ export default class LoraDashboardController {
 
     public async getNetworkServerGeneralInformation( userId: number ) {
 
-        /* var query = "SELECT COUNT(s.id) AS network_servers, s.user_id, s.id, COUNT(sn.id) AS sensors, u.user_name FROM servers AS s INNER JOIN sensor_server_detail AS ssd ON s.id = ssd.server_id INNER JOIN sensor_info AS sn ON ssd.sensor_id = sn.id INNER JOIN users AS u ON u.id = s.user_id WHERE s.user_id = " + userId + " OR u.under_admin = " + userId; */
-
-        /* var query = "SELECT COUNT(s.id) AS network_servers, (SELECT COUNT( ssd.server_id) FROM sensor_server_detail AS ssd WHERE ssd.server_id = s.id) AS sensors, u.first_name AS user_name FROM servers s LEFT JOIN users AS u ON u.id = s.user_id WHERE s.user_id = "+ userId +" OR u.under_admin = " + userId; */
-
-        /* var query = "SELECT COUNT(s.id) AS network_servers, (SELECT COUNT( si.id) FROM sensor_info AS si WHERE si.user_id = "+ userId +") AS sensors, u.first_name AS user_name FROM servers s LEFT JOIN users AS u ON u.id = s.user_id WHERE s.user_id = "+ userId +" OR u.under_admin = " + userId;  */
-
-        var query_servers = "SELECT server_id, id FROM gateways WHERE user_id = " + userId; 
+        var query_servers = "SELECT server_id, id, name FROM gateways WHERE user_id = " + userId; 
 
         return new Promise((resolve, reject) => {
             
@@ -36,27 +30,14 @@ export default class LoraDashboardController {
                     }
 
                     let gateway_id = results[0].id;
-                    let server_id_raw = results[0].server_id;
-                    let server_ids = server_id_raw.split(',');
+                    var servers: any = [];
 
-                    var query2 = "SELECT s.name AS network_servers, (SELECT COUNT( si.id) FROM sensor_info AS si WHERE si.user_id = "+ userId +") AS sensors, u.first_name AS user_name FROM servers s LEFT JOIN users AS u ON u.id = s.user_id WHERE s.id = "; 
-                    
-                    let servers_query = "";
-
-                    for (let i = 0; i < server_ids.length; i++) {
-                        const element = server_ids[i];
-                        if(i == 0) {
-                            servers_query += "" + element + "";
-                        } else {
-                            servers_query += " OR s.id = " + element + ""
-                        }
+                    for (let i = 0; i < results.length; i++) {
+                        const element = results[i];
+                        servers.push(element.name)
                     }
 
-                    if(servers_query.length <= 0) {
-                        query2 += 0;
-                    } else {
-                        query2 += servers_query
-                    }
+                    var query2 = "SELECT u.first_name AS user_name, COUNT(si.id) AS sensors FROM sensor_info AS si INNER JOIN users AS u ON u.id = si.user_id WHERE si.user_id = "+ userId; 
                     
                     conn.query( query2, (err2: any, results2: any) => {
                         conn.release();
@@ -70,14 +51,9 @@ export default class LoraDashboardController {
                         }
 
                         let obj = {
-                            network_servers: new Array(),
+                            network_servers: servers,
                             sensors: results2[0].sensors,
                             user_name: results2[0].user_name
-                        }
-
-                        for (let i = 0; i < results2.length; i++) {
-                            const element = results2[i];
-                            obj.network_servers.push(element.network_servers)
                         }
 
                         resolve({
@@ -208,15 +184,15 @@ export default class LoraDashboardController {
                         }
 
                         // RSSI
-                        if (element.rssi >= -50) {
+                        if (element.rssi >= -105) {
                             resp.rssi.excellent++
-                        } else if (element.rssi >= -60) {
+                        } else if (element.rssi >= -110) {
                             resp.rssi.very_good++
-                        } else if (element.rssi >= -70) {
+                        } else if (element.rssi >= -115) {
                             resp.rssi.good++
-                        } else if (element.rssi >= -80) {
+                        } else if (element.rssi >= -120) {
                             resp.rssi.low++
-                        } else if (element.rssi >= -90) {
+                        } else if (element.rssi < -120) {
                             resp.rssi.very_low++
                         } else {
                             resp.rssi.no_signal++;
@@ -273,7 +249,7 @@ export default class LoraDashboardController {
     // Root users
     public async getNetworkServerGeneralInformationRoot( ) {
 
-        var query_servers = "SELECT server_id, id FROM gateways" 
+        var query_servers = "SELECT server_id, id, name FROM gateways" 
 
         return new Promise((resolve, reject) => {
             
@@ -297,6 +273,7 @@ export default class LoraDashboardController {
                         })
                     }
 
+                    let gateway_name = results[0].name;
                     let gateway_id = results[0].id;
                     let server_id_raw = results[0].server_id;
                     let server_ids = server_id_raw.split(',');
@@ -334,7 +311,8 @@ export default class LoraDashboardController {
                         let obj = {
                             network_servers: new Array(),
                             sensors: results2[0].sensors,
-                            user_name: results2[0].user_name
+                            user_name: results2[0].user_name,
+                            gateway_name: gateway_name
                         }
 
                         for (let i = 0; i < results2.length; i++) {
@@ -525,6 +503,121 @@ export default class LoraDashboardController {
                         http: 200,
                         status: 'Success',
                         result: results
+                    })
+                })
+            })
+        })
+    } // ()
+
+    //////
+    public async getNetworkServers(userId: number){
+        
+        var query_servers = "SELECT server_id, id, name FROM gateways WHERE user_id = " + userId; 
+
+        return new Promise((resolve, reject) => {
+            
+            db.getConnection((error:any, conn:any) => {
+                
+                if (error) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: error
+                    })
+                }
+
+                conn.query( query_servers, (err: any, results: any) => {
+                    conn.release();
+
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    }
+
+                    var servers: any = [];
+                    var ids: any = [];
+
+                    for (let i = 0; i < results.length; i++) {
+                        const element = results[i];
+                        let server_names = element.name.split(' ');
+                        servers.push(server_names)
+                        let server_ids = element.server_id.split(',');
+                        ids.push(server_ids)
+                    }
+
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: {
+                            ids: ids,
+                            servers: servers
+                        }
+                    })
+                })
+            })
+        })
+    }
+
+    public async getNetworkServerGeneralInformationSelected( networkServerId: number ) {
+
+        var query_servers = "SELECT server_id, id, name FROM gateways WHERE id = " + networkServerId; 
+
+        return new Promise((resolve, reject) => {
+            
+            db.getConnection((error:any, conn:any) => {
+                
+                if (error) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: error
+                    })
+                }
+
+                conn.query( query_servers, (err: any, results: any) => {
+
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    }
+
+                    var servers: any = [];
+
+                    for (let i = 0; i < results.length; i++) {
+                        const element = results[i];
+                        servers.push(element.name)
+                    }
+
+                    var query2 = "SELECT COUNT(si.id) AS sensors FROM sensor_info AS si WHERE si.gateways_id = "+ networkServerId; 
+                    
+                    conn.query( query2, (err2: any, results2: any) => {
+                        conn.release();
+    
+                        if (err2) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err2
+                            })
+                        }
+
+                        let obj = {
+                            network_servers: servers,
+                            sensors: results2[0].sensors
+                        }
+
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: obj
+                        })
                     })
                 })
             })
