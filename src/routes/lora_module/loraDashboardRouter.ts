@@ -20,6 +20,11 @@ class LoraDashboardRouter {
         this.getNetworkServerSensorSignalRoot();
         this.getNetworkServerPackagesRoot();
         this.getNetworkServers();
+
+        this.getNetworkServerGeneralInformationSelected();
+        this.getNetworkServerSensorStatusSelected();
+        this.getNetworkServerSensorSignalSelected();
+        this.getNetworkServerPackagesSelected();
     }
 
     // Methods
@@ -132,6 +137,46 @@ class LoraDashboardRouter {
 
         this.loraDashboardController.getNetworkServers(userId)
             .then( response => {
+                console.log('getNetworkServers', response)
+                res.status(200).send(response)
+            })
+            .catch( err => {
+                res.status(401).send(err)
+            })
+    })
+
+    public getNetworkServerSensorStatusSelected = () => this.router.get('/sensor/gateway/:gatewayId',  (req: Request, res: Response) => {
+        const userId = parseInt(req.params.gatewayId);
+
+        this.loraDashboardController.getNetworkServerSensorStatusSelected(userId)
+            .then( response => {
+                console.log('getNetworkServerSensorStatus', response)
+                res.status(200).send(response)
+            })
+            .catch( err => {
+                res.status(401).send(err)
+            })
+    })
+
+    public getNetworkServerSensorSignalSelected = () => this.router.get('/signal/gateway/:gatewayId',  (req: Request, res: Response) => {
+        const userId = parseInt(req.params.gatewayId);
+
+        this.loraDashboardController.getNetworkServerSensorSignalSelected(userId)
+            .then( response => {
+                console.log('getNetworkServerSensorSignal', response)
+                res.status(200).send(response)
+            })
+            .catch( err => {
+                res.status(401).send(err)
+            })
+    })
+
+    public getNetworkServerPackagesSelected = () => this.router.get('/packages/gateway/:gatewayId',  (req: Request, res: Response) => {
+        const userId = parseInt(req.params.gatewayId);
+
+        this.loraDashboardController.getNetworkServerPackagesSelected(userId)
+            .then( response => {
+                console.log('getNetworkServerPackages', response)
                 res.status(200).send(response)
             })
             .catch( err => {
