@@ -15,7 +15,6 @@ class WaterObservationsRouter {
          */
         this.importFileAction = () => this.router.post('/import/', (req, res) => {
             const params = req.body;
-            console.log("importFileAction -- waterRouter");
             //console.log(req.body)
             waterObservationsController_1.default.importFile(params, waterObservationsController_1.default.insertNewWaterObservations)
                 .then(response => {

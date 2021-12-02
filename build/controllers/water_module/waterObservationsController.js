@@ -29,14 +29,10 @@ class WaterObservationsController {
     importFile(json_file_data, resolveCbFn) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                console.log("metodo del controller");
                 database_1.default.getConnection((err, conn) => {
-                    console.log(err);
-                    console.log("dentro del db.getConnection");
                     var insert_values_array = [];
                     var values_to_insert = "";
                     var record_counter = 0;
-                    console.log("importFile");
                     json_file_data.water_info.forEach(function (element, index) {
                         var select_query = "SELECT water_devices.id, water_devices.sensor_id, water_devices.name, " +
                             "sensor_info.device_EUI FROM `water_devices` INNER JOIN sensor_info " +
@@ -51,7 +47,6 @@ class WaterObservationsController {
                             }
                             else {
                                 if (results && results.length == 0) {
-                                    console.log("contract_number not found");
                                 }
                                 else {
                                     let water_device_info = results[0];
@@ -122,7 +117,6 @@ class WaterObservationsController {
                 var fromDateFormated = date.getFullYear() + "-" + (parseInt(String(date.getMonth())) + 1) + "-" + date.getDate();
                 var devicesIdPreparedSql = "";
                 devicesIdArray.forEach((deviceId) => devicesIdPreparedSql += deviceId + ",");
-                console.log("controller()");
                 database_1.default.getConnection((err, conn) => {
                     if (err) {
                         reject({
@@ -131,7 +125,6 @@ class WaterObservationsController {
                             error: err
                         });
                     }
-                    console.log("connected");
                     var select_query = "";
                     if (userColumnSelection == "contract_number") {
                         select_query = "SELECT water_devices." + userColumnSelection + " AS user_column_selection, water_module_observation.observation_value, " +
@@ -147,7 +140,6 @@ class WaterObservationsController {
                             "water_module_observation.message_timestamp BETWEEN '" + fromDateFormated + " 00:00:00' AND '" + fromDateFormated + " 23:59:00'" +
                             " ORDER BY `water_module_observation`.`message_timestamp` DESC;";
                     }
-                    console.log(select_query);
                     conn.query(select_query, (err, results) => __awaiter(this, void 0, void 0, function* () {
                         if (err) {
                             reject({
