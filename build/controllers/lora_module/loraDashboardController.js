@@ -518,9 +518,52 @@ class LoraDashboardController {
             });
         });
     }
+    getAllNetworkServers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            var query_servers = "SELECT server_id, id, name FROM gateways";
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((error, conn) => {
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        });
+                    }
+                    conn.query(query_servers, (err, results) => {
+                        conn.release();
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        var servers = [];
+                        var ids = [];
+                        var res = [];
+                        for (let i = 0; i < results.length; i++) {
+                            const element = results[i];
+                            let server_names = element.name;
+                            let server_ids = element.id;
+                            res.push({
+                                id: server_ids,
+                                name: server_names
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: res
+                        });
+                    });
+                });
+            });
+        });
+    }
     getNetworkServerGeneralInformationSelected(networkServerId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query_servers = "SELECT server_id, id, name, user_id FROM gateways WHERE id = " + networkServerId;
+            var query_servers = "SELECT server_id, id, name, user_id, sensors_id FROM gateways WHERE id = " + networkServerId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {
@@ -540,12 +583,24 @@ class LoraDashboardController {
                         }
                         var servers = [];
                         var user;
+                        var sensors = [];
                         for (let i = 0; i < results.length; i++) {
                             const element = results[i];
                             servers.push(element.name);
                             user = element.user_id;
+                            sensors.push(element.sensors_id.split(","));
                         }
-                        var query2 = "SELECT COUNT(si.id) AS sensors FROM sensor_info AS si WHERE si.user_id = " + user;
+                        var query2 = "SELECT id FROM sensor_info AS si WHERE ";
+                        let ind = 0;
+                        sensors[0].forEach((element) => {
+                            if (ind == sensors[0].length - 1) {
+                                query2 += "si.id = " + element;
+                            }
+                            else {
+                                query2 += "si.id = " + element + " OR ";
+                            }
+                            ind += 1;
+                        });
                         conn.query(query2, (err2, results2) => {
                             conn.release();
                             if (err2) {
@@ -557,7 +612,7 @@ class LoraDashboardController {
                             }
                             let obj = {
                                 network_servers: servers,
-                                sensors: results2[0].sensors
+                                sensors: results2.length
                             };
                             resolve({
                                 http: 200,
@@ -572,7 +627,7 @@ class LoraDashboardController {
     } // ()
     getNetworkServerSensorStatusSelected(gatewayId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query_servers = "SELECT user_id FROM gateways WHERE id = " + gatewayId;
+            var query_servers = "SELECT user_id, sensors_id FROM gateways WHERE id = " + gatewayId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {
@@ -590,13 +645,23 @@ class LoraDashboardController {
                                 error: err
                             });
                         }
-                        var user;
+                        var sensors = [];
                         for (let i = 0; i < results.length; i++) {
                             const element = results[i];
-                            user = element.user_id;
+                            sensors.push(element.sensors_id.split(","));
                         }
-                        var query2 = "SELECT si.device_EUI, sp.status FROM sensor_ping AS sp INNER JOIN sensor_info AS si ON sp.device_EUI = si.device_EUI WHERE si.user_id = " + user;
-                        conn.query(query2, (err, results) => {
+                        var query2 = "SELECT si.device_EUI, sp.status FROM sensor_ping AS sp INNER JOIN sensor_info AS si ON sp.device_EUI = si.device_EUI WHERE ";
+                        let ind = 0;
+                        sensors[0].forEach((element) => {
+                            if (ind == sensors[0].length - 1) {
+                                query2 += "si.id = " + element;
+                            }
+                            else {
+                                query2 += "si.id = " + element + " OR ";
+                            }
+                            ind += 1;
+                        });
+                        conn.query(query2, (err, results2) => {
                             conn.release();
                             if (err) {
                                 reject({
@@ -607,7 +672,7 @@ class LoraDashboardController {
                             }
                             let activeSensors = [];
                             let desactiveSensors = [];
-                            results.forEach((element) => {
+                            results2.forEach((element) => {
                                 if (element.status == 'Active') {
                                     activeSensors.push(element);
                                 }
@@ -631,7 +696,7 @@ class LoraDashboardController {
     } // ()
     getNetworkServerSensorSignalSelected(gatewayId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query_servers = "SELECT user_id FROM gateways WHERE id = " + gatewayId;
+            var query_servers = "SELECT user_id, sensors_id FROM gateways WHERE id = " + gatewayId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {
@@ -649,14 +714,26 @@ class LoraDashboardController {
                                 error: err
                             });
                         }
-                        var user;
+                        var sensors = [];
                         for (let i = 0; i < results.length; i++) {
                             const element = results[i];
-                            user = element.user_id;
+                            sensors.push(element.sensors_id.split(","));
                         }
-                        var query2 = "SELECT id, rssi, dr FROM sensor_info WHERE user_id = " + user;
+                        var query2 = "SELECT id, rssi, dr FROM sensor_info AS si WHERE ";
+                        let ind = 0;
+                        sensors[0].forEach((element) => {
+                            if (ind == sensors[0].length - 1) {
+                                query2 += "si.id = " + element;
+                            }
+                            else {
+                                query2 += "si.id = " + element + " OR ";
+                            }
+                            ind += 1;
+                        });
+                        console.log('probando ------------', query2);
                         conn.query(query2, (err, results2) => {
                             conn.release();
+                            console.log('testing ==============', results2);
                             if (err) {
                                 reject({
                                     http: 401,
@@ -739,7 +816,7 @@ class LoraDashboardController {
     } // ()
     getNetworkServerPackagesSelected(gatewayId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query_servers = "SELECT user_id FROM gateways WHERE id = " + gatewayId;
+            var query_servers = "SELECT user_id, sensors_id FROM gateways WHERE id = " + gatewayId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {
@@ -757,12 +834,22 @@ class LoraDashboardController {
                                 error: err
                             });
                         }
-                        var user;
+                        var sensors = [];
                         for (let i = 0; i < results.length; i++) {
                             const element = results[i];
-                            user = element.user_id;
+                            sensors.push(element.sensors_id.split(","));
                         }
-                        var query2 = "SELECT id, name, lost_fCnt, first_frame_counter_fCnt, latest_frame_counter_fCnt FROM sensor_info WHERE user_id = " + user;
+                        var query2 = "SELECT id, name, lost_fCnt, first_frame_counter_fCnt, latest_frame_counter_fCnt FROM sensor_info AS si WHERE ";
+                        let ind = 0;
+                        sensors[0].forEach((element) => {
+                            if (ind == sensors[0].length - 1) {
+                                query2 += "si.id = " + element;
+                            }
+                            else {
+                                query2 += "si.id = " + element + " OR ";
+                            }
+                            ind += 1;
+                        });
                         conn.query(query2, (err, results) => {
                             conn.release();
                             if (err) {

@@ -20,6 +20,7 @@ class LoraDashboardRouter {
         this.getNetworkServerSensorSignalRoot();
         this.getNetworkServerPackagesRoot();
         this.getNetworkServers();
+        this.getAllNetworkServers();
 
         this.getNetworkServerGeneralInformationSelected();
         this.getNetworkServerSensorStatusSelected();
@@ -137,7 +138,16 @@ class LoraDashboardRouter {
 
         this.loraDashboardController.getNetworkServers(userId)
             .then( response => {
-                console.log('getNetworkServers', response)
+                res.status(200).send(response)
+            })
+            .catch( err => {
+                res.status(401).send(err)
+            })
+    })
+
+    public getAllNetworkServers = () => this.router.get('/network_servers',  (req: Request, res: Response) => {
+        this.loraDashboardController.getAllNetworkServers()
+            .then( response => {
                 res.status(200).send(response)
             })
             .catch( err => {
@@ -150,7 +160,6 @@ class LoraDashboardRouter {
 
         this.loraDashboardController.getNetworkServerSensorStatusSelected(userId)
             .then( response => {
-                console.log('getNetworkServerSensorStatus', response)
                 res.status(200).send(response)
             })
             .catch( err => {
@@ -163,7 +172,6 @@ class LoraDashboardRouter {
 
         this.loraDashboardController.getNetworkServerSensorSignalSelected(userId)
             .then( response => {
-                console.log('getNetworkServerSensorSignal', response)
                 res.status(200).send(response)
             })
             .catch( err => {
@@ -176,7 +184,6 @@ class LoraDashboardRouter {
 
         this.loraDashboardController.getNetworkServerPackagesSelected(userId)
             .then( response => {
-                console.log('getNetworkServerPackages', response)
                 res.status(200).send(response)
             })
             .catch( err => {

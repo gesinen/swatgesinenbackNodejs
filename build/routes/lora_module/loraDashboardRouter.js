@@ -105,7 +105,15 @@ class LoraDashboardRouter {
             const userId = parseInt(req.params.userId);
             this.loraDashboardController.getNetworkServers(userId)
                 .then(response => {
-                console.log('getNetworkServers', response);
+                res.status(200).send(response);
+            })
+                .catch(err => {
+                res.status(401).send(err);
+            });
+        });
+        this.getAllNetworkServers = () => this.router.get('/network_servers', (req, res) => {
+            this.loraDashboardController.getAllNetworkServers()
+                .then(response => {
                 res.status(200).send(response);
             })
                 .catch(err => {
@@ -116,7 +124,6 @@ class LoraDashboardRouter {
             const userId = parseInt(req.params.gatewayId);
             this.loraDashboardController.getNetworkServerSensorStatusSelected(userId)
                 .then(response => {
-                console.log('getNetworkServerSensorStatus', response);
                 res.status(200).send(response);
             })
                 .catch(err => {
@@ -127,7 +134,6 @@ class LoraDashboardRouter {
             const userId = parseInt(req.params.gatewayId);
             this.loraDashboardController.getNetworkServerSensorSignalSelected(userId)
                 .then(response => {
-                console.log('getNetworkServerSensorSignal', response);
                 res.status(200).send(response);
             })
                 .catch(err => {
@@ -138,7 +144,6 @@ class LoraDashboardRouter {
             const userId = parseInt(req.params.gatewayId);
             this.loraDashboardController.getNetworkServerPackagesSelected(userId)
                 .then(response => {
-                console.log('getNetworkServerPackages', response);
                 res.status(200).send(response);
             })
                 .catch(err => {
@@ -154,6 +159,7 @@ class LoraDashboardRouter {
         this.getNetworkServerSensorSignalRoot();
         this.getNetworkServerPackagesRoot();
         this.getNetworkServers();
+        this.getAllNetworkServers();
         this.getNetworkServerGeneralInformationSelected();
         this.getNetworkServerSensorStatusSelected();
         this.getNetworkServerSensorSignalSelected();
