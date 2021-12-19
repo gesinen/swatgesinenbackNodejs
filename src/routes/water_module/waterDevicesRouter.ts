@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import waterDevicesController from '../../controllers/water_module/waterDevicesController';
+import waterUsersController from "../../controllers/water_module/waterUsersController";
 
 class WaterDevicesRouter {
 
@@ -8,7 +9,8 @@ class WaterDevicesRouter {
     constructor() {
         this.createWaterDeviceAction();
         this.getWaterDeviceListingAction();
-        this.getAdminWaterDeviceListingAction();
+        this.importFileAction();
+        this.getWaterDeviceByIdAction();
     }
 
     public createWaterDeviceAction = () => this.router.post('/', (req: Request, res: Response) => {
@@ -35,14 +37,34 @@ class WaterDevicesRouter {
             })
     })
 
-    public getAdminWaterDeviceListingAction = () => this.router.get('/admin_page/:user_id/:page_index/:page_size', (req: Request, res: Response) => {
+    public getWaterDeviceByIdAction = () => this.router.get('/:deviceId', (req: Request, res: Response) => {
         const params = req.params;
         
-        waterDevicesController.getAdminWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
+        waterDevicesController.getWaterDeviceById(parseInt(params.deviceId))
             .then(response => {
                 res.send(response)
             })
             .catch(err => {
+                res.send(err)
+            })
+    })
+
+    /**
+     * Import observations file
+     * POST ('/import/{userId}')
+     * userId -> id of the user doing the import
+     */
+    public importFileAction = () => this.router.post('/import/:userId', (req: Request, res: Response) => {
+        const params = req.body;
+        //console.log(req.body)
+        //console.log("importFileAction -- waterDevicesRouter")
+        waterDevicesController.importFile(params.file_to_upload,params.municipality_id,req.params.userId,
+            params.provider,params.authToken, params.selectedUnitValue)
+            .then( response => {
+                res.send(response)
+            })
+            .catch( err => {
+
                 res.send(err)
             })
     })

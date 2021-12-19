@@ -17,11 +17,14 @@ class WaterController {
      */
     public async importFile(json_file_data: any, resolveCbFn: any): Promise<object> {
         return new Promise((resolve, reject) => {
-
+            console.log("metodo del controller")
             db.getConnection((err: any, conn: any) => {
+                console.log(err)
+                console.log("dentro del db.getConnection")
                 var insert_values_array: any = [];
                 var values_to_insert = ""
                 var record_counter = 0;
+                console.log("importFile")
 
                 json_file_data.water_info.forEach(function (element: any, index: any) {
                     var select_query = "SELECT water_devices.id, water_devices.sensor_id, water_devices.name, " +
@@ -36,6 +39,7 @@ class WaterController {
                             })
                         } else {
                             if (results && results.length == 0) {
+                                console.log("contract_number not found")
                             } else {
                                 let water_device_info = results[0];
                                 values_to_insert += "(" + water_device_info.id + "," + water_device_info.sensor_id + ", '1', '" +
