@@ -54,11 +54,11 @@ class WaterDevicesController {
                                 addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token)
                             //console.log("*** usando token y auth desde sensor_info ***")
                         }
-                        //console.log("***** lastObservation *****")
-                        //console.log(lastObservation)
-                        if (lastObservation[0] != undefined) {
-                            json_data[contador].lastObservation = lastObservation[0].value
-                            json_data[contador].lastObservationDate = lastObservation[0].time
+                        console.log("***** lastObservation *****")
+                        console.log(lastObservation.observations[0])
+                        if (lastObservation.observations[0] != undefined) {
+                            json_data[contador].lastObservation = lastObservation.observations[0].value
+                            json_data[contador].lastObservationDate = lastObservation.observations[0].time
                         }
                         contador++;
                     }
@@ -100,6 +100,7 @@ class WaterDevicesController {
                                 }
                             })
                             .catch(err => {
+                                //console.log(err)
                                 reject({
                                     http: 401,
                                     status: 'Failed',
@@ -115,7 +116,7 @@ class WaterDevicesController {
                     }
                 })
                 .catch(err => {
-                    console.log(err)
+                    //console.log(err)
                 })
         })
     } // importFile()
@@ -124,12 +125,14 @@ class WaterDevicesController {
     public async addSensorWaterInfo(sensors_json: any[], json_file_data: any[]) {
         return new Promise<any>(async (resolve, reject) => {
             var notAddedSensors = []
+            console.log("************** sensors_json ***************")
+            console.log(sensors_json)
+            console.log("************** json_file_data ***************")
+            console.log(json_file_data)
             try {
                 let sensorIndex;
                 for (const element of json_file_data) {
                     //const index: any = json_file_data.indexOf(element);
-                    //console.log("************** sensors_json ***************")
-                    //console.log(sensors_json)
                     if (element.device_EUI) {
                         sensorIndex = sensors_json.findIndex(sensor => sensor.device_EUI.toUpperCase() === element.device_EUI.toUpperCase());
                     } else {
@@ -142,9 +145,6 @@ class WaterDevicesController {
                     // if device_EUI matches (sensor created correctly) we add the desired info to the sensors
                     if (sensorIndex != -1) {
                         try {
-                            if (sensors_json[sensorIndex].CN) {
-                                sensors_json[sensorIndex].CN = element.CN;
-                            }
                             if (sensors_json[sensorIndex].Diameter) {
                                 sensors_json[sensorIndex].Diameter = element.Diameter;
                             }
@@ -165,6 +165,10 @@ class WaterDevicesController {
                             }
                             if (element.numModuleLora) {
                                 sensors_json[sensorIndex].numModuleLora = element.numModuleLora;
+                            }
+
+                            if (element.contractNumber) {
+                                sensors_json[sensorIndex].contractNumber = element.contractNumber;
                             }
 
                             if (element.UserDni) {
@@ -188,7 +192,8 @@ class WaterDevicesController {
                 }
                 /*console.log("***** ADD SENSOR INFO *****")
                 console.log({
-                    notAddedSensors: notAddedSensors
+                    addedSensors: sensors_json,
+                        notAddedSensors: notAddedSensors
                 })*/
                 resolve(
                     {
@@ -203,12 +208,17 @@ class WaterDevicesController {
         })
     }
 
-    public async createMultipleWaterDevices(sensors_created: any[], user_id: any, unit: any) {
+    public async createMultipleWaterDevices(sensors_created: any[], user_id: any, unit: any, provider: string, authToken: string) {
         let insert_values = ""
         let lastObservationTimestamp
+        if (provider == undefined || authToken == undefined) {
+            provider = ''
+            authToken = ''
+        }
         //console.log(sensors_created)
         //console.log("*** CREATING WATER DEVICES ***")
         sensors_created.forEach((element: any, index: any) => {
+            console.log(element)
             // date to mysql format
             if (element.lastObservationDate) {
                 lastObservationTimestamp = new Date(element.lastObservationDate)
@@ -222,9 +232,10 @@ class WaterDevicesController {
                 insert_values += "('" + Utils.checkUndefined(element.name) + "','" +
                     Utils.checkUndefined(element.id) + "','" +
                     Utils.checkUndefined(user_id) + "','" + Utils.checkUndefined(unit) + "','" +
-                    Utils.checkUndefined(element.description) + "', NULL ,'9999-99-99 00:00:00.000000',' " +
+                    Utils.checkUndefined(element.description) + "', NULL ,'1999-10-10 00:00:00.000000',' " +
                     + Utils.checkUndefined(element.numContador) + "','" + Utils.checkUndefined(element.numModuleLora) +
-                    "',current_timestamp(), current_timestamp()),";
+                    "','" + Utils.checkUndefined(element.contractNumber) + "',current_timestamp(), current_timestamp(), '"
+                    + provider + "', '" + authToken + "'),";
             } else {
                 //console.log("*** lastObservationTimestamp ***")
                 //console.log(lastObservationTimestamp)
@@ -234,15 +245,16 @@ class WaterDevicesController {
                     Utils.checkUndefined(element.id) + "','" +
                     Utils.checkUndefined(user_id) + "','" + Utils.checkUndefined(unit) + "','"
                     + Utils.checkUndefined(element.description) + "','" + element.lastObservation + "','" +
-                    lastObservationTimestamp + "','" + Utils.checkUndefined(element.numContador) + "','"
-                    + Utils.checkUndefined(element.numModuleLora) + "',current_timestamp(), current_timestamp()),";
+                    lastObservationTimestamp + "','" + Utils.checkUndefined(element.numContador) + "','" +
+                    Utils.checkUndefined(element.numModuleLora) + "','" + Utils.checkUndefined(element.contractNumber) +
+                    "',current_timestamp(), current_timestamp(), '" + provider + "', '" + authToken + "'),";
             }
         })
 
         var query = "INSERT INTO `water_devices` (`name`, `sensor_id`, " +
-            "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`, `created_dt`, `updated_dt`) VALUES "
-            + insert_values.slice(0, -1) + ";";
-        //console.log(query);
+            "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`," +
+            " `contract_number`, `created_dt`, `updated_dt`,`provider`,`authToken`) VALUES " + insert_values.slice(0, -1) + ";";
+        console.log(query);
 
         return new Promise((resolve: any, reject: any) => {
             db.getConnection((error: any, conn: any) => {
@@ -263,7 +275,7 @@ class WaterDevicesController {
                     // If the query fails
                     if (err) {
                         //console.log(err);
-                        
+
                         reject({
                             http: 401,
                             status: 'Failed',
@@ -379,8 +391,8 @@ class WaterDevicesController {
         const first_value = (page_size * page_index) - page_size;
         const second_value = (page_size * page_index);
 
-        var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w.id DESC LIMIT " + first_value + ', ' + second_value;
-        //console.log(query)
+        var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w.id DESC LIMIT " + first_value + ', ' + page_size;
+        console.log(query)
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((error: any, conn: any) => {
@@ -406,6 +418,7 @@ class WaterDevicesController {
                         })
                     }
 
+                    //console.log(results)
                     // Response
                     resolve({
                         http: 200,
@@ -514,6 +527,56 @@ class WaterDevicesController {
                         http: 200,
                         status: 'Success',
                         water_device: results[0]
+                    })
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/:deviceId')
+     *
+     * @async
+     * @param deviceId
+     *
+     * @returns
+     */
+    public async updateWaterDeviceByName(name: string, variable_name: string, description: string, units: number, contractNumber: string, deviceDiameter: number,
+        installAddress: string, numContador: string, numModuleLora: string, provider: string, authToken: string) {
+        var query = "UPDATE water_devices SET variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
+            contractNumber + "',device_diameter='" + deviceDiameter + "',installation_address='" + installAddress + "',numContador='" + numContador +
+            "',numModuleLora='" + numModuleLora + "',provider='" + provider + "',authToken='" + authToken + "' WHERE name='" + name + "'";
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((error: any, conn: any) => {
+
+                // If the connection with the database fails
+                if (error) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: error
+                    })
+                }
+
+                conn.query(query, (err: any, results: any) => {
+                    conn.release()
+
+                    // If the query fails
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    }
+
+                    // Response
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
                     })
                 })
             })

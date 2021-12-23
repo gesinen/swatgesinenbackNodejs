@@ -7,7 +7,8 @@ import waterDevicesRouter from './routes/water_module/waterDevicesRouter';
 import waterUsersRouter from './routes/water_module/waterUsersRouter';
 import waterObservationsRouter from './routes/water_module/waterObservationsRouter';
 import capacityDevicesRouter from './routes/capacity_module/capacityDevicesRouter';
-import loraDashboardRouter from './routes/lora_module/loraDashboardRouter';
+import serverRouter from "./routes/servers_module/serverRouter";
+import sensorRouter from "./routes/sensor_module/sensorRouter";
 
 class Server {
 
@@ -33,7 +34,9 @@ class Server {
         this.app.use('/v2/water/devices', waterDevicesRouter);
         this.app.use('/v2/water/users', waterUsersRouter);
         this.app.use('/v2/water/observations', waterObservationsRouter);
-        this.app.use('/v2/lora/dashboard', loraDashboardRouter);
+        this.app.use('/v2/server/', serverRouter);
+        this.app.use('/v2/sensor/', sensorRouter);
+
     }
 
     start(): void {

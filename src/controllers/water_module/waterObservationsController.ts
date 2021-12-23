@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import db from "../../database";
 
 /*
@@ -107,7 +107,7 @@ class WaterObservationsController {
         return new Promise((resolve, reject) => {
             var date = new Date(fromDate)
 
-            var fromDateFormated = date.getFullYear() + "-" + (parseInt(String(date.getMonth()))+1) + "-" + date.getDate()
+            var fromDateFormated = date.getFullYear() + "-" + (parseInt(String(date.getMonth())) + 1) + "-" + date.getDate()
             var devicesIdPreparedSql = "";
             devicesIdArray.forEach((deviceId: any) => devicesIdPreparedSql += deviceId + ",");
             console.log("controller()")
@@ -121,18 +121,38 @@ class WaterObservationsController {
                 }
                 console.log("connected")
                 var select_query = "";
-                if (userColumnSelection == "contract_number"){
-                    select_query = "SELECT water_devices."+userColumnSelection+" AS user_column_selection, water_module_observation.observation_value, " +
+                if (userColumnSelection == "contract_number") {
+                    select_query = "SELECT water_devices." + userColumnSelection + " AS user_column_selection, water_module_observation.observation_value, " +
+                        "water_module_observation.message_timestamp " +
+                        "FROM `water_module_observation`, (SELECT water_module_observation.device_id, " +
+                        "MAX(water_module_observation.message_timestamp) as last_message_timestamp FROM " +
+                        "water_module_observation WHERE water_module_observation.device_id IN (" + devicesIdPreparedSql.slice(0, -1) + ") " +
+                        " AND water_module_observation.message_timestamp <= '" + fromDateFormated + "' GROUP BY water_module_observation.device_id)" +
+                        " water_max_date INNER JOIN water_devices ON water_devices.id=water_max_date.device_id WHERE water_module_observation.device_id = water_max_date.device_id AND " +
+                        "water_module_observation.message_timestamp = water_max_date.last_message_timestamp GROUP BY water_module_observation.device_id;"
+
+                    /*
+                    select_query = "SELECT water_devices." + userColumnSelection + " AS user_column_selection, water_module_observation.observation_value, " +
                         "water_module_observation.message_timestamp FROM `water_devices` INNER JOIN water_module_observation " +
                         "ON water_devices.id = water_module_observation.device_id WHERE water_devices.id IN (" + devicesIdPreparedSql.slice(0, -1) + ") AND " +
-                        "water_module_observation.message_timestamp BETWEEN '" +fromDateFormated+" 00:00:00' AND '" +fromDateFormated+" 23:59:00'" +
-                        " ORDER BY `water_module_observation`.`message_timestamp` DESC;";
+                        "water_module_observation.message_timestamp BETWEEN <= '" + fromDateFormated + "'" +
+                        " ORDER BY `water_module_observation`.`message_timestamp` DESC LIMIT 1;";*/
+                } else if (userColumnSelection == "device_name" || userColumnSelection == "device_EUI") {
+                    select_query = "SELECT water_module_observation." + userColumnSelection + " AS user_column_selection, water_module_observation.observation_value, " +
+                        "water_module_observation.message_timestamp " +
+                        "FROM `water_module_observation`, (SELECT water_module_observation.device_id, " +
+                        "MAX(water_module_observation.message_timestamp) as last_message_timestamp FROM " +
+                        "water_module_observation WHERE water_module_observation.device_id IN (" + devicesIdPreparedSql.slice(0, -1) + ") " +
+                        " AND water_module_observation.message_timestamp <= '" + fromDateFormated + "' GROUP BY water_module_observation.device_id)" +
+                        " water_max_date WHERE water_module_observation.device_id = water_max_date.device_id AND " +
+                        "water_module_observation.message_timestamp = water_max_date.last_message_timestamp GROUP BY water_module_observation.device_id;"
+
                 } else {
-                    select_query = "SELECT sensor_info."+userColumnSelection+" AS user_column_selection, water_module_observation.observation_value, " +
-                        "water_module_observation.message_timestamp FROM `water_devices` INNER JOIN water_module_observation " +
-                        "ON water_devices.id = water_module_observation.device_id INNER JOIN sensor_info ON sensor_info.id = water_module_observation.sensor_id WHERE water_devices.id IN (" + devicesIdPreparedSql.slice(0, -1) + ") AND " +
-                        "water_module_observation.message_timestamp BETWEEN '" +fromDateFormated+" 00:00:00' AND '" +fromDateFormated+" 23:59:00'" +
-                        " ORDER BY `water_module_observation`.`message_timestamp` DESC;";
+                    resolve({
+                        http: 204,
+                        status: 'Success',
+                        result: "Error: no user column selected",
+                    })
                 }
                 console.log(select_query)
                 conn.query(select_query, async (err: any, results: any) => {
