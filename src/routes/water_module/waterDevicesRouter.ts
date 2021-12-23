@@ -71,7 +71,8 @@ class WaterDevicesRouter {
     public updateWaterDeviceByNameAction = () => this.router.put('/name/', (req: Request, res: Response) => {
         const params = req.body;
         waterDevicesController.updateWaterDeviceByName(params.name, params.variableName, params.description,
-            params.units, params.contractNumber, params.deviceDiameter, params.installAddress)
+            params.units, params.contractNumber, params.deviceDiameter, params.installAddress,params.numContador,
+             params.numModuleLora, params.provider, params.authToken)
             .then(response => {
                 res.send(response)
             })

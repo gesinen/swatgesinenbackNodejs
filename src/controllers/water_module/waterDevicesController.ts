@@ -67,7 +67,7 @@ class WaterDevicesController {
                     let sensorsMismatchingDeviceEUI = DeviceEUIcheckResponse.notAddedSensors
                     // if sensors are created correctly i create the related water devices
                     if (response.status == 'Success') {
-                        await this.createMultipleWaterDevices(json_data, user_id, selectedUnitValue)
+                        await this.createMultipleWaterDevices(json_data, user_id, selectedUnitValue,provider,authToken)
                             .then((response: any) => {
                                 // if sensors are created correctly i create the related water devices
                                 if (response.status == 'Success') {
