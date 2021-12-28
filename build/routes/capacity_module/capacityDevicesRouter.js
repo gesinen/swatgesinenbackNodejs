@@ -14,7 +14,7 @@ class CapacityDevicesRouter {
          */
         this.createCapacityDeviceAction = () => this.router.post('/', (req, res) => {
             const params = req.body;
-            capacityDevicesController_1.default.createCapacityDevice(params.name, params.description, parseInt(params.sensor_id), parseInt(params.user_id), parseInt(params.capacity), parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
+            capacityDevicesController_1.default.createCapacityDevice(params.name, params.description, parseInt(params.sensor_id), parseInt(params.user_id), 0, parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
                 .then(response => {
                 res.send(response);
             })
@@ -42,6 +42,15 @@ class CapacityDevicesRouter {
                     status: 'Failed',
                     error: err
                 })*/
+                res.send(err);
+            });
+        });
+        this.removeCapacityDevice = () => this.router.delete('/:id', (req, res) => {
+            capacityDevicesController_1.default.deleteCapacityDevice(parseInt(req.params.id))
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
                 res.send(err);
             });
         });
@@ -105,6 +114,7 @@ class CapacityDevicesRouter {
         this.getUserCapacityDevicesAction();
         this.getMostCapacityDevicesAction();
         this.getLessCapacityDevicesAction();
+        this.removeCapacityDevice();
     }
 }
 const capacityDevicesRoutes = new CapacityDevicesRouter();

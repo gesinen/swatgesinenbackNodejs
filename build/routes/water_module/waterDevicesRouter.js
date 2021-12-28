@@ -28,9 +28,26 @@ class WaterDevicesRouter {
                 res.send(err);
             });
         });
-        this.getAdminWaterDeviceListingAction = () => this.router.get('/admin_page/:user_id/:page_index/:page_size', (req, res) => {
+        this.getWaterDeviceByIdAction = () => this.router.get('/:deviceId', (req, res) => {
             const params = req.params;
-            waterDevicesController_1.default.getAdminWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
+            waterDevicesController_1.default.getWaterDeviceById(parseInt(params.deviceId))
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
+        /**
+         * Import observations file
+         * POST ('/import/{userId}')
+         * userId -> id of the user doing the import
+         */
+        this.importFileAction = () => this.router.post('/import/:userId', (req, res) => {
+            const params = req.body;
+            //console.log(req.body)
+            //console.log("importFileAction -- waterDevicesRouter")
+            waterDevicesController_1.default.importFile(params.file_to_upload, params.municipality_id, req.params.userId, params.provider, params.authToken, params.selectedUnitValue)
                 .then(response => {
                 res.send(response);
             })
@@ -40,7 +57,8 @@ class WaterDevicesRouter {
         });
         this.createWaterDeviceAction();
         this.getWaterDeviceListingAction();
-        this.getAdminWaterDeviceListingAction();
+        this.importFileAction();
+        this.getWaterDeviceByIdAction();
     }
 }
 const waterDevicesRoutes = new WaterDevicesRouter();
