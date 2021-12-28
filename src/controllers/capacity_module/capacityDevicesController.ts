@@ -1,3 +1,4 @@
+import conn from "../../database";
 import db from "../../database";
 
 /*
@@ -25,13 +26,12 @@ class CapacityDevicesController {
 	public async createCapacityDevice (name: string, description: string = "", sensor_id: number, user_id: number, capacity: number = 0, max_capacity: number, type: string, address:string = "", coordinates_x:string = "", coordinates_y:string = ""): Promise<object> {
 
         return new Promise( (resolve: any, reject: any) => {
-            
+
             db.getConnection((err: any, conn: any) => {
                 conn.query(
                     "INSERT INTO capacity_devices"+
                     "(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y)" +
                     " VALUES ('" + name + "','" + description + "'," + sensor_id + "," + user_id + "," + capacity + "," + max_capacity + ",'" + type + "','" + address + "','" + coordinates_x + "','" + coordinates_y + "')" , 
-                    
                     (error: any, results: any, fields: any) => {   
                         conn.release()
 
@@ -191,6 +191,27 @@ class CapacityDevicesController {
         })
     } // ()
 
+    public async deleteCapacityDevice(id: number): Promise<object> {
+        return new Promise ((resolve, reject) => {
+            db.getConnection((err: any, conn: any) => {
+                conn.query("DELETE FROM capacity_devices WHERE id = " + id, (err: any, results: any) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    } else {
+                        resolve({
+                            http: 200,
+                            status: 'Success'
+                        })
+                    }
+                })
+            })
+        })
+    }
+
     /**
      * GET ('/list/:userId')
      * Getting a list with all capacity devices from a user
@@ -331,6 +352,38 @@ class CapacityDevicesController {
 
         })
     } // ()
+
+    public async getSpotChart(userId: number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            var query = "SELECT name, capacity, type FROM capacity_devices WHERE user_id = " + userId;
+
+            db.getConnection((err: any, results: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        capacity_devices: results
+                    })
+                })
+            })
+        })
+    }
 }
 
 export default new CapacityDevicesController();

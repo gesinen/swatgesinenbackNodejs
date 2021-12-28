@@ -13,7 +13,286 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../../database"));
+const Utils_1 = require("../../utils/Utils");
+const sensorController_1 = __importDefault(require("../sensor_module/sensorController"));
+const waterUsersController_1 = __importDefault(require("./waterUsersController"));
 class WaterDevicesController {
+    /**
+     * POST ('/import')
+     * Importing water_observation_value records from xls file
+     * @param json_file_data xls file info formated on json
+     * @param municipality_id id of the municipality (device table)
+     * @param provider_id id of the provider (sensor table)
+     * @param user_id id of the user importing the devices
+     * @return Promise
+     */
+    importFile(json_file_data, municipality_id, user_id, provider, authToken, selectedUnitValue) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //console.log("**** importFileController ****")
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                // First we check if we have the given sensors -> deviceEUI
+                yield sensorController_1.default.getSensorsByDevEUI(json_file_data)
+                    .then((response) => __awaiter(this, void 0, void 0, function* () {
+                    //console.log("*********** getSensorsByDevEUI response ***********")
+                    if (response.result.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            message: "There are no sensors with the given DEVEUI"
+                        });
+                    }
+                    //console.log("***** json_file_data *****")
+                    //console.log(json_file_data)
+                    //console.log("***** getSensorsByDevEUI *****")
+                    //console.log(response.result)
+                    let DeviceEUIcheckResponse = yield this.addSensorWaterInfo(response.result, json_file_data);
+                    let json_data = DeviceEUIcheckResponse.addedSensors;
+                    //console.log("***** json_data *****")
+                    //console.log(json_data)
+                    let contador = 0;
+                    for (const addedSensorRow of json_data) {
+                        // provider and authorization token can be given
+                        let lastObservation;
+                        if (provider != undefined && authToken != undefined) {
+                            //console.log("***** addedSensorRow.name *****")
+                            //console.log(addedSensorRow.name)
+                            lastObservation = yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, provider, authToken);
+                            //console.log("*** usando token y auth por parametro ***")
+                        }
+                        else {
+                            lastObservation = yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token);
+                            //console.log("*** usando token y auth desde sensor_info ***")
+                        }
+                        //console.log("***** lastObservation *****")
+                        //console.log(lastObservation)
+                        if (lastObservation[0] != undefined) {
+                            json_data[contador].lastObservation = lastObservation[0].value;
+                            json_data[contador].lastObservationDate = lastObservation[0].time;
+                        }
+                        contador++;
+                    }
+                    //console.log("***** json_data after observations *****")
+                    //console.log(json_data)
+                    let sensorsMismatchingDeviceEUI = DeviceEUIcheckResponse.notAddedSensors;
+                    // if sensors are created correctly i create the related water devices
+                    if (response.status == 'Success') {
+                        yield this.createMultipleWaterDevices(json_data, user_id, selectedUnitValue)
+                            .then((response) => {
+                            // if sensors are created correctly i create the related water devices
+                            if (response.status == 'Success') {
+                                if (response.result && response.result.length == 0) {
+                                    resolve({
+                                        http: 204,
+                                        status: 'Success',
+                                        result: {
+                                            message: "No water devices could be imported",
+                                            notCreatedSensorlist: sensorsMismatchingDeviceEUI
+                                        }
+                                    });
+                                }
+                                else {
+                                    //console.log(response)
+                                    resolve({
+                                        http: 200,
+                                        status: 'Success',
+                                        result: {
+                                            sensorsCreatedNum: response.response.affectedRows,
+                                            notCreatedSensorlist: sensorsMismatchingDeviceEUI
+                                        }
+                                    });
+                                }
+                            }
+                            else {
+                                reject({
+                                    http: 401,
+                                    status: 'Failed',
+                                    error: response.error
+                                });
+                            }
+                        })
+                            .catch(err => {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: "error importing devices"
+                            });
+                        });
+                    }
+                    else {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: "error getting created sensors by dev_EUI"
+                        });
+                    }
+                }))
+                    .catch(err => {
+                    console.log(err);
+                });
+            }));
+        });
+    } // importFile()
+    // add CN,Diameter... or other creating a water_device from a sensor
+    addSensorWaterInfo(sensors_json, json_file_data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                var notAddedSensors = [];
+                try {
+                    let sensorIndex;
+                    for (const element of json_file_data) {
+                        //const index: any = json_file_data.indexOf(element);
+                        //console.log("************** sensors_json ***************")
+                        //console.log(sensors_json)
+                        if (element.device_EUI) {
+                            sensorIndex = sensors_json.findIndex(sensor => sensor.device_EUI.toUpperCase() === element.device_EUI.toUpperCase());
+                        }
+                        else {
+                            sensorIndex = -1;
+                        }
+                        //console.log("************** sensor.device_EUI (getsensors) ***************")
+                        //console.log(sensors_json[0].device_EUI)
+                        //console.log("************** sensor.device_EUI (excel) ***************")
+                        //console.log(element.device_EUI)
+                        // if device_EUI matches (sensor created correctly) we add the desired info to the sensors
+                        if (sensorIndex != -1) {
+                            try {
+                                if (sensors_json[sensorIndex].CN) {
+                                    sensors_json[sensorIndex].CN = element.CN;
+                                }
+                                if (sensors_json[sensorIndex].Diameter) {
+                                    sensors_json[sensorIndex].Diameter = element.Diameter;
+                                }
+                                if (sensors_json[sensorIndex].SewerRate) {
+                                    sensors_json[sensorIndex].SewerRate = element.SewerRate;
+                                }
+                                if (sensors_json[sensorIndex].WaterUnits) {
+                                    sensors_json[sensorIndex].WaterUnits = element.WaterUnits;
+                                }
+                                if (sensors_json[sensorIndex].Variable) {
+                                    sensors_json[sensorIndex].Variable = element.Variable;
+                                }
+                                if (sensors_json[sensorIndex].WaterGroup) {
+                                    sensors_json[sensorIndex].WaterGroup = element.WaterGroup;
+                                }
+                                if (element.numContador) {
+                                    sensors_json[sensorIndex].numContador = element.numContador;
+                                }
+                                if (element.numModuleLora) {
+                                    sensors_json[sensorIndex].numModuleLora = element.numModuleLora;
+                                }
+                                if (element.UserDni) {
+                                    let response = yield waterUsersController_1.default.getUserByNif(element.UserDni);
+                                    if (response.http == 200 && response.user_module_data) {
+                                        sensors_json[sensorIndex].water_user_id = response.user_module_data.id;
+                                    }
+                                    else {
+                                        // If water user id is undefined we should not be able to create the device
+                                        sensors_json[sensorIndex].water_user_id = undefined;
+                                    }
+                                }
+                            }
+                            catch (err) {
+                                //console.log(err)
+                            }
+                        }
+                        else {
+                            // If deviceEUI doesnt exist we add this to an array that will be shown on erro lod to user
+                            notAddedSensors.push(element);
+                            /*console.log("***** SENSOR NOT ADDED *****")
+                            console.log(element);*/
+                        }
+                    }
+                    /*console.log("***** ADD SENSOR INFO *****")
+                    console.log({
+                        notAddedSensors: notAddedSensors
+                    })*/
+                    resolve({
+                        addedSensors: sensors_json,
+                        notAddedSensors: notAddedSensors
+                    });
+                }
+                catch (err) {
+                    //console.log(err)
+                    reject(err);
+                }
+            }));
+        });
+    }
+    createMultipleWaterDevices(sensors_created, user_id, unit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let insert_values = "";
+            let lastObservationTimestamp;
+            //console.log(sensors_created)
+            //console.log("*** CREATING WATER DEVICES ***")
+            sensors_created.forEach((element, index) => {
+                // date to mysql format
+                if (element.lastObservationDate) {
+                    lastObservationTimestamp = new Date(element.lastObservationDate)
+                        .toISOString().slice(0, -5).replace("T", " ");
+                }
+                else {
+                    lastObservationTimestamp = '9999-99-99 00:00:00.000000';
+                    element.lastObservation = false;
+                }
+                if (!element.lastObservation) {
+                    insert_values += "('" + Utils_1.Utils.checkUndefined(element.name) + "','" +
+                        Utils_1.Utils.checkUndefined(element.id) + "','" +
+                        Utils_1.Utils.checkUndefined(user_id) + "','" + Utils_1.Utils.checkUndefined(unit) + "','" +
+                        Utils_1.Utils.checkUndefined(element.description) + "', NULL ,'9999-99-99 00:00:00.000000',' " +
+                        +Utils_1.Utils.checkUndefined(element.numContador) + "','" + Utils_1.Utils.checkUndefined(element.numModuleLora) +
+                        "',current_timestamp(), current_timestamp()),";
+                }
+                else {
+                    //console.log("*** lastObservationTimestamp ***")
+                    //console.log(lastObservationTimestamp)
+                    //console.log("*** lastObservation ***")
+                    //console.log(element.lastObservation)
+                    insert_values += "('" + Utils_1.Utils.checkUndefined(element.name) + "','" +
+                        Utils_1.Utils.checkUndefined(element.id) + "','" +
+                        Utils_1.Utils.checkUndefined(user_id) + "','" + Utils_1.Utils.checkUndefined(unit) + "','"
+                        + Utils_1.Utils.checkUndefined(element.description) + "','" + element.lastObservation + "','" +
+                        lastObservationTimestamp + "','" + Utils_1.Utils.checkUndefined(element.numContador) + "','"
+                        + Utils_1.Utils.checkUndefined(element.numModuleLora) + "',current_timestamp(), current_timestamp()),";
+                }
+            });
+            var query = "INSERT INTO `water_devices` (`name`, `sensor_id`, " +
+                "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`, `created_dt`, `updated_dt`) VALUES "
+                + insert_values.slice(0, -1) + ";";
+            //console.log(query);
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((error, conn) => {
+                    // If the connection with the database fails
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        });
+                    }
+                    conn.query(query, (err, results) => {
+                        conn.release();
+                        //console.log("*** IMPORT WATER DEVICES (QUERY) ***")
+                        //console.log(query)
+                        // If the query fails
+                        if (err) {
+                            //console.log(err);
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        // Response
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            response: results
+                        });
+                    });
+                });
+            });
+        });
+    }
     /**
      * POST ('/')
      * Create a new water device
@@ -101,7 +380,8 @@ class WaterDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             const first_value = (page_size * page_index) - page_size;
             const second_value = (page_size * page_index);
-            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w.id DESC LIMIT " + first_value + ', ' + second_value;
+            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w.id DESC LIMIT " + first_value + ', ' + second_value;
+            //console.log(query)
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails
@@ -174,6 +454,48 @@ class WaterDevicesController {
                             http: 200,
                             status: 'Success',
                             water_devices: results
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/:deviceId')
+     *
+     * @async
+     * @param deviceId
+     *
+     * @returns
+     */
+    getWaterDeviceById(deviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var query = "SELECT * FROM water_devices where id=" + deviceId;
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((error, conn) => {
+                    // If the connection with the database fails
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        });
+                    }
+                    conn.query(query, (err, results) => {
+                        conn.release();
+                        // If the query fails
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        // Response
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            water_device: results[0]
                         });
                     });
                 });

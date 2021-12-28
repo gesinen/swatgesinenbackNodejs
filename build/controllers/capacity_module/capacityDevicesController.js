@@ -191,6 +191,29 @@ class CapacityDevicesController {
             });
         });
     } // ()
+    deleteCapacityDevice(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    conn.query("DELETE FROM capacity_devices WHERE id = " + id, (err, results) => {
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 200,
+                                status: 'Success'
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    }
     /**
      * GET ('/list/:userId')
      * Getting a list with all capacity devices from a user
