@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const usersController_1 = __importDefault(require("../controllers/usersController"));
+const waterUsersController_1 = __importDefault(require("../controllers/water_module/waterUsersController"));
 class UsersRouter {
     constructor() {
         this.router = (0, express_1.Router)();
@@ -15,6 +16,21 @@ class UsersRouter {
         this.getUserInformationAction = () => this.router.get('/information/:id', (req, res) => {
             const id = parseInt(req.params.id);
             usersController_1.default.getUserInformation(id)
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
+        /**
+         * Get user related municipality_id
+         * GET ('/municipality/{user_id}')
+         * params user_id -> id of the user we want to get the municipality_id from
+         */
+        this.getUserServersAction = () => this.router.get('/municipality/:user_id', (req, res) => {
+            const user_id = req.params.user_id;
+            waterUsersController_1.default.getWaterUserMunicipalityId(parseInt(user_id))
                 .then(response => {
                 res.send(response);
             })

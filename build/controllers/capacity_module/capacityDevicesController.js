@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../../database"));
+const database_2 = __importDefault(require("../../database"));
 /*
  * /capacity/devices
  */
@@ -38,7 +39,7 @@ class CapacityDevicesController {
     createCapacityDevice(name, description = "", sensor_id, user_id, capacity = 0, max_capacity, type, address = "", coordinates_x = "", coordinates_y = "") {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
+                database_2.default.getConnection((err, conn) => {
                     conn.query("INSERT INTO capacity_devices" +
                         "(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y)" +
                         " VALUES ('" + name + "','" + description + "'," + sensor_id + "," + user_id + "," + capacity + "," + max_capacity + ",'" + type + "','" + address + "','" + coordinates_x + "','" + coordinates_y + "')", (error, results, fields) => {
@@ -69,7 +70,7 @@ class CapacityDevicesController {
     getCapacityDeviceById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
+                database_2.default.getConnection((err, conn) => {
                     var query = "SELECT * FROM capacity_devices WHERE id = " + id;
                     conn.query(query, (err, results) => {
                         if (err) {
@@ -162,7 +163,7 @@ class CapacityDevicesController {
                 // Adding the WHERE condition 
                 query += " WHERE id = " + id;
                 // Running the query
-                database_1.default.getConnection((err, conn) => {
+                database_2.default.getConnection((err, conn) => {
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -194,7 +195,7 @@ class CapacityDevicesController {
     deleteCapacityDevice(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
+                database_2.default.getConnection((err, conn) => {
                     conn.query("DELETE FROM capacity_devices WHERE id = " + id, (err, results) => {
                         if (err) {
                             reject({
@@ -227,7 +228,7 @@ class CapacityDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 var query = "SELECT * FROM capacity_devices WHERE user_id = " + user_id;
-                database_1.default.getConnection((err, conn) => {
+                database_2.default.getConnection((err, conn) => {
                     conn.query(query, (err, results) => {
                         conn.release();
                         if (err) {
@@ -272,7 +273,7 @@ class CapacityDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 var query = "SELECT * FROM capacity_devices ORDER BY capacity DESC LIMIT 4";
-                database_1.default.getConnection((err, conn) => {
+                database_2.default.getConnection((err, conn) => {
                     if (err) {
                         reject({
                             http: 401,
@@ -312,7 +313,7 @@ class CapacityDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 var query = "SELECT * FROM capacity_devices ORDER BY capacity ASC LIMIT 4";
-                database_1.default.getConnection((err, conn) => {
+                database_2.default.getConnection((err, conn) => {
                     if (err) {
                         reject({
                             http: 401,
@@ -339,5 +340,35 @@ class CapacityDevicesController {
             });
         });
     } // ()
+    getSpotChart(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                var query = "SELECT name, capacity, type FROM capacity_devices WHERE user_id = " + userId;
+                database_2.default.getConnection((err, results) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    database_1.default.query(query, (error, results) => {
+                        if (error) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            capacity_devices: results
+                        });
+                    });
+                });
+            });
+        });
+    }
 }
 exports.default = new CapacityDevicesController();

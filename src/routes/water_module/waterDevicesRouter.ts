@@ -41,31 +41,36 @@ class WaterDevicesRouter {
 
     public updateWaterDevicesFromExcel = () => this.router.post('/update/', async (req: Request, res: Response) => {
         const params = req.body;
-        console.log("updateWaterDevices", params)
-        let waterDevicesWithErr: any[] = []
-        let contador: number = 0
-        let successCount: number = 0
-        for (const device of params) {
-            let updateRes: any = await waterDevicesController.updateWaterDeviceByName(device.name, device.variableName, device.description, device.units,
-                device.contractNumber, device.deviceDiameter, device.installAddress, device.numContador, device.numModuleLora, device.provider, device.authToken);
-            if (updateRes.http != 200 || updateRes.result.affectedRows == 0) {
-                waterDevicesWithErr.push(device.name)
-                contador++
-            } else {
-                successCount++
+        try {
+            console.log("updateWaterDevices", params)
+            let waterDevicesWithErr: any[] = []
+            let contador: number = 0
+            let successCount: number = 0
+            for (const device of params) {
+                let updateRes: any = await waterDevicesController.updateWaterDeviceByName(device.name, device.variableName, device.description, device.units,
+                    device.contractNumber, device.deviceDiameter, device.installAddress, device.numContador, device.numModuleLora, device.provider, device.authToken);
+                if (updateRes.http != 200 || updateRes.result.affectedRows == 0) {
+                    waterDevicesWithErr.push(device.name)
+                    contador++
+                } else {
+                    successCount++
+                }
+                console.log(updateRes)
             }
-            console.log(updateRes)
+            //params.forEach(async (device: any) => { });
+            res.send({
+                http: 200,
+                status: 'Success',
+                res: {
+                    notInsertedDevices: waterDevicesWithErr,
+                    notInsertedDevicesNumber: contador,
+                    updateSuccededNum: successCount
+                }
+            })
+        } catch (error) {
+            res.send(error)
+            console.log(error)
         }
-        //params.forEach(async (device: any) => { });
-        res.send({
-            http: 200,
-            status: 'Success',
-            res: {
-                notInsertedDevices: waterDevicesWithErr,
-                notInsertedDevicesNumber: contador,
-                updateSuccededNum: successCount
-            }
-        })
     })
 
     public updateWaterDeviceByNameAction = () => this.router.put('/name/', (req: Request, res: Response) => {
