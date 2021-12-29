@@ -28,6 +28,7 @@ class IrrigationDeviceInputRouter {
             })
     })
 
+
     /**
      * Get user related municipality_id
      * GET ('/municipality/{user_id}')

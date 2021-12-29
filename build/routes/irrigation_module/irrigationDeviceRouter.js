@@ -39,6 +39,20 @@ class IrrigationDeviceRouter {
             });
         });
         /**
+        * Get the user data
+        * GET ('/information/:id')
+        */
+        this.getIrrigationInputDevicesByIrregationDeviceId = () => this.router.get('/sensorNumber/:deviceId', (req, res) => {
+            const irregationDeviceId = parseInt(req.params.deviceId);
+            irrigationDeviceController_1.default.getIrrigationInputDevicesByIrregationDeviceId(irregationDeviceId)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
+        /**
          * Get user related municipality_id
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
