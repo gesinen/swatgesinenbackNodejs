@@ -1,0 +1,421 @@
+{
+	"info": {
+		"_postman_id": "51206956-9aa2-47b0-b458-999ea5e39373",
+		"name": "Modulo Riego",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "irrigationDevices",
+			"item": [
+				{
+					"name": "irrigation/devices/listing/:userId/:pageSize/:pageIndex",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/listing/:userId/:pageSize/:pageIndex",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"listing",
+								":userId",
+								":pageSize",
+								":pageIndex"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "63"
+								},
+								{
+									"key": "pageSize",
+									"value": "3"
+								},
+								{
+									"key": "pageIndex",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"namePOST\",\r\n    \"nameSentilo\":\"nameSentiloPOST\",\r\n    \"latitude\":\"26.7\",\r\n    \"longitude\":\"1.35\",\r\n    \"description\":\"deviceEUIPOST\",\r\n    \"status\":\"1\",\r\n    \"userId\":\"63\",\r\n    \"deviceTypeId\":\"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"8\",\r\n    \"name\":\"namePUT\",\r\n    \"nameSentilo\":\"nameSentiloPUT\",\r\n    \"latitude\":\"26.7\",\r\n    \"longitude\":\"1.35\",\r\n    \"description\":\"deviceEUIPUT\",\r\n    \"status\":\"1\",\r\n    \"userId\":\"63\",\r\n    \"deviceTypeId\":\"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "irrigationDevicesInput",
+			"item": [
+				{
+					"name": "irrigation/devices/input/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/input/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"input",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/input/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/input/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"input",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/input",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"1\",\r\n    \"irrigationDeviceId\":\"1\",\r\n    \"sensorId\":\"256\",\r\n    \"lastHumidity\":\"1.5\",\r\n    \"lastTemperature\":\"14.3\",\r\n    \"sensorIndex\":\"666\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/input",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"input"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/input",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"irrigationDeviceId\":\"1\",\r\n    \"sensorId\":\"256\",\r\n    \"lastHumidity\":\"12.5\",\r\n    \"lastTemperature\":\"11.3\",\r\n    \"sensorIndex\":\"999\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/input",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"input"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "irrigationDevicesOutput",
+			"item": [
+				{
+					"name": "irrigation/devices/output/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/output/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"output",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/output/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/output/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"output",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/output",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"8\",\r\n    \"irrigationDeviceId\":\"1\",\r\n    \"sensorId\":\"256\",\r\n    \"sensorIndex\":\"999\",\r\n    \"intervals\":\"[19:00-21:45]\",\r\n    \"status\":\"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/output",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"output"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "irrigation/devices/output",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"irrigationDeviceId\":\"1\",\r\n    \"sensorId\":\"256\",\r\n    \"sensorIndex\":\"1\",\r\n    \"intervals\":\"[19:00-21:45]\",\r\n    \"status\":\"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/v2/irrigation/devices/output",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v2",
+								"irrigation",
+								"devices",
+								"output"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

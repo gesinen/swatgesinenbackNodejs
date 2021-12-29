@@ -10,6 +10,9 @@ import capacityDevicesRouter from './routes/capacity_module/capacityDevicesRoute
 import serverRouter from "./routes/servers_module/serverRouter";
 import sensorRouter from "./routes/sensor_module/sensorRouter";
 import loraDashboardRouter from './routes/lora_module/loraDashboardRouter';
+import irrigationDeviceRouter from './routes/irrigation_module/irrigationDeviceRouter';
+import irrigationDeviceOutputRouter from './routes/irrigation_module/irrigationDeviceOutputRouter';
+import irrigationDeviceInputRouter from './routes/irrigation_module/irrigationDeviceInputRouter';
 
 class Server {
 
@@ -38,6 +41,9 @@ class Server {
         this.app.use('/v2/server/', serverRouter);
         this.app.use('/v2/sensor/', sensorRouter);
         this.app.use('/v2/lora/dashboard', loraDashboardRouter);
+        this.app.use('/v2/irrigation/devices', irrigationDeviceRouter);
+        this.app.use('/v2/irrigation/devices/output', irrigationDeviceOutputRouter);
+        this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter);
     }
 
     start(): void {
