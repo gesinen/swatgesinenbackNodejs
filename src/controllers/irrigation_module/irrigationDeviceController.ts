@@ -139,8 +139,9 @@ class IrrigationDeviceController {
                     let contador: any = 0;
                     for (const irrigationDevice of results) {
                         let outputRes: any = await this.getIrrigationDeviceOutputCount(irrigationDevice.id)
-                        if (outputRes.data) {
-                            results[contador].openIrrigationOutputs = outputRes.data.openIrrigationOutputs
+                        console.log("outputRes", outputRes)
+                        if (outputRes.result) {
+                            results[contador].openIrrigationOutputs = outputRes.result.openIrrigationOutputs
                         } else {
                             results[contador].openIrrigationOutputs = 0
                         }
@@ -191,28 +192,26 @@ class IrrigationDeviceController {
                     if (results.affectedRows == 1) {
                         let irrigationDeviceInsertId = results.insertId
                         let valvesInserted: number = 0
-                        for (const irrigationDeviceOutput of valves) {
-                            let intervals: any
-                            if (irrigationDeviceOutput.intervals) {
-                                intervals = irrigationDeviceOutput.intervals
-                            } else {
-                                intervals = ''
-                            }
+                        let contador: number = 1
+                        for (const irrigationDeviceOutputId of valves) {
                             let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
-                                irrigationDeviceInsertId, irrigationDeviceOutput.sensorId, irrigationDeviceOutput.sensorIndex,
-                                intervals, irrigationDeviceOutput.status)
+                                irrigationDeviceInsertId, irrigationDeviceOutputId, contador,
+                                "", false)
                             if (deviceOutputRes.http == 200) {
                                 valvesInserted++
                             }
+                            contador++
                         }
                         let sensorsInserted: number = 0
+                        contador = 1
                         for (const irrigationDeviceInput of sensors) {
                             let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(
                                 irrigationDeviceInsertId, irrigationDeviceInput.sensorId, irrigationDeviceInput.lastHumidity,
-                                irrigationDeviceInput.lastTemperature, irrigationDeviceInput.sensorIndex)
+                                irrigationDeviceInput.lastTemperature, contador)
                             if (deviceInputRes.http == 200) {
                                 sensorsInserted++
                             }
+                            contador++
                         }
 
                         resolve({
