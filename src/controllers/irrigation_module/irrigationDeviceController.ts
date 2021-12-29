@@ -165,7 +165,7 @@ class IrrigationDeviceController {
      * @return 
      */
     public async storeIrrigationDevice(name: string, nameSentilo: string, latitude: number, longitude: number,
-        description: string, status: boolean, userId: number, deviceTypeId: number): Promise<object> {
+        description: string, status: boolean, userId: number, deviceTypeId: number, valves: any[], sensors: any[]): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -174,7 +174,7 @@ class IrrigationDeviceController {
                 let query = "INSERT INTO irrigation_device (name,nameSentilo,latitude,longitude,description,status," +
                     "userId,deviceTypeId) VALUES ('" + name + "','" + nameSentilo + "'," + latitude + "," +
                     longitude + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + ")"
-                console.log("query", query)
+
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
@@ -185,8 +185,9 @@ class IrrigationDeviceController {
                             error: error
                         })
                     }
-                    console.log(results)
+
                     if (results.affectedRows == 1) {
+                        
                         resolve({
                             http: 200,
                             status: 'Success',

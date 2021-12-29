@@ -57,7 +57,7 @@ class IrrigationDeviceRouter {
         console.log("router store params")
         console.log(params)
         irrigationController.storeIrrigationDevice(params.name, params.nameSentilo, params.latitude, params.longitude,
-            params.description, params.status, params.userId, params.deviceTypeId)
+            params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
             .then(response => {
                 res.send(response)
             })

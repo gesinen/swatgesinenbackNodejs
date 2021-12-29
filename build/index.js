@@ -14,6 +14,9 @@ const capacityDevicesRouter_1 = __importDefault(require("./routes/capacity_modul
 const serverRouter_1 = __importDefault(require("./routes/servers_module/serverRouter"));
 const sensorRouter_1 = __importDefault(require("./routes/sensor_module/sensorRouter"));
 const loraDashboardRouter_1 = __importDefault(require("./routes/lora_module/loraDashboardRouter"));
+const irrigationDeviceRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceRouter"));
+const irrigationDeviceOutputRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceOutputRouter"));
+const irrigationDeviceInputRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceInputRouter"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -36,6 +39,9 @@ class Server {
         this.app.use('/v2/server/', serverRouter_1.default);
         this.app.use('/v2/sensor/', sensorRouter_1.default);
         this.app.use('/v2/lora/dashboard', loraDashboardRouter_1.default);
+        this.app.use('/v2/irrigation/devices', irrigationDeviceRouter_1.default);
+        this.app.use('/v2/irrigation/devices/output', irrigationDeviceOutputRouter_1.default);
+        this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {
