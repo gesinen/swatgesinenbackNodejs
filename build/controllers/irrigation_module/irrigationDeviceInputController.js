@@ -114,6 +114,52 @@ class IrrigationDeviceInputController {
      *
      * @return
      */
+    getIrrigationInputDevicesByIrregationDeviceId(irrigationDeviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT COUNT(*) as sensorsCount FROM irrigation_device_input WHERE irrigationDeviceId=" + irrigationDeviceId + ";";
+                    console.log("query", query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        console.log(results);
+                        if (results) {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                message: 'Irrigation device inputs retrieved succesfully',
+                                result: results.sensorsCount
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                message: "Irrigation device inputs could not be retrieved",
+                                result: results
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
     updateIrrigationInputDevice(id, irrigationDeviceId, sensorId, lastTemperature, lastHumidity, sensorIndex) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {

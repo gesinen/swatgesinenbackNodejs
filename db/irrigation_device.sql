@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 29-12-2021 a las 15:28:10
+-- Tiempo de generación: 29-12-2021 a las 20:58:27
 -- Versión del servidor: 10.4.20-MariaDB
 -- Versión de PHP: 8.0.8
 
@@ -68,7 +68,7 @@ ALTER TABLE `irrigation_device`
 -- AUTO_INCREMENT de la tabla `irrigation_device`
 --
 ALTER TABLE `irrigation_device`
-  MODIFY `id` int(16) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(16) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Restricciones para tablas volcadas
@@ -78,10 +78,9 @@ ALTER TABLE `irrigation_device`
 -- Filtros para la tabla `irrigation_device`
 --
 ALTER TABLE `irrigation_device`
-  ADD CONSTRAINT `irregation_device_device_type_id_fk` FOREIGN KEY (`deviceTypeId`) REFERENCES `irrigation_device_type` (`id`),
-  ADD CONSTRAINT `irregation_device_user_id_fk` FOREIGN KEY (`userId`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `irregation_device_device_type_id_fk` FOREIGN KEY (`deviceTypeId`) REFERENCES `irrigation_device_type` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `irregation_device_user_id_fk` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

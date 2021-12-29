@@ -311,9 +311,7 @@ class IrrigationDeviceController {
                         let sensorsInserted: number = 0
                         contador = 1
                         for (const irrigationDeviceInput of sensors) {
-                            let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(
-                                irrigationDeviceInsertId, irrigationDeviceInput.sensorId, irrigationDeviceInput.lastHumidity,
-                                irrigationDeviceInput.lastTemperature, contador)
+                            let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(irrigationDeviceInsertId, irrigationDeviceInput, 0, 0, contador)
                             if (deviceInputRes.http == 200) {
                                 sensorsInserted++
                             }
