@@ -1,4 +1,6 @@
 import db from "../../database";
+import irrigationDeviceInputController from "./irrigationDeviceInputController";
+import irrigationDeviceOutputController from "./irrigationDeviceOutputController";
 
 /*
  * /users
@@ -175,7 +177,7 @@ class IrrigationDeviceController {
                     "userId,deviceTypeId) VALUES ('" + name + "','" + nameSentilo + "'," + latitude + "," +
                     longitude + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + ")"
 
-                conn.query(query, (error: any, results: any) => {
+                conn.query(query, async (error: any, results: any) => {
                     conn.release()
 
                     if (error) {
@@ -187,12 +189,33 @@ class IrrigationDeviceController {
                     }
 
                     if (results.affectedRows == 1) {
-                        
+                        let irrigationDeviceInsertId = results.insertId
+                        let valvesInserted: number = 0
+                        for (const irrigationDeviceOutput of valves) {
+                            let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
+                                irrigationDeviceInsertId, irrigationDeviceOutput.sensorId, irrigationDeviceOutput.sensorIndex,
+                                irrigationDeviceOutput.intervals, irrigationDeviceOutput.status)
+                            if (deviceOutputRes.http == 200) {
+                                valvesInserted++
+                            }
+                        }
+                        let sensorsInserted: number = 0
+                        for (const irrigationDeviceInput of sensors) {
+                            let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(
+                                irrigationDeviceInsertId, irrigationDeviceInput.sensorId, irrigationDeviceInput.lastHumidity,
+                                irrigationDeviceInput.lastTemperature, irrigationDeviceInput.sensorIndex)
+                            if (deviceInputRes.http == 200) {
+                                sensorsInserted++
+                            }
+                        }
+
                         resolve({
                             http: 200,
                             status: 'Success',
                             result: 'Irrigation device inserted succesfully',
-                            insertId: results.insertId
+                            insertId: irrigationDeviceInsertId,
+                            valvesInserted: valvesInserted,
+                            sensorsInserted: sensorsInserted
                         })
                     } else {
                         resolve({
