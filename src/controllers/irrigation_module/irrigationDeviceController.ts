@@ -87,7 +87,7 @@ class IrrigationDeviceController {
                             result: 'There are no irrigation devices with the given user id'
                         })
                     }
-
+                    console.log(results[0])
                     resolve({
                         http: 200,
                         status: 'Success',
@@ -192,9 +192,15 @@ class IrrigationDeviceController {
                         let irrigationDeviceInsertId = results.insertId
                         let valvesInserted: number = 0
                         for (const irrigationDeviceOutput of valves) {
+                            let intervals: any
+                            if (irrigationDeviceOutput.intervals) {
+                                intervals = irrigationDeviceOutput.intervals
+                            } else {
+                                intervals = ''
+                            }
                             let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
                                 irrigationDeviceInsertId, irrigationDeviceOutput.sensorId, irrigationDeviceOutput.sensorIndex,
-                                irrigationDeviceOutput.intervals, irrigationDeviceOutput.status)
+                                intervals, irrigationDeviceOutput.status)
                             if (deviceOutputRes.http == 200) {
                                 valvesInserted++
                             }
