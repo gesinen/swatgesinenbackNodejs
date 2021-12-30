@@ -73,8 +73,7 @@ class IrrigationDeviceController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT COUNT(*) as openIrrigationOutputs FROM `irrigation_device_output` WHERE irrigation_device_output.status=1 and irrigation_device_output.irrigationDeviceId=" + irrigationDeviceId + ";";
-                    console.log(query);
+                    let query = "SELECT * FROM `irrigation_device_output` WHERE irrigation_device_output.status=1 and irrigation_device_output.irrigationDeviceId=" + irrigationDeviceId + ";";
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -84,19 +83,17 @@ class IrrigationDeviceController {
                                 error: error
                             });
                         }
-                        console.log(results);
                         if (results.length == 0) {
                             resolve({
                                 http: 204,
                                 status: 'Success',
-                                result: 'There are no irrigation devices with the given user id'
+                                result: []
                             });
                         }
-                        console.log(results[0]);
                         resolve({
                             http: 200,
                             status: 'Success',
-                            result: results[0]
+                            result: results
                         });
                     });
                 });
@@ -116,8 +113,7 @@ class IrrigationDeviceController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT COUNT(*) as totalIrrigationOutputs FROM `irrigation_device_output` WHERE irrigation_device_output.irrigationDeviceId=" + irrigationDeviceId + ";";
-                    console.log(query);
+                    let query = "SELECT irrigation_device_output.*, sensor_info.id, sensor_info.app_KEY, sensor_info.device_EUI, sensor_info.gateways_id FROM `irrigation_device_output` INNER JOIN sensor_info ON sensor_info.id = irrigation_device_output.sensorId WHERE irrigation_device_output.irrigationDeviceId=" + irrigationDeviceId + ";";
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -127,7 +123,6 @@ class IrrigationDeviceController {
                                 error: error
                             });
                         }
-                        console.log(results);
                         if (results.length == 0) {
                             resolve({
                                 http: 204,
@@ -135,11 +130,10 @@ class IrrigationDeviceController {
                                 result: 'There are no irrigation devices with the given user id'
                             });
                         }
-                        console.log(results[0]);
                         resolve({
                             http: 200,
                             status: 'Success',
-                            result: results[0]
+                            result: results
                         });
                     });
                 });
@@ -185,14 +179,14 @@ class IrrigationDeviceController {
                         for (const irrigationDevice of results) {
                             let outputRes = yield this.getIrrigationDeviceOutputCount(irrigationDevice.id);
                             if (outputRes.result) {
-                                results[contador].openIrrigationOutputs = outputRes.result.openIrrigationOutputs;
+                                results[contador].openIrrigationOutputs = outputRes.result;
                             }
                             else {
                                 results[contador].openIrrigationOutputs = 0;
                             }
                             let outputTotalRes = yield this.getIrrigationDeviceOutputTotalCount(irrigationDevice.id);
                             if (outputTotalRes.result) {
-                                results[contador].totalIrrigationOutputs = outputTotalRes.result.totalIrrigationOutputs;
+                                results[contador].totalIrrigationOutputs = outputTotalRes.result;
                             }
                             else {
                                 results[contador].totalIrrigationOutputs = 0;
