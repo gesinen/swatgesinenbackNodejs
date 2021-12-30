@@ -113,7 +113,7 @@ class IrrigationDeviceController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT irrigation_device_output.*, sensor_info.id, sensor_info.app_KEY, sensor_info.device_EUI, sensor_info.gateways_id FROM `irrigation_device_output` INNER JOIN sensor_info ON sensor_info.id = irrigation_device_output.sensorId WHERE irrigation_device_output.irrigationDeviceId=" + irrigationDeviceId + ";";
+                    let query = "SELECT irrigation_device_output.*, sensor_info.id, sensor_info.app_KEY, sensor_info.device_EUI, sensor_gateway_pkid.mac_number, sensor_gateway_pkid.sensor_id FROM `irrigation_device_output` INNER JOIN sensor_info ON sensor_info.id = irrigation_device_output.sensorId INNER JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id = sensor_info.id WHERE irrigation_device_output.irrigationDeviceId=" + irrigationDeviceId + ";";
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
