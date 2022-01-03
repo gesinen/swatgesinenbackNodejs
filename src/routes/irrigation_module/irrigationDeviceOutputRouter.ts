@@ -11,6 +11,7 @@ class IrrigationDeviceOutputRouter {
         this.storeIrrigationOutputDevice();
         this.deleteIrrigationOutputDevice();
         this.updateIrrigationOutputDevice();
+        this.updateValvesConfig();
     }
 
     /**
@@ -65,6 +66,23 @@ class IrrigationDeviceOutputRouter {
             })
     })
 
+    /**
+    * Get user related municipality_id
+    * POST ('/municipality/{user_id}')
+    * params user_id -> id of the user we want to get the municipality_id from
+    */
+    public updateValvesConfig = () => this.router.post('/config/valves', (req: Request, res: Response) => {
+        console.log("WORKS")
+        const params = req.body;
+        console.log(params)
+        irrigationDeviceOutputController.updateIrrigationOutputDeviceIntervals(params.body.data.id, params.valves)
+            .then((response: any) => {
+                res.send(response)
+            })
+            .catch((err: any) => {
+                res.send(err)
+            })
+    })
 
     /**
      * Get user related municipality_id
@@ -84,6 +102,7 @@ class IrrigationDeviceOutputRouter {
                 res.send(err)
             })
     })
+
 }
 
 const irrigationDeviceOutputRouter = new IrrigationDeviceOutputRouter();

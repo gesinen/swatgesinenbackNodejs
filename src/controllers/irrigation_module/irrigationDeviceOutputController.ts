@@ -159,6 +159,57 @@ class IrrigationDeviceOutputController {
      * 
      * @return 
      */
+     public async updateIrrigationOutputDeviceIntervals(irrigationDeviceId: number,intervals: any[]): Promise<object> {
+
+        let intevalsStr = ""
+        intervals.forEach(interval => {
+            intevalsStr += interval
+        });
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "UPDATE irrigation_device_output SET intervals='" + intervals + "'WHERE irrigationDeviceId=" + irrigationDeviceId + ";"
+                console.log(query)
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log(results)
+                    if (results.affectedRows > 0) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: 'Irrigation device output valve intervals updated succesfully'
+                        })
+                    } else {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            message: "Irrigation device output valve intervals could not be updated",
+                            result: results
+                        })
+                    }
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
     public async deleteIrrigationOutputDevice(id: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
