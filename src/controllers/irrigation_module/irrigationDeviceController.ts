@@ -129,7 +129,7 @@ class IrrigationDeviceController {
                         resolve({
                             http: 204,
                             status: 'Success',
-                            result: 'There are no irrigation devices with the given user id'
+                            result: []
                         })
                     }
 
@@ -177,7 +177,7 @@ class IrrigationDeviceController {
                         resolve({
                             http: 204,
                             status: 'Success',
-                            result: 'There are no irrigation devices with the given user id'
+                            result: []
                         })
                     }
                     console.log(results)
