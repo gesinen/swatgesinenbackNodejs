@@ -160,6 +160,55 @@ class IrrigationDeviceOutputController {
      *
      * @return
      */
+    updateIrrigationOutputDeviceIntervals(irrigationDeviceId, intervals) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let intevalsStr = "";
+            intervals.forEach(interval => {
+                intevalsStr += interval;
+            });
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "UPDATE irrigation_device_output SET intervals='" + intervals + "'WHERE irrigationDeviceId=" + irrigationDeviceId + ";";
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        console.log(results);
+                        if (results.affectedRows > 0) {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: 'Irrigation device output valve intervals updated succesfully'
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                message: "Irrigation device output valve intervals could not be updated",
+                                result: results
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
     deleteIrrigationOutputDevice(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
