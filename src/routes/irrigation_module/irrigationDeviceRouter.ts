@@ -117,6 +117,7 @@ class IrrigationDeviceRouter {
                 res.send(err)
             })
     })
+
 }
 
 const irrigationDeviceRouter = new IrrigationDeviceRouter();
