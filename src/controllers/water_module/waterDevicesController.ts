@@ -55,19 +55,24 @@ class WaterDevicesController {
                             //console.log("*** usando token y auth desde sensor_info ***")
                         }
                         console.log("***** lastObservation *****")
-                        console.log(lastObservation.observations[0])
-                        if (lastObservation.observations[0] != undefined) {
-                            json_data[contador].lastObservation = lastObservation.observations[0].value
-                            json_data[contador].lastObservationDate = lastObservation.observations[0].time
+                        try {
+                            if (lastObservation.observations[0] != undefined) {
+                                console.log(lastObservation.observations[0])
+                                json_data[contador].lastObservation = lastObservation.observations[0].value
+                                json_data[contador].lastObservationDate = lastObservation.observations[0].time
+                            }
+                            contador++;
+                        } catch (error) {
+                            console.log(error)
                         }
-                        contador++;
+
                     }
                     //console.log("***** json_data after observations *****")
                     //console.log(json_data)
                     let sensorsMismatchingDeviceEUI = DeviceEUIcheckResponse.notAddedSensors
                     // if sensors are created correctly i create the related water devices
                     if (response.status == 'Success') {
-                        await this.createMultipleWaterDevices(json_data, user_id, selectedUnitValue,provider,authToken)
+                        await this.createMultipleWaterDevices(json_data, user_id, selectedUnitValue, provider, authToken)
                             .then((response: any) => {
                                 // if sensors are created correctly i create the related water devices
                                 if (response.status == 'Success') {
@@ -419,6 +424,61 @@ class WaterDevicesController {
                     }
 
                     //console.log(results)
+                    // Response
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        water_devices: results
+                    })
+                })
+            })
+        })
+
+    }
+
+    /**
+     * GET ('/page')
+     *
+     * @async
+     * @param user_id
+     * @param page_index
+     * @param page_size
+     *
+     * @returns
+     */
+    public async getWaterDevicesListingSorted(user_id: number, page_index: number, page_size: number, sortByCol: string, direction: string) {
+
+        const first_value = (page_size * page_index) - page_size;
+        const second_value = (page_size * page_index);
+
+        var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w." + sortByCol + " " + direction + " LIMIT " + first_value + ', ' + page_size;
+        console.log(query)
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((error: any, conn: any) => {
+
+                // If the connection with the database fails
+                if (error) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: error
+                    })
+                }
+
+                conn.query(query, (err: any, results: any) => {
+                    conn.release()
+
+                    // If the query fails
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    }
+
+                    console.log(results)
                     // Response
                     resolve({
                         http: 200,

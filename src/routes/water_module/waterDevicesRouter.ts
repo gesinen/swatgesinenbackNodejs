@@ -13,6 +13,7 @@ class WaterDevicesRouter {
         this.getWaterDeviceByIdAction();
         this.updateWaterDeviceByNameAction();
         this.updateWaterDevicesFromExcel();
+        this.getWaterDeviceListingSortedAction();
     }
 
     public createWaterDeviceAction = () => this.router.post('/', (req: Request, res: Response) => {
@@ -31,6 +32,18 @@ class WaterDevicesRouter {
         const params = req.params;
 
         waterDevicesController.getWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
+            .then(response => {
+                res.send(response)
+            })
+            .catch(err => {
+                res.send(err)
+            })
+    })
+
+    public getWaterDeviceListingSortedAction = () => this.router.get('/page/:user_id/:page_index/:page_size/:sort_by_col/:direction', (req: Request, res: Response) => {
+        const params = req.params;
+
+        waterDevicesController.getWaterDevicesListingSorted(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size),params.sort_by_col,params.direction)
             .then(response => {
                 res.send(response)
             })
