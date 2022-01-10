@@ -450,8 +450,14 @@ class WaterDevicesController {
 
         const first_value = (page_size * page_index) - page_size;
         const second_value = (page_size * page_index);
-
-        var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w." + sortByCol + " " + direction + " LIMIT " + first_value + ', ' + page_size;
+        var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id;
+        if (sortByCol == "device_EUI") {
+            query += " ORDER BY s.device_e_u_i " + direction + " LIMIT " + first_value + ', ' + page_size;
+        } else if (sortByCol == "sensor_name") {
+            query += " ORDER BY s." + sortByCol + " " + direction + " LIMIT " + first_value + ', ' + page_size;
+        } else {
+            query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w." + sortByCol + " " + direction + " LIMIT " + first_value + ', ' + page_size;
+        }
         console.log(query)
         return new Promise((resolve: any, reject: any) => {
 
@@ -478,7 +484,7 @@ class WaterDevicesController {
                         })
                     }
 
-                    console.log(results)
+                    //console.log(results)
                     // Response
                     resolve({
                         http: 200,
