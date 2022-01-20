@@ -39,33 +39,39 @@ class WaterDevicesController {
                     //console.log("***** json_data *****")
                     //console.log(json_data)
                     let contador = 0;
-                    for (const addedSensorRow of json_data) {
-                        // provider and authorization token can be given
-                        let lastObservation: any;
-                        if (provider != undefined && authToken != undefined) {
-                            //console.log("***** addedSensorRow.name *****")
-                            //console.log(addedSensorRow.name)
+                    try {
+                        for (const addedSensorRow of json_data) {
+                            // provider and authorization token can be given
+                            let lastObservation: any;
+                            if (provider != undefined && authToken != undefined) {
+                                //console.log("***** addedSensorRow.name *****")
+                                //console.log(addedSensorRow.name)
 
-                            lastObservation = await sensorController.addSensorObservationsFromSentilo(addedSensorRow.name,
-                                addedSensorRow.server_url, provider, authToken)
-                            //console.log("*** usando token y auth por parametro ***")
-                        } else {
-                            lastObservation = await sensorController.addSensorObservationsFromSentilo(addedSensorRow.name,
-                                addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token)
-                            //console.log("*** usando token y auth desde sensor_info ***")
-                        }
-                        console.log("***** lastObservation *****")
-                        try {
+                                lastObservation = await sensorController.addSensorObservationsFromSentilo(addedSensorRow.name,
+                                    addedSensorRow.server_url, provider, authToken)
+                                //console.log("*** usando token y auth por parametro ***")
+                            } else {
+                                lastObservation = await sensorController.addSensorObservationsFromSentilo(addedSensorRow.name,
+                                    addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token)
+                                //console.log("*** usando token y auth desde sensor_info ***")
+                            }
+                            console.log("***** lastObservation *****")
+
                             if (lastObservation.observations[0] != undefined) {
+                                if (selectedUnitValue == 'liter') {
+                                    json_data[contador].lastObservation = lastObservation.observations[0].value / 1000;
+                                } else {
+                                    json_data[contador].lastObservation = lastObservation.observations[0].value
+                                }
                                 console.log(lastObservation.observations[0])
-                                json_data[contador].lastObservation = lastObservation.observations[0].value
                                 json_data[contador].lastObservationDate = lastObservation.observations[0].time
                             }
                             contador++;
-                        } catch (error) {
-                            console.log(error)
-                        }
 
+
+                        }
+                    } catch (error) {
+                        console.log(error)
                     }
                     //console.log("***** json_data after observations *****")
                     //console.log(json_data)
@@ -259,7 +265,7 @@ class WaterDevicesController {
         var query = "INSERT INTO `water_devices` (`name`, `sensor_id`, " +
             "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`," +
             " `contract_number`, `created_dt`, `updated_dt`,`provider`,`authToken`) VALUES " + insert_values.slice(0, -1) + ";";
-        console.log(query);
+        //console.log(query);
 
         return new Promise((resolve: any, reject: any) => {
             db.getConnection((error: any, conn: any) => {
@@ -279,7 +285,8 @@ class WaterDevicesController {
                     //console.log(query)
                     // If the query fails
                     if (err) {
-                        //console.log(err);
+                        console.log("***ERROR INSERTING WATER DEVICES***")
+                        console.log(err);
 
                         reject({
                             http: 401,
