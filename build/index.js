@@ -10,6 +10,7 @@ const usersRouter_1 = __importDefault(require("./routes/usersRouter"));
 const waterDevicesRouter_1 = __importDefault(require("./routes/water_module/waterDevicesRouter"));
 const waterUsersRouter_1 = __importDefault(require("./routes/water_module/waterUsersRouter"));
 const waterObservationsRouter_1 = __importDefault(require("./routes/water_module/waterObservationsRouter"));
+const waterGroupsRouter_1 = __importDefault(require("./routes/water_module/waterGroupsRouter"));
 const capacityDevicesRouter_1 = __importDefault(require("./routes/capacity_module/capacityDevicesRouter"));
 const loraDashboardRouter_1 = __importDefault(require("./routes/lora_module/loraDashboardRouter"));
 class Server {
@@ -31,6 +32,7 @@ class Server {
         this.app.use('/v2/water/devices', waterDevicesRouter_1.default);
         this.app.use('/v2/water/users', waterUsersRouter_1.default);
         this.app.use('/v2/water/observations', waterObservationsRouter_1.default);
+        this.app.use('/v2/water/groups', waterGroupsRouter_1.default);
         this.app.use('/v2/lora/dashboard', loraDashboardRouter_1.default);
     }
     start() {
