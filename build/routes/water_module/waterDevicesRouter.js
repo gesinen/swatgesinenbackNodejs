@@ -37,6 +37,16 @@ class WaterDevicesRouter {
                 res.send(err);
             });
         });
+        this.getWaterDeviceListingSortedAction = () => this.router.get('/page/:user_id/:page_index/:page_size/:sort_by_col/:direction', (req, res) => {
+            const params = req.params;
+            waterDevicesController_1.default.getWaterDevicesListingSorted(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size), params.sort_by_col, params.direction)
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
         this.updateWaterDevicesFromExcel = () => this.router.post('/update/', (req, res) => __awaiter(this, void 0, void 0, function* () {
             const params = req.body;
             try {
@@ -114,6 +124,7 @@ class WaterDevicesRouter {
         this.getWaterDeviceByIdAction();
         this.updateWaterDeviceByNameAction();
         this.updateWaterDevicesFromExcel();
+        this.getWaterDeviceListingSortedAction();
     }
 }
 const waterDevicesRoutes = new WaterDevicesRouter();
