@@ -58,5 +58,47 @@ class UsersController {
             });
         });
     }
+    /**
+     * POST ('/login')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
+    getUserLogin(mail, pass) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT * FROM users WHERE email = '" + mail + "' AND pwd = '" + pass + "'";
+                    console.log('QUERY', query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results == undefined || results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There are no users with this ID',
+                                user_data: {}
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            user_data: results[0]
+                        });
+                    });
+                });
+            });
+        });
+    }
 }
 exports.default = new UsersController();

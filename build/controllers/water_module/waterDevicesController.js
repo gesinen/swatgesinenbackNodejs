@@ -50,26 +50,36 @@ class WaterDevicesController {
                     //console.log("***** json_data *****")
                     //console.log(json_data)
                     let contador = 0;
-                    for (const addedSensorRow of json_data) {
-                        // provider and authorization token can be given
-                        let lastObservation;
-                        if (provider != undefined && authToken != undefined) {
-                            //console.log("***** addedSensorRow.name *****")
-                            //console.log(addedSensorRow.name)
-                            lastObservation = yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, provider, authToken);
-                            //console.log("*** usando token y auth por parametro ***")
+                    try {
+                        for (const addedSensorRow of json_data) {
+                            // provider and authorization token can be given
+                            let lastObservation;
+                            if (provider != undefined && authToken != undefined) {
+                                //console.log("***** addedSensorRow.name *****")
+                                //console.log(addedSensorRow.name)
+                                lastObservation = yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, provider, authToken);
+                                //console.log("*** usando token y auth por parametro ***")
+                            }
+                            else {
+                                lastObservation = yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token);
+                                //console.log("*** usando token y auth desde sensor_info ***")
+                            }
+                            console.log("***** lastObservation *****");
+                            if (lastObservation.observations[0] != undefined) {
+                                if (selectedUnitValue == 'liter') {
+                                    json_data[contador].lastObservation = lastObservation.observations[0].value / 1000;
+                                }
+                                else {
+                                    json_data[contador].lastObservation = lastObservation.observations[0].value;
+                                }
+                                console.log(lastObservation.observations[0]);
+                                json_data[contador].lastObservationDate = lastObservation.observations[0].time;
+                            }
+                            contador++;
                         }
-                        else {
-                            lastObservation = yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token);
-                            //console.log("*** usando token y auth desde sensor_info ***")
-                        }
-                        console.log("***** lastObservation *****");
-                        console.log(lastObservation.observations[0]);
-                        if (lastObservation.observations[0] != undefined) {
-                            json_data[contador].lastObservation = lastObservation.observations[0].value;
-                            json_data[contador].lastObservationDate = lastObservation.observations[0].time;
-                        }
-                        contador++;
+                    }
+                    catch (error) {
+                        console.log(error);
                     }
                     //console.log("***** json_data after observations *****")
                     //console.log(json_data)
@@ -269,7 +279,6 @@ class WaterDevicesController {
             var query = "INSERT INTO `water_devices` (`name`, `sensor_id`, " +
                 "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`," +
                 " `contract_number`, `created_dt`, `updated_dt`,`provider`,`authToken`) VALUES " + insert_values.slice(0, -1) + ";";
-            console.log(query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails
@@ -286,7 +295,8 @@ class WaterDevicesController {
                         //console.log(query)
                         // If the query fails
                         if (err) {
-                            //console.log(err);
+                            console.log("***ERROR INSERTING WATER DEVICES***");
+                            console.log(err);
                             reject({
                                 http: 401,
                                 status: 'Failed',
@@ -392,6 +402,63 @@ class WaterDevicesController {
             const first_value = (page_size * page_index) - page_size;
             const second_value = (page_size * page_index);
             var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w.id DESC LIMIT " + first_value + ', ' + page_size;
+            console.log(query);
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((error, conn) => {
+                    // If the connection with the database fails
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        });
+                    }
+                    conn.query(query, (err, results) => {
+                        conn.release();
+                        // If the query fails
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        //console.log(results)
+                        // Response
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            water_devices: results
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/page')
+     *
+     * @async
+     * @param user_id
+     * @param page_index
+     * @param page_size
+     *
+     * @returns
+     */
+    getWaterDevicesListingSorted(user_id, page_index, page_size, sortByCol, direction) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const first_value = (page_size * page_index) - page_size;
+            const second_value = (page_size * page_index);
+            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id;
+            if (sortByCol == "device_EUI") {
+                query += " ORDER BY s.device_e_u_i " + direction + " LIMIT " + first_value + ', ' + page_size;
+            }
+            else if (sortByCol == "sensor_name") {
+                query += " ORDER BY s." + sortByCol + " " + direction + " LIMIT " + first_value + ', ' + page_size;
+            }
+            else {
+                query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w." + sortByCol + " " + direction + " LIMIT " + first_value + ', ' + page_size;
+            }
             console.log(query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {

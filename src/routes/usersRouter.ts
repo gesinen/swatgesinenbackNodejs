@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, request } from 'express';
 import usersController from '../controllers/usersController';
 import waterDevicesController from "../controllers/water_module/waterUsersController";
 
@@ -8,6 +8,7 @@ class UsersRouter {
 
     constructor() {
         this.getUserInformationAction();
+        this.getUserLoginAction();
     }
 
     /**
@@ -39,6 +40,23 @@ class UsersRouter {
                 res.send(response)
             })
             .catch(err => {
+                res.send(err)
+            })
+    })
+
+    /**
+     * Get the user data
+     * GET ('/login')
+     */
+     public getUserLoginAction = () => this.router.post('/login', (req: Request, res: Response) => {
+        const mail = req.body.email;
+        const pass = req.body.password;
+
+        usersController.getUserLogin(mail, pass)
+            .then( response => {
+                res.send(response)
+            })
+            .catch( err => {
                 res.send(err)
             })
     })
