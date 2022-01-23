@@ -279,7 +279,6 @@ class WaterDevicesController {
             var query = "INSERT INTO `water_devices` (`name`, `sensor_id`, " +
                 "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`," +
                 " `contract_number`, `created_dt`, `updated_dt`,`provider`,`authToken`) VALUES " + insert_values.slice(0, -1) + ";";
-            //console.log(query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails

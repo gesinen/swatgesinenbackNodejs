@@ -220,18 +220,17 @@ class WaterUsersController {
 
                 json_file_data.forEach((element: any, index: any) => {
                     values_to_insert += "('" + Utils.checkUndefined(element.first_name) + "','" + Utils.checkUndefined(element.last_name) + "','" + Utils.checkUndefined(element.email) + "','" + Utils.checkUndefined(element.user_nif) + "','" + Utils.checkUndefined(element.mobile) + "','" +
-                        Utils.checkUndefined(user_id) + "','" + Utils.checkUndefined(municipality_id) + "','" + Utils.checkUndefined(element.water_device_id) + "','" + Utils.checkUndefined(element.dob) + "','" + Utils.checkUndefined(element.user_created_dt) + "','" + Utils.checkUndefined(element.house_no) + "','" +
-                        Utils.checkUndefined(element.street) + "','" + Utils.checkUndefined(element.address) + "','" + Utils.checkUndefined(element.city) + "','" + Utils.checkUndefined(element.state) + "','" + Utils.checkUndefined(element.country) + "','" + Utils.checkUndefined(element.zip_code) + "','" + Utils.checkUndefined(element.same_address) + "','" +
-                        Utils.checkUndefined(element.bill_house_no) + "','" + Utils.checkUndefined(element.bill_street) + "','" + Utils.checkUndefined(element.bill_address) + "','" + Utils.checkUndefined(element.bill_city) + "','" + Utils.checkUndefined(element.bill_state) + "','" + Utils.checkUndefined(element.bill_country) + "','" +
-                        Utils.checkUndefined(element.bill_zip_code) + "','" + Utils.checkUndefined(element.bank_name) + "','" + Utils.checkUndefined(element.bank_address) + "','" + Utils.checkUndefined(element.IBAN) + "','" + Utils.checkUndefined(element.profile_pic) + "','" + Utils.checkUndefined(element.account_certificate) + "','" +
-                        Utils.checkUndefined(element.idproof) + "','" + Utils.checkUndefined(element.sepa) + "','" + Utils.checkUndefined(element.dni) + "','" + Utils.checkUndefined(element.created_at) + "','" + Utils.checkUndefined(element.updated_at) + "'),";
+                        Utils.checkUndefined(user_id) + "','" + Utils.checkUndefined(municipality_id) + "','" + Utils.checkUndefined(element.house_no) + "','" +
+                        Utils.checkUndefined(element.street) + "','" + Utils.checkUndefined(element.address) + "','" + Utils.checkUndefined(element.city) + "','" + Utils.checkUndefined(element.state) + "','" + Utils.checkUndefined(element.country) + "','" + Utils.checkUndefined(element.zip_code) + "','" +
+                        Utils.checkUndefined(element.bill_house_no) + "','" + Utils.checkUndefined(element.bill_street) + "','" + Utils.checkUndefined(element.bill_address) + "','" + Utils.checkUndefined(element.bill_city) + "','" + Utils.checkUndefined(element.bill_state) + "','" + Utils.checkUndefined(element.bill_country) + "','" + Utils.checkUndefined(element.bank_name) + "','" + Utils.checkUndefined(element.bank_address) + "','" + Utils.checkUndefined(element.IBAN) + "','" + Utils.checkUndefined(element.profile_pic) + "','" + Utils.checkUndefined(element.account_certificate) + "','" +
+                        Utils.checkUndefined(element.idproof) + "','" + Utils.checkUndefined(element.sepa) + "','" + Utils.checkUndefined(element.dni) + "'),";
                 })
                 var insert_query =
                     "INSERT INTO `water_module_users` (`first_name`, `last_name`, `email`, `user_nif`, `mobile`, `user_id`," +
-                    " `municipality_id`, `water_device_id`, `dob`, `user_created_dt`, `house_no`, `street`, `address`, `city`," +
-                    " `state`, `country`, `zip_code`, `same_address`, `bill_house_no`, `bill_street`, `bill_address`, `bill_city`," +
+                    " `municipality_id`, `house_no`, `street`, `address`, `city`," +
+                    " `state`, `country`, `bill_house_no`, `bill_street`, `bill_address`, `bill_city`," +
                     " `bill_state`, `bill_country`, `bill_zip_code`, `bank_name`, `bank_address`, `IBAN`, `profile_pic`," +
-                    " `account_certificate`, `idproof`, `sepa`, `dni`, `created_dt`, `updated_dt`) " + " VALUES " + values_to_insert.slice(0, -1) + ";";
+                    " `account_certificate`, `idproof`, `sepa`, `dni`) " + " VALUES " + values_to_insert.slice(0, -1) + ";";
                 //console.log(insert_query)
 
                 conn.query(insert_query, (err: any, results: any) => {
