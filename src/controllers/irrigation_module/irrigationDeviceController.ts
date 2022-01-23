@@ -107,7 +107,7 @@ class IrrigationDeviceController {
      * 
      * @return 
      */
-     public async getIrrigationDeviceOutputTotalCount(irrigationDeviceId: number): Promise<object> {
+    public async getIrrigationDeviceOutputTotalCount(irrigationDeviceId: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -217,7 +217,7 @@ class IrrigationDeviceController {
         })
     }
 
-    
+
     /**
      * GET ('/information/:id')
      * Getting the information about the user
@@ -227,7 +227,7 @@ class IrrigationDeviceController {
      * 
      * @return 
      */
-     public async getIrrigationInputDevicesByIrregationDeviceId(irrigationDeviceId: number): Promise<object> {
+    public async getIrrigationInputDevicesByIrregationDeviceId(irrigationDeviceId: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -300,10 +300,10 @@ class IrrigationDeviceController {
                         let irrigationDeviceInsertId = results.insertId
                         let valvesInserted: number = 0
                         let contador: number = 1
-                        for (const irrigationDeviceOutputId of valves) {
+                        for (const irrigationDeviceOutput of valves) {
                             let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
-                                irrigationDeviceInsertId, irrigationDeviceOutputId, contador,
-                                "", false)
+                                irrigationDeviceInsertId, irrigationDeviceOutput.id, contador,
+                                "", false, irrigationDeviceOutput.name)
                             if (deviceOutputRes.http == 200) {
                                 valvesInserted++
                             }

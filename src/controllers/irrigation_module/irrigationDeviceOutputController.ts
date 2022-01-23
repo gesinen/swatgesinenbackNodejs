@@ -60,15 +60,15 @@ class IrrigationDeviceOutputController {
      * @return 
      */
     public async storeIrrigationOutputDevice(irrigationDeviceId: number, sensorId: number,
-        sensorIndex: number, intervals: string, status: boolean): Promise<object> {
+        sensorIndex: number, intervals: string, status: boolean, name: string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "INSERT INTO irrigation_device_output (irrigationDeviceId,sensorId,sensorIndex,intervals,status)" +
+                let query = "INSERT INTO irrigation_device_output (irrigationDeviceId,sensorId,sensorIndex,intervals,status,name)" +
                     " VALUES (" + irrigationDeviceId + "," + sensorId + "," + sensorIndex + ",'" +
-                    intervals + "'," + status + ")"
+                    intervals + "'," + status + ",'" + name + "')"
                 console.log("query", query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -111,14 +111,14 @@ class IrrigationDeviceOutputController {
      * @return 
      */
     public async updateIrrigationOutputDevice(id: number, irrigationDeviceId: number, sensorId: number,
-        sensorIndex: number, intervals: string, status: boolean): Promise<object> {
+        sensorIndex: number, intervals: string, status: boolean, name: string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
                 let query = "UPDATE irrigation_device_output SET irrigationDeviceId=" + irrigationDeviceId + ", sensorId=" + sensorId +
-                    ", sensorIndex=" + sensorIndex + ",intervals='" + intervals + "', status=" + status + " WHERE id=" + id + ";"
+                    ", sensorIndex=" + sensorIndex + ",intervals='" + intervals + "', status=" + status + ", name='" + name + "' WHERE id=" + id + ";"
                 console.log(query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -159,7 +159,7 @@ class IrrigationDeviceOutputController {
      * 
      * @return 
      */
-     public async updateIrrigationOutputDeviceIntervals(irrigationDeviceId: number,intervals: any[]): Promise<object> {
+    public async updateIrrigationOutputDeviceIntervals(irrigationDeviceId: number, intervals: any[]): Promise<object> {
 
         let intevalsStr = ""
         intervals.forEach(interval => {
