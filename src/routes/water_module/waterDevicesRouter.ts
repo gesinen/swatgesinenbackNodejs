@@ -43,7 +43,7 @@ class WaterDevicesRouter {
     public getWaterDeviceListingSortedAction = () => this.router.get('/page/:user_id/:page_index/:page_size/:sort_by_col/:direction', (req: Request, res: Response) => {
         const params = req.params;
 
-        waterDevicesController.getWaterDevicesListingSorted(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size),params.sort_by_col,params.direction)
+        waterDevicesController.getWaterDevicesListingSorted(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size), params.sort_by_col, params.direction)
             .then(response => {
                 res.send(response)
             })
@@ -61,7 +61,7 @@ class WaterDevicesRouter {
             let successCount: number = 0
             for (const device of params) {
                 let updateRes: any = await waterDevicesController.updateWaterDeviceByName(device.name, device.variableName, device.description, device.units,
-                    device.contractNumber, device.deviceDiameter, device.installAddress, device.numContador, device.numModuleLora, device.provider, device.authToken);
+                    device.contractNumber, device.deviceDiameter, device.installAddress, device.numContador, device.numModuleLora, device.provider, device.authToken, device.nif);
                 if (updateRes.http != 200 || updateRes.result.affectedRows == 0) {
                     waterDevicesWithErr.push(device.name)
                     contador++
@@ -89,8 +89,8 @@ class WaterDevicesRouter {
     public updateWaterDeviceByNameAction = () => this.router.put('/name/', (req: Request, res: Response) => {
         const params = req.body;
         waterDevicesController.updateWaterDeviceByName(params.name, params.variableName, params.description,
-            params.units, params.contractNumber, params.deviceDiameter, params.installAddress,params.numContador,
-             params.numModuleLora, params.provider, params.authToken)
+            params.units, params.contractNumber, params.deviceDiameter, params.installAddress, params.numContador,
+            params.numModuleLora, params.provider, params.authToken, params.nif)
             .then(response => {
                 res.send(response)
             })

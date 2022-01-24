@@ -615,10 +615,19 @@ class WaterDevicesController {
      * @returns
      */
     public async updateWaterDeviceByName(name: string, variable_name: string, description: string, units: number, contractNumber: string, deviceDiameter: number,
-        installAddress: string, numContador: string, numModuleLora: string, provider: string, authToken: string) {
+        installAddress: string, numContador: string, numModuleLora: string, provider: string, authToken: string, nif: string) {
+        let water_user_id = ""
+        if (nif != "") {
+            let res: any = await waterUsersController.getUserByNif(nif)
+            console.log("res", res.user_module_data.id)
+            if (res.http == 200) {
+                water_user_id = res.user_module_data.id
+            }
+        }
         var query = "UPDATE water_devices SET variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
             contractNumber + "',device_diameter='" + deviceDiameter + "',installation_address='" + installAddress + "',numContador='" + numContador +
-            "',numModuleLora='" + numModuleLora + "',provider='" + provider + "',authToken='" + authToken + "' WHERE name='" + name + "'";
+            "',numModuleLora='" + numModuleLora + "',provider='" + provider + "',authToken='" + authToken + "', water_user_id=" + water_user_id + " WHERE name='" +
+            name + "'";
 
         return new Promise((resolve: any, reject: any) => {
 
