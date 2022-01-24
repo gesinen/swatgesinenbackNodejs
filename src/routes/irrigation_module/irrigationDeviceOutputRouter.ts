@@ -12,6 +12,7 @@ class IrrigationDeviceOutputRouter {
         this.deleteIrrigationOutputDevice();
         this.updateIrrigationOutputDevice();
         this.updateValvesConfig();
+        this.getIrrigationOutputDeviceIntervalById();
     }
 
     /**
@@ -26,6 +27,22 @@ class IrrigationDeviceOutputRouter {
                 res.send(response)
             })
             .catch((err: any) => {
+                res.send(err)
+            })
+    })
+
+    /**
+     * Get the user data
+     * GET ('/information/:id')
+     */
+     public getIrrigationOutputDeviceIntervalById = () => this.router.get('/intervals/:id', (req: Request, res: Response) => {
+        const id = parseInt(req.params.id);
+
+        irrigationDeviceOutputController.getIrrigationOutputDeviceIntervalById(id)
+            .then(response => {
+                res.send(response)
+            })
+            .catch(err => {
                 res.send(err)
             })
     })

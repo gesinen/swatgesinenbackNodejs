@@ -59,6 +59,52 @@ class IrrigationDeviceOutputController {
      * 
      * @return 
      */
+     public async getIrrigationOutputDeviceIntervalById(id: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT id as valve,intervals as config FROM irrigation_device_output WHERE irrigationDeviceId = " + id;
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: 'There is no interval on irrigation device output with this ID'
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
+                    })
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
     public async storeIrrigationOutputDevice(irrigationDeviceId: number, sensorId: number,
         sensorIndex: number, intervals: string, status: boolean, name: string): Promise<object> {
 
