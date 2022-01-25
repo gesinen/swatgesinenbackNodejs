@@ -59,7 +59,7 @@ class IrrigationDeviceOutputController {
      * 
      * @return 
      */
-     public async getIrrigationOutputDeviceIntervalById(id: number): Promise<object> {
+    public async getIrrigationOutputDeviceIntervalById(id: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -205,17 +205,14 @@ class IrrigationDeviceOutputController {
      * 
      * @return 
      */
-    public async updateIrrigationOutputDeviceIntervals(irrigationDeviceId: number, intervals: any[]): Promise<object> {
+    public async updateIrrigationOutputDeviceInterval(irrigationDeviceId: number, intervals: any, valveIndex: any): Promise<object> {
 
-        let intevalsStr = ""
-        intervals.forEach(interval => {
-            intevalsStr += interval
-        });
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "UPDATE irrigation_device_output SET intervals='" + intervals + "'WHERE irrigationDeviceId=" + irrigationDeviceId + ";"
+                let query = "UPDATE irrigation_device_output SET intervals='" + intervals + "' WHERE irrigationDeviceId=" + irrigationDeviceId 
+                + " AND sensorIndex=" + valveIndex + ";"
                 console.log(query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()

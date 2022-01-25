@@ -238,7 +238,10 @@ class WaterDevicesController {
                 lastObservationTimestamp = '9999-99-99 00:00:00.000000'
                 element.lastObservation = false
             }
-
+            let description = ""
+            if (Utils.checkUndefined(element.description) != '') {
+                description = element.description.replace(/'/g, '');
+            }
             if (!element.lastObservation) {
                 insert_values += "('" + Utils.checkUndefined(element.name) + "','" +
                     Utils.checkUndefined(element.id) + "','" +
@@ -625,7 +628,7 @@ class WaterDevicesController {
             }
         }
         description = description.replace(/'/g, '');
-        installAddress = description.replace(/'/g, '');
+        installAddress = installAddress.replace(/'/g, '');
 
         var query = "UPDATE water_devices SET variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
             contractNumber + "',device_diameter='" + deviceDiameter + "',installation_address='" + installAddress + "',numContador='" + numContador +
