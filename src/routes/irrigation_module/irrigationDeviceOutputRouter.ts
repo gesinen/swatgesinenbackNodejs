@@ -12,6 +12,7 @@ class IrrigationDeviceOutputRouter {
         this.deleteIrrigationOutputDevice();
         this.updateIrrigationOutputDevice();
         this.updateValvesConfig();
+        this.getIrrigationOutputDeviceIntervalById();
     }
 
     /**
@@ -31,6 +32,22 @@ class IrrigationDeviceOutputRouter {
     })
 
     /**
+     * Get the user data
+     * GET ('/information/:id')
+     */
+    public getIrrigationOutputDeviceIntervalById = () => this.router.get('/intervals/:id', (req: Request, res: Response) => {
+        const id = parseInt(req.params.id);
+
+        irrigationDeviceOutputController.getIrrigationOutputDeviceIntervalById(id)
+            .then(response => {
+                res.send(response)
+            })
+            .catch(err => {
+                res.send(err)
+            })
+    })
+
+    /**
      * Get user related municipality_id
      * GET ('/municipality/{user_id}')
      * params user_id -> id of the user we want to get the municipality_id from
@@ -40,7 +57,7 @@ class IrrigationDeviceOutputRouter {
         console.log("router store params")
         console.log(params)
         irrigationDeviceOutputController.storeIrrigationOutputDevice(params.irrigationDeviceId, params.sensorId, params.sensorIndex,
-            params.intervals, params.status)
+            params.intervals, params.status, params.name)
             .then((response: any) => {
                 res.send(response)
             })
@@ -71,17 +88,34 @@ class IrrigationDeviceOutputRouter {
     * POST ('/municipality/{user_id}')
     * params user_id -> id of the user we want to get the municipality_id from
     */
-    public updateValvesConfig = () => this.router.post('/config/valves', (req: Request, res: Response) => {
-        console.log("WORKS")
-        const params = req.body;
-        console.log(params)
-        irrigationDeviceOutputController.updateIrrigationOutputDeviceIntervals(params.body.data.id, params.valves)
-            .then((response: any) => {
-                res.send(response)
-            })
-            .catch((err: any) => {
-                res.send(err)
-            })
+    public updateValvesConfig = () => this.router.post('/config/valves', async (req: Request, res: Response) => {
+        try {
+            const params = req.body;
+            console.log(params)
+            let acumRes: number = 0
+            for (let i = 0; i < params.valves.length; i++) {
+                let res: any = await irrigationDeviceOutputController.updateIrrigationOutputDeviceInterval(params.body.data.id, params.valves[i], params.valvesIndex[i])
+                if (res.http == 200) {
+                    acumRes++;
+                }
+                console.log("res",res)
+            }
+            if (params.valves.length == acumRes) {
+                res.send({
+                    http: 200,
+                    status: 'Success',
+                    result: 'Irrigation device valve intervals updated succesfully'
+                })
+            } else {
+                res.send({
+                    http: 204,
+                    status: 'Success',
+                    result: 'Irrigation device valve intervals couldnt be updated'
+                })
+            }
+        } catch (error) {
+            res.send(error)
+        }
     })
 
     /**
@@ -94,7 +128,7 @@ class IrrigationDeviceOutputRouter {
         const params = req.body;
         console.log(params)
         irrigationDeviceOutputController.updateIrrigationOutputDevice(params.id, params.irrigationDeviceId, params.sensorId, params.sensorIndex,
-            params.intervals, params.status)
+            params.intervals, params.status, params.name)
             .then((response: any) => {
                 res.send(response)
             })

@@ -38,7 +38,23 @@ class UsersRouter {
                 res.send(err);
             });
         });
+        /**
+         * Get the user data
+         * GET ('/login')
+         */
+        this.getUserLoginAction = () => this.router.post('/login', (req, res) => {
+            const mail = req.body.email;
+            const pass = req.body.password;
+            usersController_1.default.getUserLogin(mail, pass)
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
         this.getUserInformationAction();
+        this.getUserLoginAction();
     }
 }
 const userRouter = new UsersRouter();
