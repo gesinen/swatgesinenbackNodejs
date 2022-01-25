@@ -32,7 +32,7 @@ class IrrigationDeviceController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT * FROM irrigation_device WHERE id = " + id;
+                    let query = "SELECT * FROM irrigation_device INNER JOIN irrigation_device_output ON irrigation_device.id = irrigation_device_output.irrigationDeviceId WHERE irrigation_device.id = " + id;
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -47,13 +47,13 @@ class IrrigationDeviceController {
                                 http: 204,
                                 status: 'Success',
                                 result: 'There is no irrigation device with this ID',
-                                user_data: {}
+                                irrigationDevice: {}
                             });
                         }
                         resolve({
                             http: 200,
                             status: 'Success',
-                            user_data: results[0]
+                            irrigationDevice: results
                         });
                     });
                 });
@@ -286,8 +286,8 @@ class IrrigationDeviceController {
                             let irrigationDeviceInsertId = results.insertId;
                             let valvesInserted = 0;
                             let contador = 1;
-                            for (const irrigationDeviceOutputId of valves) {
-                                let deviceOutputRes = yield irrigationDeviceOutputController_1.default.storeIrrigationOutputDevice(irrigationDeviceInsertId, irrigationDeviceOutputId, contador, "", false);
+                            for (const irrigationDeviceOutput of valves) {
+                                let deviceOutputRes = yield irrigationDeviceOutputController_1.default.storeIrrigationOutputDevice(irrigationDeviceInsertId, irrigationDeviceOutput.id, contador, "", false, irrigationDeviceOutput.name);
                                 if (deviceOutputRes.http == 200) {
                                     valvesInserted++;
                                 }

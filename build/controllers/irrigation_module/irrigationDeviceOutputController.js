@@ -66,13 +66,53 @@ class IrrigationDeviceOutputController {
      *
      * @return
      */
-    storeIrrigationOutputDevice(irrigationDeviceId, sensorId, sensorIndex, intervals, status) {
+    getIrrigationOutputDeviceIntervalById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "INSERT INTO irrigation_device_output (irrigationDeviceId,sensorId,sensorIndex,intervals,status)" +
+                    let query = "SELECT id as valve,intervals as config FROM irrigation_device_output WHERE irrigationDeviceId = " + id;
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There is no interval on irrigation device output with this ID'
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
+    storeIrrigationOutputDevice(irrigationDeviceId, sensorId, sensorIndex, intervals, status, name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "INSERT INTO irrigation_device_output (irrigationDeviceId,sensorId,sensorIndex,intervals,status,name)" +
                         " VALUES (" + irrigationDeviceId + "," + sensorId + "," + sensorIndex + ",'" +
-                        intervals + "'," + status + ")";
+                        intervals + "'," + status + ",'" + name + "')";
                     console.log("query", query);
                     conn.query(query, (error, results) => {
                         conn.release();
@@ -114,12 +154,12 @@ class IrrigationDeviceOutputController {
      *
      * @return
      */
-    updateIrrigationOutputDevice(id, irrigationDeviceId, sensorId, sensorIndex, intervals, status) {
+    updateIrrigationOutputDevice(id, irrigationDeviceId, sensorId, sensorIndex, intervals, status, name) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
                     let query = "UPDATE irrigation_device_output SET irrigationDeviceId=" + irrigationDeviceId + ", sensorId=" + sensorId +
-                        ", sensorIndex=" + sensorIndex + ",intervals='" + intervals + "', status=" + status + " WHERE id=" + id + ";";
+                        ", sensorIndex=" + sensorIndex + ",intervals='" + intervals + "', status=" + status + ", name='" + name + "' WHERE id=" + id + ";";
                     console.log(query);
                     conn.query(query, (error, results) => {
                         conn.release();
@@ -160,15 +200,12 @@ class IrrigationDeviceOutputController {
      *
      * @return
      */
-    updateIrrigationOutputDeviceIntervals(irrigationDeviceId, intervals) {
+    updateIrrigationOutputDeviceInterval(irrigationDeviceId, intervals, valveIndex) {
         return __awaiter(this, void 0, void 0, function* () {
-            let intevalsStr = "";
-            intervals.forEach(interval => {
-                intevalsStr += interval;
-            });
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "UPDATE irrigation_device_output SET intervals='" + intervals + "'WHERE irrigationDeviceId=" + irrigationDeviceId + ";";
+                    let query = "UPDATE irrigation_device_output SET intervals='" + intervals + "' WHERE irrigationDeviceId=" + irrigationDeviceId
+                        + " AND sensorIndex=" + valveIndex + ";";
                     console.log(query);
                     conn.query(query, (error, results) => {
                         conn.release();

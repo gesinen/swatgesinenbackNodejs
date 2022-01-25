@@ -21,7 +21,7 @@ class IrrigationDeviceController {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "SELECT * FROM irrigation_device WHERE id = " + id;
+                let query = "SELECT * FROM irrigation_device INNER JOIN irrigation_device_output ON irrigation_device.id = irrigation_device_output.irrigationDeviceId WHERE irrigation_device.id = " + id;
 
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -39,14 +39,14 @@ class IrrigationDeviceController {
                             http: 204,
                             status: 'Success',
                             result: 'There is no irrigation device with this ID',
-                            user_data: {}
+                            irrigationDevice: {}
                         })
                     }
 
                     resolve({
                         http: 200,
                         status: 'Success',
-                        user_data: results[0]
+                        irrigationDevice: results
                     })
                 })
             })

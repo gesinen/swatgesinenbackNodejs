@@ -55,7 +55,7 @@ class WaterDevicesRouter {
                 let contador = 0;
                 let successCount = 0;
                 for (const device of params) {
-                    let updateRes = yield waterDevicesController_1.default.updateWaterDeviceByName(device.name, device.variableName, device.description, device.units, device.contractNumber, device.deviceDiameter, device.installAddress, device.numContador, device.numModuleLora, device.provider, device.authToken);
+                    let updateRes = yield waterDevicesController_1.default.updateWaterDeviceByName(device.name, device.variableName, device.description, device.units, device.contractNumber, device.deviceDiameter, device.installAddress, device.numContador, device.numModuleLora, device.provider, device.authToken, device.nif);
                     if (updateRes.http != 200 || updateRes.result.affectedRows == 0) {
                         waterDevicesWithErr.push(device.name);
                         contador++;
@@ -83,7 +83,7 @@ class WaterDevicesRouter {
         }));
         this.updateWaterDeviceByNameAction = () => this.router.put('/name/', (req, res) => {
             const params = req.body;
-            waterDevicesController_1.default.updateWaterDeviceByName(params.name, params.variableName, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installAddress, params.numContador, params.numModuleLora, params.provider, params.authToken)
+            waterDevicesController_1.default.updateWaterDeviceByName(params.name, params.variableName, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installAddress, params.numContador, params.numModuleLora, params.provider, params.authToken, params.nif)
                 .then(response => {
                 res.send(response);
             })

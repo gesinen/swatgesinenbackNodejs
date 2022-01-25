@@ -253,6 +253,10 @@ class WaterDevicesController {
                     lastObservationTimestamp = '9999-99-99 00:00:00.000000';
                     element.lastObservation = false;
                 }
+                let description = "";
+                if (Utils_1.Utils.checkUndefined(element.description) != '') {
+                    description = element.description.replace(/'/g, '');
+                }
                 if (!element.lastObservation) {
                     insert_values += "('" + Utils_1.Utils.checkUndefined(element.name) + "','" +
                         Utils_1.Utils.checkUndefined(element.id) + "','" +
@@ -279,6 +283,7 @@ class WaterDevicesController {
             var query = "INSERT INTO `water_devices` (`name`, `sensor_id`, " +
                 "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`," +
                 " `contract_number`, `created_dt`, `updated_dt`,`provider`,`authToken`) VALUES " + insert_values.slice(0, -1) + ";";
+            //console.log(query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails
@@ -589,11 +594,22 @@ class WaterDevicesController {
      *
      * @returns
      */
-    updateWaterDeviceByName(name, variable_name, description, units, contractNumber, deviceDiameter, installAddress, numContador, numModuleLora, provider, authToken) {
+    updateWaterDeviceByName(name, variable_name, description, units, contractNumber, deviceDiameter, installAddress, numContador, numModuleLora, provider, authToken, nif) {
         return __awaiter(this, void 0, void 0, function* () {
+            let water_user_id = 0;
+            if (nif) {
+                let res = yield waterUsersController_1.default.getUserByNif(nif);
+                console.log("res", res.user_module_data.id);
+                if (res.http == 200) {
+                    water_user_id = res.user_module_data.id;
+                }
+            }
+            description = description.replace(/'/g, '');
+            installAddress = installAddress.replace(/'/g, '');
             var query = "UPDATE water_devices SET variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
                 contractNumber + "',device_diameter='" + deviceDiameter + "',installation_address='" + installAddress + "',numContador='" + numContador +
-                "',numModuleLora='" + numModuleLora + "',provider='" + provider + "',authToken='" + authToken + "' WHERE name='" + name + "'";
+                "',numModuleLora='" + numModuleLora + "',provider='" + provider + "',authToken='" + authToken + "', water_user_id=" + water_user_id + " WHERE name='" +
+                name + "'";
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails
