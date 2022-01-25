@@ -349,8 +349,8 @@ class IrrigationDeviceController {
      * 
      * @return 
      */
-    public async updateIrrigationDevice(id: number, name: string, nameSentilo: string, latitude: number,
-        longitude: number, description: string, status: boolean, userId: number, deviceTypeId: number): Promise<object> {
+    public async updateIrrigationDevice(id:any, name: string, nameSentilo: string, latitude: number, longitude: number,
+        description: string, status: boolean, userId: number, deviceTypeId: number, valves: any[], sensors: any[]): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -359,6 +359,8 @@ class IrrigationDeviceController {
                 let query = "UPDATE irrigation_device SET name='" + name + "', nameSentilo='" + nameSentilo +
                     "', latitude=" + latitude + ",longitude=" + longitude + ", description='" + description + "', status=" + status +
                     ", userId=" + userId + ",deviceTypeId=" + deviceTypeId + " WHERE id=" + id + ";"
+                
+                //let query2 = "UPDATE irrigation_device_output SET sensor"
 
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -370,14 +372,40 @@ class IrrigationDeviceController {
                             error: error
                         })
                     }
-                    console.log(results)
+
                     if (results.affectedRows == 1) {
+                        let irrigationDeviceInsertId = results.insertId;
+                        console.log('results', results)
+                        /* let valvesInserted: number = 0
+                        let contador: number = 1
+
+                        for (const irrigationDeviceOutputId of valves) {
+                            let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
+                                irrigationDeviceInsertId, irrigationDeviceOutputId, contador,
+                                "", false)
+                            if (deviceOutputRes.http == 200) {
+                                valvesInserted++
+                            }
+                            contador++
+                        } */
+
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: 'Irrigation device inserted succesfully',
+                            insertId: irrigationDeviceInsertId,
+                            //valvesInserted: valvesInserted,
+                            //sensorsInserted: sensorsInserted
+                        })
+                    }
+
+                    /*if (results.affectedRows == 1) {
                         resolve({
                             http: 200,
                             status: 'Success',
                             result: 'Irrigation device updated succesfully'
                         })
-                    } else {
+                    }*/ else {
                         resolve({
                             http: 204,
                             status: 'Success',

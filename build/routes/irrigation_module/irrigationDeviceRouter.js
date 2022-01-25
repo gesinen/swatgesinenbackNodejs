@@ -74,9 +74,10 @@ class IrrigationDeviceRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.updateIrrigationDevice = () => this.router.put('/', (req, res) => {
+        this.updateIrrigationDevice = () => this.router.put('/:id', (req, res) => {
+            const id = req.params.id;
             const params = req.body;
-            irrigationDeviceController_1.default.updateIrrigationDevice(params.id, params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId)
+            irrigationDeviceController_1.default.updateIrrigationDevice(id, params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
                 .then(response => {
                 res.send(response);
             })
