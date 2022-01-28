@@ -14,6 +14,7 @@ class WaterDevicesRouter {
         this.updateWaterDeviceByNameAction();
         this.updateWaterDevicesFromExcel();
         this.getWaterDeviceListingSortedAction();
+        this.updateWaterDeviceById();
     }
 
     public createWaterDeviceAction = () => this.router.post('/', (req: Request, res: Response) => {
@@ -92,6 +93,21 @@ class WaterDevicesRouter {
             params.units, params.contractNumber, params.deviceDiameter, params.installAddress, params.numContador,
             params.numModuleLora, params.provider, params.authToken, params.nif)
             .then(response => {
+                res.send(response)
+            })
+            .catch(err => {
+                res.send(err)
+            })
+    })
+
+    public updateWaterDeviceById = () => this.router.put('/', (req: Request, res: Response) => {
+        const params = req.body;
+        console.log(params)
+        waterDevicesController.updateWaterDeviceById(params.id, params.name, params.variableName, params.description,
+            params.units, params.contractNumber, params.deviceDiameter, params.installationAddress, params.counterNumber,
+            params.loraModuleNumber, params.sensor_id, params.user)
+            .then(response => {
+                console.log(response)
                 res.send(response)
             })
             .catch(err => {

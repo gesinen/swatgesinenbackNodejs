@@ -165,7 +165,6 @@ class IrrigationDeviceOutputController {
 
                 let query = "UPDATE irrigation_device_output SET irrigationDeviceId=" + irrigationDeviceId + ", sensorId=" + sensorId +
                     ", sensorIndex=" + sensorIndex + ",intervals='" + intervals + "', status=" + status + ", name='" + name + "' WHERE id=" + id + ";"
-                console.log(query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
@@ -177,7 +176,7 @@ class IrrigationDeviceOutputController {
                         })
                     }
                     console.log(results)
-                    if (results.affectedRows == 1) {
+                    if (results && results.affectedRows == 1) {
                         resolve({
                             http: 200,
                             status: 'Success',

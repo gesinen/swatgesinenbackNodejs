@@ -60,15 +60,15 @@ class IrrigationDeviceInputController {
      * @return 
      */
     public async storeIrrigationInputDevice(irrigationDeviceId: number, sensorId: number,
-        lastTemperature: number, lastHumidity: number, sensorIndex: number): Promise<object> {
+        lastTemperature: number, lastHumidity: number, sensorIndex: number, name: string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "INSERT INTO irrigation_device_input (irrigationDeviceId,sensorId,lastHumidity,lastTemperature,sensorIndex)" +
+                let query = "INSERT INTO irrigation_device_input (irrigationDeviceId,sensorId,lastHumidity,lastTemperature,sensorIndex, name)" +
                     " VALUES (" + irrigationDeviceId + "," + sensorId + "," + lastHumidity + "," +
-                    lastTemperature + "," + sensorIndex + ")"
+                    lastTemperature + "," + sensorIndex + ", '"+name+"')"
                 console.log("query", query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -158,18 +158,17 @@ class IrrigationDeviceInputController {
      * @return 
      */
     public async updateIrrigationInputDevice(id: number, irrigationDeviceId: number, sensorId: number,
-        lastTemperature: number, lastHumidity: number, sensorIndex: number): Promise<object> {
+        lastTemperature: number, lastHumidity: number, sensorIndex: number, name: string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
                 let query = "UPDATE irrigation_device_input SET irrigationDeviceId=" + irrigationDeviceId + ", sensorId=" + sensorId +
-                    ", lastTemperature=" + lastTemperature + ",lastHumidity='" + lastHumidity + "', sensorIndex=" + sensorIndex + " WHERE id=" + id + ";"
-                console.log(query)
+                    ", lastTemperature=" + lastTemperature + ",lastHumidity='" + lastHumidity + "', name='" + name + "', sensorIndex=" + sensorIndex + " WHERE id=" + id + ";"
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
-
+                    console.log(query)
                     if (error) {
                         reject({
                             http: 406,

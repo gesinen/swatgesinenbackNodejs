@@ -39,7 +39,7 @@ class IrrigationDeviceInputRouter {
         console.log("router store params")
         console.log(params)
         irrigationDeviceInputController.storeIrrigationInputDevice(params.irrigationDeviceId, params.sensorId, params.lastHumidity,
-            params.lastTemperature, params.sensorIndex)
+            params.lastTemperature, params.sensorIndex, params.name)
             .then((response: any) => {
                 res.send(response)
             })
@@ -76,7 +76,7 @@ class IrrigationDeviceInputRouter {
         const params = req.body;
         console.log(params)
         irrigationDeviceInputController.updateIrrigationInputDevice(params.id, params.irrigationDeviceId, params.sensorId, params.lastHumidity,
-            params.lastTemperature, params.sensorIndex)
+            params.lastTemperature, params.sensorIndex, params.name)
             .then((response: any) => {
                 res.send(response)
             })

@@ -670,6 +670,65 @@ class WaterDevicesController {
             })
         })
     }
+
+    /**
+     * GET ('/:deviceId')
+     *
+     * @async
+     * @param deviceId
+     *
+     * @returns
+     */
+    public async updateWaterDeviceById(id: number, name: string, variable_name: string, description: string, units: number, contractNumber: string, deviceDiameter: number,
+        installAddress: string, numContador: string, numModuleLora: string, sensorId: string, water_user_id: number) {
+
+        if (description != undefined) {
+            description = description.replace(/'/g, '');
+        }
+        if (installAddress != undefined) {
+            installAddress = installAddress.replace(/'/g, '');
+        }
+
+        var query = "UPDATE water_devices SET name='" + name + "',variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
+            contractNumber + "',device_diameter='" + deviceDiameter + "',installation_address='" + installAddress + "',numContador='" + numContador +
+            "',numModuleLora='" + numModuleLora + "',sensor_id='" + sensorId + "', water_user_id=" + water_user_id + " WHERE id='" +
+            id + "'";
+        console.log("query", query)
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((error: any, conn: any) => {
+
+                // If the connection with the database fails
+                if (error) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: error
+                    })
+                }
+
+                conn.query(query, (err: any, results: any) => {
+                    conn.release()
+                    // If the query fails
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    }
+
+                    // Response
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
+                    })
+                })
+            })
+        })
+    }
 }
 
 export default new WaterDevicesController();
