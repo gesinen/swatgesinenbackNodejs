@@ -238,15 +238,13 @@ class WaterDevicesController {
                 lastObservationTimestamp = '9999-99-99 00:00:00.000000'
                 element.lastObservation = false
             }
-            let description = ""
-            if (Utils.checkUndefined(element.description) != '') {
-                description = element.description.replace(/'/g, '');
-            }
+            let description = element.description.replace(/'/g, '');
+            
             if (!element.lastObservation) {
                 insert_values += "('" + Utils.checkUndefined(element.name) + "','" +
                     Utils.checkUndefined(element.id) + "','" +
                     Utils.checkUndefined(user_id) + "','" + Utils.checkUndefined(unit) + "','" +
-                    Utils.checkUndefined(element.description) + "', NULL ,'1999-10-10 00:00:00.000000',' " +
+                    description + "', NULL ,'1999-10-10 00:00:00.000000',' " +
                     + Utils.checkUndefined(element.numContador) + "','" + Utils.checkUndefined(element.numModuleLora) +
                     "','" + Utils.checkUndefined(element.contractNumber) + "',current_timestamp(), current_timestamp(), '"
                     + provider + "', '" + authToken + "'),";
