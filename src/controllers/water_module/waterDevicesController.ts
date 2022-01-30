@@ -55,7 +55,7 @@ class WaterDevicesController {
                                     addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token)
                                 //console.log("*** usando token y auth desde sensor_info ***")
                             }
-                            console.log("***** lastObservation *****")
+                            //console.log("***** lastObservation *****")
 
                             if (lastObservation.observations[0] != undefined) {
                                 if (selectedUnitValue == 'liter') {
@@ -63,7 +63,7 @@ class WaterDevicesController {
                                 } else {
                                     json_data[contador].lastObservation = lastObservation.observations[0].value
                                 }
-                                console.log(lastObservation.observations[0])
+                                //console.log(lastObservation.observations[0])
                                 json_data[contador].lastObservationDate = lastObservation.observations[0].time
                             }
                             contador++;
@@ -229,7 +229,7 @@ class WaterDevicesController {
         //console.log(sensors_created)
         //console.log("*** CREATING WATER DEVICES ***")
         sensors_created.forEach((element: any, index: any) => {
-            console.log(element)
+            //console.log(element)
             // date to mysql format
             if (element.lastObservationDate) {
                 lastObservationTimestamp = new Date(element.lastObservationDate)
@@ -266,7 +266,7 @@ class WaterDevicesController {
         var query = "INSERT INTO `water_devices` (`name`, `sensor_id`, " +
             "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`," +
             " `contract_number`, `created_dt`, `updated_dt`,`provider`,`authToken`) VALUES " + insert_values.slice(0, -1) + ";";
-        //console.log(query);
+        console.log(query);
 
         return new Promise((resolve: any, reject: any) => {
             db.getConnection((error: any, conn: any) => {
@@ -625,14 +625,17 @@ class WaterDevicesController {
                 water_user_id = res.user_module_data.id
             }
         }
-        description = description.replace(/'/g, '');
-        installAddress = installAddress.replace(/'/g, '');
-
+        if (description) {
+            description = description.replace(/'/g, '');
+        }
+        if (installAddress) {
+            installAddress = installAddress.replace(/'/g, '');
+        }
         var query = "UPDATE water_devices SET variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
             contractNumber + "',device_diameter='" + deviceDiameter + "',installation_address='" + installAddress + "',numContador='" + numContador +
             "',numModuleLora='" + numModuleLora + "',provider='" + provider + "',authToken='" + authToken + "', water_user_id=" + water_user_id + " WHERE name='" +
             name + "'";
-
+        console.log(query)
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((error: any, conn: any) => {
@@ -680,10 +683,10 @@ class WaterDevicesController {
     public async updateWaterDeviceById(id: number, name: string, variable_name: string, description: string, units: number, contractNumber: string, deviceDiameter: number,
         installAddress: string, numContador: string, numModuleLora: string, sensorId: string, water_user_id: number) {
 
-        if (description != undefined) {
+        if (description) {
             description = description.replace(/'/g, '');
         }
-        if (installAddress != undefined) {
+        if (installAddress) {
             installAddress = installAddress.replace(/'/g, '');
         }
 

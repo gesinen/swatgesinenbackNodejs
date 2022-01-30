@@ -376,8 +376,7 @@ class IrrigationDeviceController {
                             let valvesUpdated: number = 0
                             for (const irrigationDeviceOutput of valves) {
                                 let deviceOutputRes: any = await irrigationDeviceOutputController.updateIrrigationOutputDevice(
-                                    irrigationDeviceOutput.id, irrigationDeviceOutput.irrigationDeviceId, irrigationDeviceOutput.sensorId, 
-                                    irrigationDeviceOutput.sensorIndex, irrigationDeviceOutput.intervals, irrigationDeviceOutput.status, irrigationDeviceOutput.name)
+                                    irrigationDeviceOutput.id, irrigationDeviceOutput.sensorId, irrigationDeviceOutput.name)
                                 if (deviceOutputRes.http == 200) {
                                     valvesUpdated++
                                 }
@@ -385,8 +384,8 @@ class IrrigationDeviceController {
                             let sensorsUpdated: number = 0
                             for (const irrigationDeviceInput of sensors) {
                                 let deviceInputRes: any = await irrigationDeviceInputController.updateIrrigationInputDevice(
-                                    irrigationDeviceInput.id, irrigationDeviceInput.irrigationDeviceId, irrigationDeviceInput.sensorId,
-                                    irrigationDeviceInput.lastTemperature, irrigationDeviceInput.lastHumidity, irrigationDeviceInput.sensorIndex, irrigationDeviceInput.name)
+                                    irrigationDeviceInput.id, irrigationDeviceInput.sensorId,
+                                    irrigationDeviceInput.lastTemperature, irrigationDeviceInput.lastHumidity, irrigationDeviceInput.name)
                                 if (deviceInputRes.http == 200) {
                                     sensorsUpdated++
                                 }

@@ -157,15 +157,15 @@ class IrrigationDeviceInputController {
      * 
      * @return 
      */
-    public async updateIrrigationInputDevice(id: number, irrigationDeviceId: number, sensorId: number,
-        lastTemperature: number, lastHumidity: number, sensorIndex: number, name: string): Promise<object> {
+    public async updateIrrigationInputDevice(id: number, sensorId: number,
+        lastTemperature: number, lastHumidity: number, name: string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "UPDATE irrigation_device_input SET irrigationDeviceId=" + irrigationDeviceId + ", sensorId=" + sensorId +
-                    ", lastTemperature=" + lastTemperature + ",lastHumidity='" + lastHumidity + "', name='" + name + "', sensorIndex=" + sensorIndex + " WHERE id=" + id + ";"
+                let query = "UPDATE irrigation_device_input SET sensorId=" + sensorId + ", lastTemperature=" + lastTemperature 
+                + ",lastHumidity='" + lastHumidity + "', name='" + name + "' WHERE id=" + id + ";"
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
                     console.log(query)

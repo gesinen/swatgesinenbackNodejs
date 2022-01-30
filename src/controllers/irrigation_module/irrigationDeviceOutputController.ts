@@ -156,15 +156,13 @@ class IrrigationDeviceOutputController {
      * 
      * @return 
      */
-    public async updateIrrigationOutputDevice(id: number, irrigationDeviceId: number, sensorId: number,
-        sensorIndex: number, intervals: string, status: boolean, name: string): Promise<object> {
+    public async updateIrrigationOutputDevice(id: number, sensorId: number, name: string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "UPDATE irrigation_device_output SET irrigationDeviceId=" + irrigationDeviceId + ", sensorId=" + sensorId +
-                    ", sensorIndex=" + sensorIndex + ",intervals='" + intervals + "', status=" + status + ", name='" + name + "' WHERE id=" + id + ";"
+                let query = "UPDATE irrigation_device_output SET sensorId=" + sensorId + ",name='" + name + "' WHERE id=" + id + ";"
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
