@@ -75,8 +75,8 @@ class IrrigationDeviceInputRouter {
         console.log("update")
         const params = req.body;
         console.log(params)
-        irrigationDeviceInputController.updateIrrigationInputDevice(params.id, params.irrigationDeviceId, params.sensorId, params.lastHumidity,
-            params.lastTemperature, params.sensorIndex, params.name)
+        irrigationDeviceInputController.updateIrrigationInputDevice(params.id, params.sensorId, params.lastHumidity,
+            params.lastTemperature, params.name)
             .then((response: any) => {
                 res.send(response)
             })
