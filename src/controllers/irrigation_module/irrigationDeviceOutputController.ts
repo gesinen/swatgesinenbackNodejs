@@ -127,7 +127,7 @@ class IrrigationDeviceOutputController {
                         })
                     }
                     console.log(results)
-                    if (results.affectedRows == 1) {
+                    if (results && results.affectedRows == 1) {
                         resolve({
                             http: 200,
                             status: 'Success',
@@ -156,13 +156,15 @@ class IrrigationDeviceOutputController {
      * 
      * @return 
      */
-    public async updateIrrigationOutputDevice(id: number, sensorId: number, name: string): Promise<object> {
+    public async updateIrrigationOutputDevice(irrigationDeviceId: number, sensorId: number, index: number, name: string, description: string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "UPDATE irrigation_device_output SET sensorId=" + sensorId + ",name='" + name + "' WHERE id=" + id + ";"
+                let query = "UPDATE irrigation_device_output SET sensorId=" + sensorId + ",description='" + description + "',name='" + name + "' WHERE `sensorIndex`=" + index + " AND irrigationDeviceId=" + irrigationDeviceId + ";"
+                console.log("queryUpdOutput", query);
+
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
@@ -208,8 +210,8 @@ class IrrigationDeviceOutputController {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "UPDATE irrigation_device_output SET intervals='" + intervals + "' WHERE irrigationDeviceId=" + irrigationDeviceId 
-                + " AND sensorIndex=" + valveIndex + ";"
+                let query = "UPDATE irrigation_device_output SET intervals='" + intervals + "' WHERE irrigationDeviceId=" + irrigationDeviceId
+                    + " AND sensorIndex=" + valveIndex + ";"
                 console.log(query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -222,7 +224,7 @@ class IrrigationDeviceOutputController {
                         })
                     }
                     console.log(results)
-                    if (results.affectedRows > 0) {
+                    if (results && results.affectedRows > 0) {
                         resolve({
                             http: 200,
                             status: 'Success',

@@ -98,7 +98,7 @@ class IrrigationDeviceOutputRouter {
                 if (res.http == 200) {
                     acumRes++;
                 }
-                console.log("res",res)
+                console.log("res", res)
             }
             if (params.valves.length == acumRes) {
                 res.send({
@@ -124,10 +124,10 @@ class IrrigationDeviceOutputRouter {
      * params user_id -> id of the user we want to get the municipality_id from
      */
     public updateIrrigationOutputDevice = () => this.router.put('/', (req: Request, res: Response) => {
-        console.log("update")
+        console.log("*** updateIrrigationOutputDevice ***","update")
         const params = req.body;
         console.log(params)
-        irrigationDeviceOutputController.updateIrrigationOutputDevice(params.id, params.sensorId, params.name)
+        irrigationDeviceOutputController.updateIrrigationOutputDevice(params.irrigationDeviceId, params.sensorId, params.index, params.name, params.description)
             .then((response: any) => {
                 res.send(response)
             })

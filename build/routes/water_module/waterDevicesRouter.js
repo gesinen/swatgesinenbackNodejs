@@ -91,6 +91,18 @@ class WaterDevicesRouter {
                 res.send(err);
             });
         });
+        this.updateWaterDeviceById = () => this.router.put('/', (req, res) => {
+            const params = req.body;
+            console.log(params);
+            waterDevicesController_1.default.updateWaterDeviceById(params.id, params.name, params.variableName, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installationAddress, params.counterNumber, params.loraModuleNumber, params.sensor_id, params.user)
+                .then(response => {
+                console.log(response);
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
         this.getWaterDeviceByIdAction = () => this.router.get('/:deviceId', (req, res) => {
             const params = req.params;
             waterDevicesController_1.default.getWaterDeviceById(parseInt(params.deviceId))
@@ -125,6 +137,7 @@ class WaterDevicesRouter {
         this.updateWaterDeviceByNameAction();
         this.updateWaterDevicesFromExcel();
         this.getWaterDeviceListingSortedAction();
+        this.updateWaterDeviceById();
     }
 }
 const waterDevicesRoutes = new WaterDevicesRouter();

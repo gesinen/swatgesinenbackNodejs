@@ -21,7 +21,7 @@ class IrrigationDeviceController {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "SELECT * FROM irrigation_device WHERE id = " + id;
+                let query = "SELECT * FROM irrigation_device INNER JOIN irrigation_device_output ON irrigation_device.id = irrigation_device_output.irrigationDeviceId WHERE irrigation_device.id = " + id;
 
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -39,14 +39,14 @@ class IrrigationDeviceController {
                             http: 204,
                             status: 'Success',
                             result: 'There is no irrigation device with this ID',
-                            user_data: {}
+                            irrigationDevice: {}
                         })
                     }
 
                     resolve({
                         http: 200,
                         status: 'Success',
-                        user_data: results[0]
+                        irrigationDevice: results
                     })
                 })
             })
@@ -281,9 +281,19 @@ class IrrigationDeviceController {
 
             db.getConnection((err: any, conn: any) => {
 
+                let lat = latitude
+                let lng = longitude
+                if (!latitude) {
+                    lat = null
+                }
+
+                if (!longitude) {
+                    lng = null
+                }
+
                 let query = "INSERT INTO irrigation_device (name,nameSentilo,latitude,longitude,description,status," +
-                    "userId,deviceTypeId) VALUES ('" + name + "','" + nameSentilo + "'," + latitude + "," +
-                    longitude + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + ")"
+                    "userId,deviceTypeId) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
+                    lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + ")"
 
                 conn.query(query, async (error: any, results: any) => {
                     conn.release()
@@ -295,14 +305,14 @@ class IrrigationDeviceController {
                             error: error
                         })
                     }
-
-                    if (results.affectedRows == 1) {
+                    if (results && results.affectedRows == 1) {
                         let irrigationDeviceInsertId = results.insertId
                         let valvesInserted: number = 0
                         let contador: number = 1
                         for (const irrigationDeviceOutput of valves) {
+                            console.log("input valves",irrigationDeviceOutput)
                             let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
-                                irrigationDeviceInsertId, irrigationDeviceOutput.sensorId, contador,
+                                irrigationDeviceInsertId, irrigationDeviceOutput.id, contador,
                                 "", false, irrigationDeviceOutput.name)
                             if (deviceOutputRes.http == 200) {
                                 valvesInserted++
@@ -312,7 +322,7 @@ class IrrigationDeviceController {
                         let sensorsInserted: number = 0
                         contador = 1
                         for (const irrigationDeviceInput of sensors) {
-                            let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(irrigationDeviceInsertId, irrigationDeviceInput.sensorId, 0, 0, contador,irrigationDeviceInput.name)
+                            let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(irrigationDeviceInsertId, irrigationDeviceInput.sensorId, 0, 0, contador, irrigationDeviceInput.name)
                             if (deviceInputRes.http == 200) {
                                 sensorsInserted++
                             }
@@ -355,11 +365,20 @@ class IrrigationDeviceController {
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
+                let lat = latitude
+                let lng = longitude
+                if (!latitude) {
+                    lat = null
+                }
+
+                if (!longitude) {
+                    lng = null
+                }
 
                 let query = "UPDATE irrigation_device SET name='" + name + "', nameSentilo='" + nameSentilo +
-                    "', latitude=" + latitude + ",longitude=" + longitude + ", description='" + description + "', status=" + status +
+                    "', latitude=" + lat + ",longitude=" + lng + ", description='" + description + "', status=" + status +
                     ", userId=" + userId + ",deviceTypeId=" + deviceTypeId + " WHERE id=" + id + ";"
-
+                console.log(query)
                 conn.query(query, async (error: any, results: any) => {
                     conn.release()
 
@@ -374,14 +393,16 @@ class IrrigationDeviceController {
                     try {
                         if (results && results.affectedRows != 0) {
                             let valvesUpdated: number = 0
+                            let index: number = 0
                             for (const irrigationDeviceOutput of valves) {
-                                let deviceOutputRes: any = await irrigationDeviceOutputController.updateIrrigationOutputDevice(
-                                    irrigationDeviceOutput.id, irrigationDeviceOutput.sensorId, irrigationDeviceOutput.name)
+                                index++;
+                                let deviceOutputRes: any = await irrigationDeviceOutputController.updateIrrigationOutputDevice(id,
+                                    irrigationDeviceOutput.id, index, irrigationDeviceOutput.name,irrigationDeviceOutput.description)
                                 if (deviceOutputRes.http == 200) {
                                     valvesUpdated++
                                 }
                             }
-                            let sensorsUpdated: number = 0
+                            /*let sensorsUpdated: number = 0
                             for (const irrigationDeviceInput of sensors) {
                                 let deviceInputRes: any = await irrigationDeviceInputController.updateIrrigationInputDevice(
                                     irrigationDeviceInput.id, irrigationDeviceInput.sensorId,
@@ -389,14 +410,14 @@ class IrrigationDeviceController {
                                 if (deviceInputRes.http == 200) {
                                     sensorsUpdated++
                                 }
-                            }
+                            }*/
 
                             resolve({
                                 http: 200,
                                 status: 'Success',
                                 result: 'Irrigation device updated succesfully',
-                                valvesUpdated: valvesUpdated,
-                                sensorsUpdated: sensorsUpdated
+                                valvesUpdated: valvesUpdated
+                                //sensorsUpdated: sensorsUpdated
                             })
 
                         } else {

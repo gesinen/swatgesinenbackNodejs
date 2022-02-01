@@ -60,6 +60,23 @@ class UsersRouter {
                 res.send(err)
             })
     })
+
+    /**
+     * Get the user data
+     * GET ('/login')
+     */
+     public getUserIdByMailAction = () => this.router.post('/getUserByNif/:mail', (req: Request, res: Response) => {
+        const mail = req.params.mail;
+
+
+        usersController.getUserIdByMail(mail)
+            .then( response => {
+                res.send(response)
+            })
+            .catch( err => {
+                res.send(err)
+            })
+    })
 }
 
 const userRouter = new UsersRouter();

@@ -341,9 +341,13 @@ class WaterDevicesController {
         }
         if (description) {
             description = "'" + description + "'"
+        } else {
+            description = "''"
         }
         if (units) {
             units = "'" + units + "'"
+        } else {
+            units = "''"
         }
         if (contract_number) {
             contract_number = "'" + contract_number + "'"
@@ -595,13 +599,21 @@ class WaterDevicesController {
                             error: err
                         })
                     }
-
-                    // Response
-                    resolve({
-                        http: 200,
-                        status: 'Success',
-                        water_device: results[0]
-                    })
+                    console.log(results)
+                    if (results[0] != undefined) {
+                        // Response
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            water_device: results[0]
+                        });
+                    } else {
+                        reject({
+                            http: 204,
+                            status: 'Empty result',
+                            error: err
+                        });
+                    }
                 })
             })
         })
