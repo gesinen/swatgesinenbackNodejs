@@ -20,7 +20,7 @@ class IrrigationDeviceRouter {
     public getIrrigationDeviceById = () => this.router.get('/:id', (req: Request, res: Response) => {
         const id = parseInt(req.params.id);
 
-        irrigationController.getIrrigationDeviceById(id)
+        irrigationController.getIrrigationDeviceByIdInner(id)
             .then(response => {
                 res.send(response)
             })
@@ -47,12 +47,12 @@ class IrrigationDeviceRouter {
             })
     })
 
-    
+
     /**
     * Get the user data
     * GET ('/information/:id')
     */
-     public getIrrigationInputDevicesByIrregationDeviceId = () => this.router.get('/sensorNumber/:deviceId', (req: Request, res: Response) => {
+    public getIrrigationInputDevicesByIrregationDeviceId = () => this.router.get('/sensorNumber/:deviceId', (req: Request, res: Response) => {
         const irregationDeviceId = parseInt(req.params.deviceId);
 
         irrigationController.getIrrigationInputDevicesByIrregationDeviceId(irregationDeviceId)
@@ -74,7 +74,7 @@ class IrrigationDeviceRouter {
         console.log("router store params")
         console.log(params)
         irrigationController.storeIrrigationDevice(params.name, params.nameSentilo, params.latitude, params.longitude,
-            params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
+            params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors, params.sensorId)
             .then(response => {
                 res.send(response)
             })
@@ -92,8 +92,8 @@ class IrrigationDeviceRouter {
         const params = req.body;
         const irrigationDeviceId = parseInt(req.params.irrigationDeviceId);
 
-        console.log("params",params)
-        irrigationController.updateIrrigationDevice(irrigationDeviceId, params.name, params.nameSentilo, params.latitude, params.longitude,
+        console.log("params", params)
+        irrigationController.updateIrrigationDevice(irrigationDeviceId, params.sensorId, params.name, params.nameSentilo, params.latitude, params.longitude,
             params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
             .then(response => {
                 res.send(response)

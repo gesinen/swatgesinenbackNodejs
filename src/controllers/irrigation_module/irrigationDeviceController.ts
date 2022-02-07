@@ -1,5 +1,6 @@
 import db from "../../database";
 import irrigationDeviceInputController from "./irrigationDeviceInputController";
+import irrigationDeviceLinkController from "./irrigationDeviceLinkController";
 import irrigationDeviceOutputController from "./irrigationDeviceOutputController";
 
 /*
@@ -15,13 +16,74 @@ class IrrigationDeviceController {
      * 
      * @return 
      */
-    public async getIrrigationDeviceById(id: number): Promise<object> {
+    public async getIrrigationDeviceByIdInner(id: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "SELECT * FROM irrigation_device INNER JOIN irrigation_device_output ON irrigation_device.id = irrigation_device_output.irrigationDeviceId WHERE irrigation_device.id = " + id;
+                let query = "SELECT * FROM irrigation_device WHERE id=" + id;
+                console.log(query)
+                conn.query(query, async (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log(results)
+
+                    if (results && !results[0]) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: 'There is no irrigation device with this ID',
+                            irrigationDevice: {}
+                        })
+                    } else {
+                        let irrigationDevice = results[0]
+                        let irrigationInputRes: any = await irrigationDeviceInputController.
+                            getInputByIrrigationDeviceId(irrigationDevice.id)
+                        let irrigationOutputRes: any = await irrigationDeviceOutputController.
+                            getOutputByIrrigationDeviceId(irrigationDevice.id)
+
+
+                        if (irrigationOutputRes.http == 200) {
+                            irrigationDevice.valves = (irrigationOutputRes.result)
+                        } else {
+                            irrigationDevice.valves = []
+                        }
+                        if (irrigationInputRes.http == 200) {
+                            irrigationDevice.sensors = (irrigationInputRes.result)
+                        } else {
+                            irrigationDevice.sensors = []
+                        }
+
+                        resolve(irrigationDevice)
+                    }
+                })
+            })
+        })
+    }
+
+    /**
+    * GET ('/information/:id')
+    * Getting the information about the user
+    * 
+    * @async
+    * @param id - The user Id
+    * 
+    * @return 
+    */
+    public async getIrrigationDeviceById(id: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+                let query = "SELECT * FROM `irrigation_device` WHERE id=" + id + ";";
 
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -38,15 +100,14 @@ class IrrigationDeviceController {
                         resolve({
                             http: 204,
                             status: 'Success',
-                            result: 'There is no irrigation device with this ID',
-                            irrigationDevice: {}
+                            result: []
                         })
                     }
 
                     resolve({
                         http: 200,
                         status: 'Success',
-                        irrigationDevice: results
+                        result: results[0]
                     })
                 })
             })
@@ -266,89 +327,153 @@ class IrrigationDeviceController {
     }
 
     /**
-     * GET ('/information/:id')
-     * Getting the information about the user
-     * 
-     * @async
-     * @param id - The user Id
-     * 
-     * @return 
-     */
+         * GET ('/information/:id')
+         * Getting the information about the user
+         * 
+         * @async
+         * @param id - The user Id
+         * 
+         * @return 
+         */
     public async storeIrrigationDevice(name: string, nameSentilo: string, latitude: number, longitude: number,
-        description: string, status: boolean, userId: number, deviceTypeId: number, valves: any[], sensors: any[]): Promise<object> {
+        description: string, status: boolean, userId: number, deviceTypeId: number, valves: any[], sensors: any[], sensorId: any): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
+                try {
+                    let lat = latitude
+                    let lng = longitude
+                    if (!latitude) {
+                        lat = null
+                    }
 
-                let lat = latitude
-                let lng = longitude
-                if (!latitude) {
-                    lat = null
+                    if (!longitude) {
+                        lng = null
+                    }
+
+                    let query = "INSERT INTO irrigation_device (name,nameSentilo,latitude,longitude,description,status," +
+                        "userId,deviceTypeId, sensorId) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
+                        lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + "," + sensorId + ")"
+
+                    conn.query(query, async (error: any, results: any) => {
+                        conn.release()
+
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            })
+                        }
+                        if (results && results.affectedRows == 1) {
+
+                            // IRRIGATION DEVICE ID
+                            let irrigationDeviceInsertId = results.insertId
+
+                            // SENSORS
+                            let sensorsInserted: number = 0
+                            let contador: number = 1
+                            if (sensors.length != 0) {
+                                for (const irrigationDeviceInput of sensors) {
+                                    let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(irrigationDeviceInsertId, irrigationDeviceInput.sensorId, 0, 0, contador, irrigationDeviceInput.name, irrigationDeviceInput.connectionType, irrigationDeviceInput.authtoken, irrigationDeviceInput.provider)
+                                    if (deviceInputRes.http == 200) {
+                                        sensorsInserted++
+                                    }
+                                    contador++
+                                }
+                            }
+
+
+                            // VALVES
+                            let valvesInserted: number = 0
+                            contador = 1
+                            if (valves.length != 0) {
+                                for (const irrigationDeviceOutput of valves) {
+                                    let indexRes: any = await irrigationDeviceOutputController.getOutputIndexINSERT(irrigationDeviceInsertId)
+                                    let index:any = indexRes.result.sensorIndex
+                                    if (index == undefined){
+                                        index = 1
+                                    } else {
+                                        index++
+                                    }
+                                    console.log("insertIndex",index)
+                                    console.log("input valves", irrigationDeviceOutput)
+                                    console.log(" ***** 1 *****")
+                                    let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
+                                        irrigationDeviceInsertId, irrigationDeviceOutput.id, index, "", false, irrigationDeviceOutput.name,
+                                        sensorId, irrigationDeviceOutput.description)
+                                    console.log(" ***** 2 *****")
+                                    console.log("deviceOutputRes", deviceOutputRes)
+                                    if (deviceOutputRes.http == 200) {
+                                        console.log(" ***** 3 *****")
+                                        if (valves.length != 0 && sensors.length != 0) {
+                                            console.log(" ***** 4 *****")
+                                            let outputDeviceInsertId = deviceOutputRes.insertId
+                                            let res: any = await irrigationDeviceInputController.getIrrigationInputDeviceByIrrigationDeviceIdAndName(irrigationDeviceOutput.inputSensorName, irrigationDeviceInsertId)
+                                            console.log("resx", res)
+                                            if (res.http == 200) {
+                                                if (irrigationDeviceOutput.inputSensorName != undefined) {
+                                                    let resLink = await irrigationDeviceLinkController.storeIrrigationDeviceLink(res.result.id, outputDeviceInsertId, irrigationDeviceInsertId)
+                                                    console.log("resLink", resLink)
+                                                }
+                                            }
+                                        }
+                                        valvesInserted++
+                                    }
+                                    contador++
+                                }
+                                /*
+                                for (const irrigationDeviceOutput of valves) {
+                                    console.log("input valves", irrigationDeviceOutput)
+                                    let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
+                                        irrigationDeviceInsertId, irrigationDeviceOutput.id, contador,
+                                        "", false, irrigationDeviceOutput.name, sensorId, irrigationDeviceOutput.description)
+                                    if (deviceOutputRes.http == 200) {
+                                        if (valves.length != 0 && sensors.length != 0) {
+                                            let outputDeviceInsertId = deviceOutputRes.insertId
+                                            let res: any = await irrigationDeviceInputController.getIrrigationInputDeviceByIrrigationDeviceIdAndName(irrigationDeviceOutput.inputSensorName, irrigationDeviceInsertId)
+                                            console.log("resx", res)
+                                            if (res.http == 200) {
+                                                let resLink = await irrigationDeviceLinkController.storeIrrigationDeviceLink(res.result.id, outputDeviceInsertId, irrigationDeviceInsertId)
+                                                console.log("resLink", resLink)
+                                            }
+                                        }
+                                        valvesInserted++
+                                    }
+                                    contador++
+                                }*/
+                            }
+
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: 'Irrigation device inserted succesfully',
+                                insertId: irrigationDeviceInsertId,
+                                valvesInserted: valvesInserted,
+                                sensorsInserted: sensorsInserted
+                            })
+                        } else {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                message: "Irrigation device could not be inserted",
+                                result: results
+                            })
+                        }
+                    })
+                } catch (error) {
+                    reject({
+                        http: 406,
+                        status: 'Failed',
+                        error: error
+                    })
                 }
 
-                if (!longitude) {
-                    lng = null
-                }
-
-                let query = "INSERT INTO irrigation_device (name,nameSentilo,latitude,longitude,description,status," +
-                    "userId,deviceTypeId) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
-                    lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + ")"
-
-                conn.query(query, async (error: any, results: any) => {
-                    conn.release()
-
-                    if (error) {
-                        reject({
-                            http: 406,
-                            status: 'Failed',
-                            error: error
-                        })
-                    }
-                    if (results && results.affectedRows == 1) {
-                        let irrigationDeviceInsertId = results.insertId
-                        let valvesInserted: number = 0
-                        let contador: number = 1
-                        for (const irrigationDeviceOutput of valves) {
-                            console.log("input valves",irrigationDeviceOutput)
-                            let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
-                                irrigationDeviceInsertId, irrigationDeviceOutput.id, contador,
-                                "", false, irrigationDeviceOutput.name)
-                            if (deviceOutputRes.http == 200) {
-                                valvesInserted++
-                            }
-                            contador++
-                        }
-                        let sensorsInserted: number = 0
-                        contador = 1
-                        for (const irrigationDeviceInput of sensors) {
-                            let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(irrigationDeviceInsertId, irrigationDeviceInput.sensorId, 0, 0, contador, irrigationDeviceInput.name)
-                            if (deviceInputRes.http == 200) {
-                                sensorsInserted++
-                            }
-                            contador++
-                        }
-
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            result: 'Irrigation device inserted succesfully',
-                            insertId: irrigationDeviceInsertId,
-                            valvesInserted: valvesInserted,
-                            sensorsInserted: sensorsInserted
-                        })
-                    } else {
-                        resolve({
-                            http: 204,
-                            status: 'Success',
-                            message: "Irrigation device could not be inserted",
-                            result: results
-                        })
-                    }
-                })
             })
         })
     }
+
 
     /**
      * GET ('/information/:id')
@@ -359,84 +484,207 @@ class IrrigationDeviceController {
      * 
      * @return 
      */
-    public async updateIrrigationDevice(id: number, name: string, nameSentilo: string, latitude: number,
-        longitude: number, description: string, status: boolean, userId: number, deviceTypeId: number, valves: any[], sensors: any[]): Promise<object> {
+    public async updateIrrigationDevice(id: number, sensorId: number, name: string, nameSentilo: string, latitude: number,
+        longitude: number, description: string, status: boolean, userId: number, deviceTypeId: number,
+        valves: any[], sensors: any[]): Promise<object> {
+        let valvesUpdate: any[] = []
+        let valvesInsert: any[] = []
+        let sensorsUpdate: any[] = []
+        let sensorsInsert: any[] = []
+
+        let myIndex: any = 0
+        valves.forEach(valve => {
+            myIndex++;
+            valve.index = myIndex;
+            if (valve._id == undefined) {
+                valvesInsert.push(valve)
+            } else {
+                valvesUpdate.push(valve)
+            }
+        });
+        sensors.forEach(sensor => {
+            if (sensor._id == undefined) {
+                sensorsInsert.push(sensor)
+            } else {
+                sensorsUpdate.push(sensor)
+            }
+        });
+        console.log("valvesUpdate", valvesUpdate)
+        console.log("valvesInsert", valvesInsert)
+
+        console.log("sensorsUpdate", sensorsUpdate)
+        console.log("sensorsInsert", sensorsInsert)
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
-                let lat = latitude
-                let lng = longitude
-                if (!latitude) {
-                    lat = null
-                }
-
-                if (!longitude) {
-                    lng = null
-                }
-
-                let query = "UPDATE irrigation_device SET name='" + name + "', nameSentilo='" + nameSentilo +
-                    "', latitude=" + lat + ",longitude=" + lng + ", description='" + description + "', status=" + status +
-                    ", userId=" + userId + ",deviceTypeId=" + deviceTypeId + " WHERE id=" + id + ";"
-                console.log(query)
-                conn.query(query, async (error: any, results: any) => {
-                    conn.release()
-
-                    if (error) {
-                        reject({
-                            http: 406,
-                            status: 'Failed',
-                            error: error
-                        })
+                try {
+                    let lat = latitude
+                    let lng = longitude
+                    if (!latitude) {
+                        lat = null
                     }
-                    console.log(results)
-                    try {
-                        if (results && results.affectedRows != 0) {
-                            let valvesUpdated: number = 0
-                            let index: number = 0
-                            for (const irrigationDeviceOutput of valves) {
-                                index++;
-                                let deviceOutputRes: any = await irrigationDeviceOutputController.updateIrrigationOutputDevice(id,
-                                    irrigationDeviceOutput.id, index, irrigationDeviceOutput.name,irrigationDeviceOutput.description)
-                                if (deviceOutputRes.http == 200) {
-                                    valvesUpdated++
-                                }
-                            }
-                            /*let sensorsUpdated: number = 0
-                            for (const irrigationDeviceInput of sensors) {
-                                let deviceInputRes: any = await irrigationDeviceInputController.updateIrrigationInputDevice(
-                                    irrigationDeviceInput.id, irrigationDeviceInput.sensorId,
-                                    irrigationDeviceInput.lastTemperature, irrigationDeviceInput.lastHumidity, irrigationDeviceInput.name)
-                                if (deviceInputRes.http == 200) {
-                                    sensorsUpdated++
-                                }
-                            }*/
 
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                result: 'Irrigation device updated succesfully',
-                                valvesUpdated: valvesUpdated
-                                //sensorsUpdated: sensorsUpdated
-                            })
+                    if (!longitude) {
+                        lng = null
+                    }
 
-                        } else {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                message: "Irrigation device could not be updated",
-                                result: results
+                    let query = "UPDATE irrigation_device SET name='" + name + "', nameSentilo='" + nameSentilo +
+                        "',sensorId=" + sensorId + ",latitude=" + lat + ",longitude=" + lng + ", description='" + description + "', status=" + status +
+                        ", userId=" + userId + ",deviceTypeId=" + deviceTypeId + " WHERE id=" + id + ";"
+                    console.log(query)
+                    conn.query(query, async (error: any, results: any) => {
+                        conn.release()
+
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
                             })
                         }
-                    } catch (error) {
-                        reject({
-                            http: 406,
-                            status: 'Failed',
-                            error: error
-                        })
-                    }
+                        console.log(results)
+                        try {
+                            if (results && results.affectedRows != 0) {
 
-                })
+                                // SENSORS ( UPDATE )
+                                let sensorsUpdated: number = 0
+                                if (sensorsUpdate.length != 0) {
+
+                                    for (const irrigationDeviceInput of sensorsUpdate) {
+                                        console.log(irrigationDeviceInput)
+                                        let deviceInputRes: any = await irrigationDeviceInputController.updateIrrigationInputDevice(
+                                            irrigationDeviceInput.inputId, irrigationDeviceInput.sensorId,
+                                            irrigationDeviceInput.name, irrigationDeviceInput.connectionType,
+                                            irrigationDeviceInput.authtoken, irrigationDeviceInput.provider)
+                                        if (deviceInputRes.http == 200) {
+                                            sensorsUpdated++
+                                        }
+                                    }
+                                }
+
+                                // SENSORS ( INSERT )
+                                let sensorsInserted: number = 0
+                                let contador: number = 1
+                                console.log("sensorsInsert FUERA", sensorsInsert)
+                                if (sensorsInsert.length != 0) {
+                                    console.log("sensorsInsert DENTRO", sensorsInsert)
+
+                                    for (const irrigationDeviceInput of sensorsInsert) {
+                                        let deviceInputRes: any = await irrigationDeviceInputController.storeIrrigationInputDevice(id, irrigationDeviceInput.sensorId, 0, 0, contador, irrigationDeviceInput.name, irrigationDeviceInput.connectionType, irrigationDeviceInput.authtoken, irrigationDeviceInput.provider)
+                                        if (deviceInputRes.http == 200) {
+                                            sensorsInserted++
+                                        }
+                                        contador++
+                                    }
+                                }
+
+                                // VALVES ( UPDATE )
+                                let valvesUpdated: number = 0
+                                console.log(" SENSORID IBOX ", sensorId)
+                                if (valvesUpdate.length != 0) {
+
+                                    for (const irrigationDeviceOutput of valvesUpdate) {
+                                        let indexRes: any = await irrigationDeviceOutputController.getOutputIndexUPDATE(irrigationDeviceOutput._id)
+                                        let index:any = indexRes.result.sensorIndex
+
+                                        console.log("updateIndex",index)
+                                        let deviceOutputRes: any = await irrigationDeviceOutputController.updateIrrigationOutputDevice(id,
+                                            irrigationDeviceOutput.id, index, irrigationDeviceOutput.name, sensorId, irrigationDeviceOutput.description)
+                                        console.log("updateIrrigationDeviceOutputRes", deviceOutputRes)
+                                        if (deviceOutputRes.http == 200) {
+                                            valvesUpdated++
+                                            let resOutputGet: any = await irrigationDeviceOutputController.getByIrrigationDeviceIdAndIndex(id, index)
+                                            let irrigationInputDeviceId: any = 'NULL';
+                                            if (sensorId != undefined) {
+                                                let resInput: any = await irrigationDeviceInputController.getIrrigationInputDeviceByIrrigationDeviceIdAndName(irrigationDeviceOutput.inputSensorName, id)
+                                                console.log("resInput", resInput)
+                                                irrigationInputDeviceId = resInput.result.id
+                                            }
+                                            console.log("resOutputGet", resOutputGet)
+                                            await irrigationDeviceLinkController.deleteIrrigationLinkDeviceByOutputId(resOutputGet.result.id)
+                                            if (sensorId != undefined) {
+                                                await irrigationDeviceLinkController.storeIrrigationDeviceLink(irrigationInputDeviceId, resOutputGet.result.id, id)
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                // VALVES ( INSERT )
+                                let valvesInserted: number = 0
+                                console.log("valvesInsert", valvesInsert)
+                                console.log("valvesInsert.length", valvesInsert.length)
+                                if (valvesInsert.length != 0) {
+
+                                    for (const irrigationDeviceOutput of valvesInsert) {
+                                        let indexRes: any = await irrigationDeviceOutputController.getOutputIndexINSERT(id)
+                                        let index:any = indexRes.result.sensorIndex
+                                        if (index == undefined){
+                                            index = 1
+                                        } else {
+                                            index++
+                                        }
+                                        console.log("insertIndex",index)
+                                        console.log("input valves", irrigationDeviceOutput)
+                                        console.log(" ***** 1 *****")
+                                        let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
+                                            id, irrigationDeviceOutput.id, index, "", false, irrigationDeviceOutput.name,
+                                            sensorId, irrigationDeviceOutput.description)
+                                        console.log(" ***** 2 *****")
+                                        console.log("deviceOutputRes", deviceOutputRes)
+                                        if (deviceOutputRes.http == 200) {
+                                            console.log(" ***** 3 *****")
+                                            if (valves.length != 0 && sensors.length != 0) {
+                                                console.log(" ***** 4 *****")
+                                                let outputDeviceInsertId = deviceOutputRes.insertId
+                                                let res: any = await irrigationDeviceInputController.getIrrigationInputDeviceByIrrigationDeviceIdAndName(irrigationDeviceOutput.inputSensorName, id)
+                                                console.log("resx", res)
+                                                if (res.http == 200) {
+                                                    if (irrigationDeviceOutput.inputSensorName != undefined) {
+                                                        let resLink = await irrigationDeviceLinkController.storeIrrigationDeviceLink(res.result.id, outputDeviceInsertId, id)
+                                                        console.log("resLink", resLink)
+                                                    }
+                                                }
+                                            }
+                                            valvesInserted++
+                                        }
+                                        contador++
+                                    }
+                                }
+
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    result: 'Irrigation device updated succesfully',
+                                    valvesUpdated: valvesUpdated,
+                                    sensorsUpdated: sensorsUpdated
+                                })
+
+                            } else {
+                                resolve({
+                                    http: 204,
+                                    status: 'Success',
+                                    message: "Irrigation device could not be updated",
+                                    result: results
+                                })
+                            }
+                        } catch (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            })
+                        }
+
+                    })
+                } catch (error) {
+                    reject({
+                        http: 406,
+                        status: 'Failed',
+                        error: error
+                    })
+                }
+
             })
         })
     }
