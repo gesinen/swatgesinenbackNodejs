@@ -14,6 +14,12 @@ import loraDashboardRouter from './routes/lora_module/loraDashboardRouter';
 import irrigationDeviceRouter from './routes/irrigation_module/irrigationDeviceRouter';
 import irrigationDeviceOutputRouter from './routes/irrigation_module/irrigationDeviceOutputRouter';
 import irrigationDeviceInputRouter from './routes/irrigation_module/irrigationDeviceInputRouter';
+import capacityCartelRouter from './routes/capacity_module/capacityCartelRouter';
+import capacityCartelLineRouter from './routes/capacity_module/capacityCartelLineRouter';
+import capacityParking from './controllers/capacity_module/capacityParking';
+import capacityParkingRouter from './routes/capacity_module/capacityParkingRouter';
+import capacityTypeRibbonRouter from './routes/capacity_module/capacityTypeRibbonRouter';
+import capacityTypeSpotRouter from './routes/capacity_module/capacityTypeSpotRouter';
 
 class Server {
 
@@ -36,6 +42,11 @@ class Server {
     routes(): void {
         this.app.use('/v2/users', usersRouter);
         this.app.use('/v2/capacity/devices', capacityDevicesRouter);
+        this.app.use('/v2/capacity/panels', capacityCartelRouter);
+        this.app.use('/v2/capacity/panels/line', capacityCartelLineRouter);
+        this.app.use('/v2/capacity/parkings', capacityParkingRouter);
+        this.app.use('/v2/capacity/devices/ribbon', capacityTypeRibbonRouter);
+        this.app.use('/v2/capacity/devices/spot', capacityTypeSpotRouter);
         this.app.use('/v2/water/devices', waterDevicesRouter);
         this.app.use('/v2/water/users', waterUsersRouter);
         this.app.use('/v2/water/observations', waterObservationsRouter);
@@ -46,6 +57,7 @@ class Server {
         this.app.use('/v2/irrigation/devices', irrigationDeviceRouter);
         this.app.use('/v2/irrigation/devices/output', irrigationDeviceOutputRouter);
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter);
+        
     }
 
     start(): void {

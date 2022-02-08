@@ -13,8 +13,8 @@ class CapacityDevicesRouter {
         this.getMostCapacityDevicesAction();
         this.getLessCapacityDevicesAction();
         this.removeCapacityDevice();
-        this.importCapacityDevicesAction();
-        this.importCapacityDevicesParkingAreaAction();
+        //this.importCapacityDevicesAction();
+        //this.importCapacityDevicesParkingAreaAction();
     }
 
     /**
@@ -24,16 +24,17 @@ class CapacityDevicesRouter {
     public createCapacityDeviceAction = () => this.router.post('/', (req: Request, res: Response) => {
         const params = req.body;
 
-        capacityDevicesController.createCapacityDevice(params.name, params.description, parseInt(params.sensor_id), parseInt(params.user_id), 0, parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
+        capacityDevicesController.createCapacityDevice(parseInt(params.sensorId), params.name, params.description, params.latitude,
+            params.longitude, params.authToken, params.provider, parseInt(params.userId))
             .then(response => {
                 res.send(response)
             })
             .catch(err => {
-                /*res.send({
+                res.send({
                     http: 401,
                     status: 'Failed',
                     error: err
-                })*/
+                })
                 res.send(err)
             })
     })
@@ -41,7 +42,7 @@ class CapacityDevicesRouter {
     /**
      * Import capacity device spot
      * POST ('/')
-     */
+     *
     public importCapacityDevicesAction = () => this.router.post('/import/spot', (req: Request, res: Response) => {
         const params = req.body;
         console.log(params)
@@ -54,15 +55,14 @@ class CapacityDevicesRouter {
                     http: 401,
                     status: 'Failed',
                     error: err
-                })*/
+                })
                 res.send(err)
             })
-    })
-
+    })*/
     /**
      * Import capacity device parking_area
      * POST ('/')
-     */
+     *
     public importCapacityDevicesParkingAreaAction = () => this.router.post('/import/parking_area', (req: Request, res: Response) => {
         const params = req.body;
         console.log(params);
@@ -76,7 +76,7 @@ class CapacityDevicesRouter {
                         http: 401,
                         status: 'Failed',
                         error: err
-                    })*/
+                    })*
                     res.send(err)
                 })
         } else {
@@ -89,12 +89,12 @@ class CapacityDevicesRouter {
                         http: 401,
                         status: 'Failed',
                         error: err
-                    })*/
+                    })*
                     res.send(err)
                 })
         }
 
-    })
+    })*/
 
     /**
      * Get a capacity device with an ID

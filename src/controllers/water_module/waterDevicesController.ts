@@ -55,9 +55,8 @@ class WaterDevicesController {
                                     addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token)
                                 //console.log("*** usando token y auth desde sensor_info ***")
                             }
-                            //console.log("***** lastObservation *****")
 
-                            if (lastObservation.observations[0] != undefined) {
+                            if (lastObservation != undefined && lastObservation.code != 401) {
                                 if (selectedUnitValue == 'liter') {
                                     json_data[contador].lastObservation = lastObservation.observations[0].value / 1000;
                                 } else {
@@ -111,11 +110,12 @@ class WaterDevicesController {
                                 }
                             })
                             .catch(err => {
-                                //console.log(err)
+                                console.log(err)
                                 reject({
                                     http: 401,
                                     status: 'Failed',
-                                    error: "error importing devices"
+                                    error: "error importing devices",
+                                    msgError: err
                                 })
                             })
                     } else {
@@ -221,7 +221,7 @@ class WaterDevicesController {
 
     public async createMultipleWaterDevices(sensors_created: any[], user_id: any, unit: any, provider: string, authToken: string) {
         let insert_values = ""
-        let lastObservationTimestamp
+        let lastObservationTimestamp:any
         if (provider == undefined || authToken == undefined) {
             provider = ''
             authToken = ''
@@ -229,17 +229,23 @@ class WaterDevicesController {
         //console.log(sensors_created)
         //console.log("*** CREATING WATER DEVICES ***")
         sensors_created.forEach((element: any, index: any) => {
-            //console.log(element)
+            //console.log(element.lastObservationDate)
             // date to mysql format
-            if (element.lastObservationDate) {
-                lastObservationTimestamp = new Date(element.lastObservationDate)
-                    .toISOString().slice(0, -5).replace("T", " ")
-            } else {
-                lastObservationTimestamp = '9999-99-99 00:00:00.000000'
-                element.lastObservation = false
+            let description = ""
+            try {
+                if (element.lastObservationDate != undefined) {
+                    lastObservationTimestamp = new Date(element.lastObservationDate)
+                        .toISOString().slice(0, -5).replace("T", " ")
+                } else {
+                    lastObservationTimestamp = '9999-99-99 00:00:00.000000'
+                    element.lastObservation = false
+                }
+                description = element.description.replace(/'/g, '');
+            } catch (error) {
+                console.log(error);
             }
-            let description = element.description.replace(/'/g, '');
-            
+
+
             if (!element.lastObservation) {
                 insert_values += "('" + Utils.checkUndefined(element.name) + "','" +
                     Utils.checkUndefined(element.id) + "','" +
@@ -701,9 +707,14 @@ class WaterDevicesController {
         if (installAddress) {
             installAddress = installAddress.replace(/'/g, '');
         }
-
+        let devDiam
+        if (!deviceDiameter) {
+            devDiam = 0
+        } else {
+            devDiam = deviceDiameter
+        }
         var query = "UPDATE water_devices SET name='" + name + "',variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
-            contractNumber + "',device_diameter='" + deviceDiameter + "',installation_address='" + installAddress + "',numContador='" + numContador +
+            contractNumber + "',device_diameter='" + devDiam + "',installation_address='" + installAddress + "',numContador='" + numContador +
             "',numModuleLora='" + numModuleLora + "',sensor_id='" + sensorId + "', water_user_id=" + water_user_id + " WHERE id='" +
             id + "'";
         console.log("query", query)
