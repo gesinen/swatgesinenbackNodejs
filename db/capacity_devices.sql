@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-02-2022 a las 20:04:33
+-- Tiempo de generación: 08-02-2022 a las 23:38:00
 -- Versión del servidor: 10.4.20-MariaDB
 -- Versión de PHP: 8.0.8
 
@@ -36,19 +36,20 @@ CREATE TABLE `capacity_devices` (
   `longitude` float NOT NULL,
   `authToken` varchar(250) NOT NULL,
   `provider` varchar(125) NOT NULL,
-  `userId` int(15) NOT NULL
+  `userId` int(15) NOT NULL,
+  `type` varchar(125) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `capacity_devices`
 --
 
-INSERT INTO `capacity_devices` (`id`, `sensorId`, `name`, `description`, `latitude`, `longitude`, `authToken`, `provider`, `userId`) VALUES
-(1, 1, 'n1', 'd1', 1, 1, 'a2', 'p2', 68),
-(2, 2, 'n2', 'd2', 2, 2, 'a2', 'p2', 68),
-(3, 3, 'n3', 'd3', 3, 3, 'a3', 'p3', 68),
-(4, 4, 'n4', 'd4', 4, 4, 'a4', 'p4', 68),
-(5, 5, 'n5', 'd5', 5, 5, 'a5', 'p5', 68);
+INSERT INTO `capacity_devices` (`id`, `sensorId`, `name`, `description`, `latitude`, `longitude`, `authToken`, `provider`, `userId`, `type`) VALUES
+(1, 1, 'n1', 'd1', 1, 1, 'a2', 'p2', 68, 'parking_area_config'),
+(2, 2, 'n2', 'd2', 2, 2, 'a2', 'p2', 68, 'parking_area_config'),
+(3, 3, 'n3', 'd3', 3, 3, 'a3', 'p3', 68, 'parking_area_config'),
+(4, 4, 'n4', 'd4', 4, 4, 'a4', 'p4', 68, 'parking_area_config'),
+(5, 5, 'n5', 'd5', 5, 5, 'a5', 'p5', 68, 'parking_area_config');
 
 --
 -- Índices para tablas volcadas
@@ -68,7 +69,7 @@ ALTER TABLE `capacity_devices`
 -- AUTO_INCREMENT de la tabla `capacity_devices`
 --
 ALTER TABLE `capacity_devices`
-  MODIFY `id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(15) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

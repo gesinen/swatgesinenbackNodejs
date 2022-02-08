@@ -99,49 +99,59 @@ class CapacityDevicesController {
 
         return new Promise((resolve: any, reject: any) => {
 
-            db.getConnection((err: any, conn: any) => {
-                conn.query(
-                    "INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, `authToken`, `provider`, `userId`)" +
-                    " VALUES (" + sensorId + ", '" + name + "','" + description + "', " + latitude + ", " + longitude + ", '" +
-                    authToken + "', '" + provider + "'," + userId + ");",
-                    async (error: any, results: any, fields: any) => {
-                        conn.release()
-                        if (results && results.length == 0) {
-                            resolve({
-                                http: 204,
-                                status: 'Error',
-                                response: "Cartel could not be created"
-                            })
-                        } else {
-                            let linesCreated = 0
-                            for (const cartelLine of cartelLines) {
-                                let lastInsertCartelId: any = results.lastInsertId
-                                let createCartelLineRes: any = await capacityCartelLineController.createCartelLine(lastInsertCartelId, cartelLine.parkingId,
-                                    cartelLine.lineNum)
-                                if (createCartelLineRes.http == 200) {
-                                    linesCreated++
-                                } else {
-                                    this.deleteCapacityCartel(lastInsertCartelId)
-                                    resolve({
-                                        http: 204,
-                                        status: 'Error',
-                                        response: "Some cartel line could not be created"
-                                    })
+            try {
+                db.getConnection((err: any, conn: any) => {
+                    conn.query(
+                        "INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, `authToken`, `provider`, `userId`)" +
+                        " VALUES (" + sensorId + ", '" + name + "','" + description + "', " + latitude + ", " + longitude + ", '" +
+                        authToken + "', '" + provider + "'," + userId + ");",
+                        async (error: any, results: any, fields: any) => {
+                            conn.release()
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: 'Error',
+                                    response: "Cartel could not be created"
+                                })
+                            } else {
+                                let linesCreated = 0
+                                for (const cartelLine of cartelLines) {
+                                    console.log(results)
+                                    let lastInsertCartelId: any = results.insertId
+                                    let createCartelLineRes: any = await capacityCartelLineController.createCartelLine(lastInsertCartelId, cartelLine.parkingId,
+                                        cartelLine.lineNum).catch(err => {
+                                            console.log(error)
+                                            reject({ error: error })
+                                        })
+                                    if (createCartelLineRes.http == 200) {
+                                        linesCreated++
+                                    } else {
+                                        this.deleteCapacityCartel(lastInsertCartelId)
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            response: "Some cartel line could not be created"
+                                        })
+                                    }
                                 }
                             }
+                            if (error) {
+                                console.log(error)
+                                reject({ error: error })
+                            } else {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    response: "The capacity cartel has been created succesfully"
+                                })
+                            }
                         }
-                        if (error) {
-                            reject({ error: error })
-                        } else {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                response: "The capacity cartel has been created succesfully"
-                            })
-                        }
-                    }
-                )
-            })
+                    )
+                })
+            } catch (error) {
+                reject({ error: error })
+            }
+
         })
     } // createCapacityDevice ()
 

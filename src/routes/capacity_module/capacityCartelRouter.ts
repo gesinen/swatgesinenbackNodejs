@@ -18,8 +18,8 @@ class CapacityCartelRouter {
      */
     public createCartel = () => this.router.post('/', (req: Request, res: Response) => {
         const params = req.body;
-
-        capacityCartelController.createCapacityCartel(parseInt(params.sensorId), params.name, params.description, params.latitude, params.longitude, params.authTOken, params.provider, parseInt(params.userId), params.cartelLines)
+        console.log("createCartelParams", params)
+        capacityCartelController.createCapacityCartel(parseInt(params.sensorId), params.name, params.description, params.latitude, params.longitude, params.authToken, params.provider, parseInt(params.userId), params.cartelLines)
             .then(response => {
                 res.send(response)
             })
@@ -33,7 +33,7 @@ class CapacityCartelRouter {
      * GET ('/:id') 
      */
     public getCartel = () => this.router.get('/:userId/:pageSize/:pageIndex', (req: Request, res: Response) => {
-        capacityCartelController.getCapacityCartelList(parseInt(req.params.id), parseInt(req.params.pageSize), parseInt(req.params.pageIndex))
+        capacityCartelController.getCapacityCartelList(parseInt(req.params.userId), parseInt(req.params.pageSize), parseInt(req.params.pageIndex))
             .then(response => {
                 res.send(response)
             })

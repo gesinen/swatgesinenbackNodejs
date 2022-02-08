@@ -31,9 +31,12 @@ class CapacityDevicesController {
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
-                conn.query("INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, " +
-                    "`authToken`, `provider`, `type`) VALUES (" + sensorId + ", '" + name + "', '" + description + "', " + latitude +
-                    ", " + longitude + ", '" + authToken + "', '" + provider + "', " + userId + ", '" + type + "');",
+
+                let query = "INSERT INTO `capacity_devices` (`sensorId`, `name`, `description`, `latitude`, `longitude`, " +
+                    "`authToken`, `provider`, `userId`, `type`) VALUES (" + sensorId + ", '" + name + "', '" + description + "', " + latitude +
+                    ", " + longitude + ", '" + authToken + "', '" + provider + "', " + userId + ", '" + type + "');"
+                console.log(query)
+                conn.query(query,
                     async (error: any, results: any, fields: any) => {
                         conn.release()
 
@@ -44,9 +47,19 @@ class CapacityDevicesController {
                                 response: "Capacity device could not be created"
                             })
                         } else {
-                            let lastInsertCapacityDeviceId: any = results.lastInsertId
+                            console.log(results)
+                            let lastInsertCapacityDeviceId: any = results.insertId
                             if (type == "parking_individual") {
                                 let capacitySpotCreateRes: any = await capacityTypeSpotController.createCapacitySpotDevice(lastInsertCapacityDeviceId, false)
+                                    .catch(err => {
+                                        console.log(err)
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            message: err,
+                                            response: "Capacity spot device could not be created"
+                                        })
+                                    })
                                 if (capacitySpotCreateRes.http != 200) {
                                     this.deleteCapacityDevice(lastInsertCapacityDeviceId)
                                     resolve({
@@ -57,6 +70,15 @@ class CapacityDevicesController {
                                 }
                             } else {
                                 let capacityRibbonCreateRes: any = await capacityTypeRibbonController.createCapacityRibbonDevice(lastInsertCapacityDeviceId, parkingId)
+                                    .catch(err => {
+                                        console.log(err)
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            message: err,
+                                            response: "Capacity ribbon device could not be created"
+                                        })
+                                    })
                                 if (capacityRibbonCreateRes.http != 200) {
                                     this.deleteCapacityDevice(lastInsertCapacityDeviceId)
                                     resolve({
@@ -259,9 +281,8 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             const first_value = (pageSize * pageIndex) - pageSize;
 
-            var query = "SELECT capacity_devices.* , sensor_info.device_EUI FROM capacity_devices INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId WHERE userId = " + userId +
+            var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_gateway_pkid.mac_number FROM capacity_devices LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE userId = " + userId +
                 " ORDER BY capacity_devices.id DESC LIMIT " + first_value + ', ' + pageSize + ";"
-
             db.getConnection((err: any, conn: any) => {
                 conn.query(query, (err: any, results: any) => {
                     conn.release()

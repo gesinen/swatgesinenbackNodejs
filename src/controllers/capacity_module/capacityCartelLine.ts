@@ -95,25 +95,31 @@ class CapacityCartelLineController {
     public async createCartelLine(cartelId: number, parkingId: number, lineNum: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
-
             db.getConnection((err: any, conn: any) => {
-                conn.query(
-                    "INSERT INTO `capacity_cartel_line` (`cartelId`, `parkingId`, `lineNum`) VALUES (" + cartelId + ", " + parkingId + ", " + lineNum + ")",
-                    (error: any, results: any, fields: any) => {
-                        conn.release()
+                try {
+                    conn.query(
+                        "INSERT INTO `capacity_cartel_line` (`cartelId`, `parkingId`, `lineNum`) VALUES (" + cartelId + ", " + parkingId + ", " + lineNum + ")",
+                        (error: any, results: any, fields: any) => {
+                            conn.release()
 
-                        if (error) {
-                            reject({ error: error })
-                        } else {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                response: "The capacity cartel line has been created succesfully"
-                            })
+                            if (error) {
+                                console.log(error)
+                                reject({ error: error })
+                            } else {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    response: "The capacity cartel line has been created succesfully"
+                                })
+                            }
                         }
-                    }
-                )
+                    )
+                } catch (error) {
+                    console.log(error)
+                    reject({ error: error })
+                }
             })
+
         })
     } // createCapacityDevice ()
 

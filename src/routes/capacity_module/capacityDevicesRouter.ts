@@ -9,7 +9,7 @@ class CapacityDevicesRouter {
         this.createCapacityDeviceAction();
         this.getCapacityDeviceByIdAction();
         this.updateCapacityDeviceAction();
-        this.getUserCapacityDevicesAction();
+        this.getUserCapacityDevicesListAction();
         this.getMostCapacityDevicesAction();
         this.getLessCapacityDevicesAction();
         this.removeCapacityDevice();
@@ -136,7 +136,7 @@ class CapacityDevicesRouter {
      * Get capacity devices of a user
      * GET ('/:userId') 
      */
-    public getUserCapacityDevicesAction = () => this.router.get('/list/:userId/:pageSize/:pageIndex', (req: Request, res: Response) => {
+    public getUserCapacityDevicesListAction = () => this.router.get('/:userId/:pageSize/:pageIndex', (req: Request, res: Response) => {
         capacityDevicesController.getUserCapacityDevicesList(parseInt(req.params.userId), parseInt(req.params.pageSize), parseInt(req.params.pageIndex))
             .then(response => {
                 res.send(response)
