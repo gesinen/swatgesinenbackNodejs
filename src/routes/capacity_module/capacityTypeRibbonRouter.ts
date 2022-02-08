@@ -24,11 +24,6 @@ class CapacityTypeRibbonRouter {
                 res.send(response)
             })
             .catch(err => {
-                /*res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })*/
                 res.send(err)
             })
     })
@@ -43,11 +38,6 @@ class CapacityTypeRibbonRouter {
                 res.send(response)
             })
             .catch(err => {
-                /*res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })*/
                 res.send(err)
             })
     })

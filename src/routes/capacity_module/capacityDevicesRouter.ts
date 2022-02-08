@@ -25,16 +25,11 @@ class CapacityDevicesRouter {
         const params = req.body;
 
         capacityDevicesController.createCapacityDevice(parseInt(params.sensorId), params.name, params.description, params.latitude,
-            params.longitude, params.authToken, params.provider, parseInt(params.userId))
+            params.longitude, params.authToken, params.provider, parseInt(params.userId), params.type, params.parkingId)
             .then(response => {
                 res.send(response)
             })
             .catch(err => {
-                res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })
                 res.send(err)
             })
     })
@@ -106,11 +101,6 @@ class CapacityDevicesRouter {
                 res.send(response)
             })
             .catch(err => {
-                /*res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })*/
                 res.send(err)
             })
     })
@@ -146,8 +136,8 @@ class CapacityDevicesRouter {
      * Get capacity devices of a user
      * GET ('/:userId') 
      */
-    public getUserCapacityDevicesAction = () => this.router.get('/list/:userId', (req: Request, res: Response) => {
-        capacityDevicesController.getUserCapacityDevices(parseInt(req.params.userId))
+    public getUserCapacityDevicesAction = () => this.router.get('/list/:userId/:pageSize/:pageIndex', (req: Request, res: Response) => {
+        capacityDevicesController.getUserCapacityDevicesList(parseInt(req.params.userId), parseInt(req.params.pageSize), parseInt(req.params.pageIndex))
             .then(response => {
                 res.send(response)
             })

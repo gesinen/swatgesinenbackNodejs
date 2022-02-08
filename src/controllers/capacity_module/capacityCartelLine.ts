@@ -8,6 +8,39 @@ import { Utils } from "../../utils/Utils";
  */
 class CapacityCartelLineController {
 
+    public async getCartelLines(cartelId: number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            var query = "SELECT * FROM capacity_cartel_line WHERE cartelId=" + cartelId + ";";
+
+            db.getConnection((err: any, results: any) => {
+                console.log(results)
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
+                    })
+                })
+            })
+        })
+    }
+
     public async getFreeCartelLines(): Promise<any> {
         return new Promise((resolve, reject) => {
             var query = "SELECT * FROM capacity_cartel_line WHERE parkingId IS NULL"
@@ -34,7 +67,7 @@ class CapacityCartelLineController {
                     resolve({
                         http: 200,
                         status: 'Success',
-                        capacity_devices: results
+                        result: results
                     })
                 })
             })
@@ -59,13 +92,13 @@ class CapacityCartelLineController {
      *
      * @return
      */
-    public async createCapacityDevice(cartelId: number, ribbonId: number, lineNum: number): Promise<object> {
+    public async createCartelLine(cartelId: number, parkingId: number, lineNum: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
                 conn.query(
-                    "INSERT INTO `capacity_cartel_line` (`cartelId`, `ribbonId`, `lineNum`) VALUES (" + cartelId + ", " + ribbonId + ", " + lineNum + ")",
+                    "INSERT INTO `capacity_cartel_line` (`cartelId`, `parkingId`, `lineNum`) VALUES (" + cartelId + ", " + parkingId + ", " + lineNum + ")",
                     (error: any, results: any, fields: any) => {
                         conn.release()
 

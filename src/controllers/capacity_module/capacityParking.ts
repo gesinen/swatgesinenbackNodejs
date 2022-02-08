@@ -8,9 +8,11 @@ import { Utils } from "../../utils/Utils";
  */
 class CapacityDevicesController {
 
-    public async getParkingList(userId: number): Promise<any> {
+    public async getParkingList(userId: number, pageSize: number, pageIndex: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            var query = "SELECT * FROM capacity_parking WHERE userId = " + userId;
+            const first_value = (pageSize * pageIndex) - pageSize;
+            var query = "SELECT * FROM capacity_parking WHERE userId = " + userId +
+                " ORDER BY capacity_parking.id DESC LIMIT " + first_value + ', ' + pageSize + ";"
 
             db.getConnection((err: any, results: any) => {
                 if (err) {

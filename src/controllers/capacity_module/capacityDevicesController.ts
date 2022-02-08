@@ -1,7 +1,8 @@
 import conn from "../../database";
 import db from "../../database";
 import { Utils } from "../../utils/Utils";
-import UsersController from "../usersController";
+import capacityTypeRibbonController from "./capacityTypeRibbon";
+import capacityTypeSpotController from "./capacityTypeSpot";
 
 /*
  * /capacity/devices
@@ -25,16 +26,47 @@ class CapacityDevicesController {
      *
      * @return
      */
-    public async createCapacityDevice(sensorId: number, name: string, description: string, latitude: number, longitude: number = 0, authToken: string, provider: string, userId: number): Promise<object> {
+    public async createCapacityDevice(sensorId: number, name: string, description: string, latitude: number, longitude: number, authToken: string, provider: string, userId: number, type: string, parkingId: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
                 conn.query("INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, " +
-                    "`authToken`, `provider`) VALUES (" + sensorId + ", '" + name + "', '" + description + "', " + latitude +
-                    ", " + longitude + ", '" + authToken + "', '" + provider + "', " + userId + ");",
-                    (error: any, results: any, fields: any) => {
+                    "`authToken`, `provider`, `type`) VALUES (" + sensorId + ", '" + name + "', '" + description + "', " + latitude +
+                    ", " + longitude + ", '" + authToken + "', '" + provider + "', " + userId + ", '" + type + "');",
+                    async (error: any, results: any, fields: any) => {
                         conn.release()
+
+                        if (results && results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Error',
+                                response: "Capacity device could not be created"
+                            })
+                        } else {
+                            let lastInsertCapacityDeviceId: any = results.lastInsertId
+                            if (type == "parking_individual") {
+                                let capacitySpotCreateRes: any = await capacityTypeSpotController.createCapacitySpotDevice(lastInsertCapacityDeviceId, false)
+                                if (capacitySpotCreateRes.http != 200) {
+                                    this.deleteCapacityDevice(lastInsertCapacityDeviceId)
+                                    resolve({
+                                        http: 204,
+                                        status: 'Error',
+                                        response: "Capacity spot device could not be created"
+                                    })
+                                }
+                            } else {
+                                let capacityRibbonCreateRes: any = await capacityTypeRibbonController.createCapacityRibbonDevice(lastInsertCapacityDeviceId, parkingId)
+                                if (capacityRibbonCreateRes.http != 200) {
+                                    this.deleteCapacityDevice(lastInsertCapacityDeviceId)
+                                    resolve({
+                                        http: 204,
+                                        status: 'Error',
+                                        response: "Capacity ribbon device could not be created"
+                                    })
+                                }
+                            }
+                        }
 
                         if (error) {
                             reject({ error: error })
@@ -222,11 +254,13 @@ class CapacityDevicesController {
      * 
      * @returns 
      */
-    public async getUserCapacityDevices(userId: number): Promise<object> {
+    public async getUserCapacityDevicesList(userId: number, pageSize: number, pageIndex: number): Promise<object> {
 
         return new Promise((resolve, reject) => {
+            const first_value = (pageSize * pageIndex) - pageSize;
 
-            var query = "SELECT * FROM capacity_devices WHERE userId = " + userId;
+            var query = "SELECT capacity_devices.* , sensor_info.device_EUI FROM capacity_devices INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId WHERE userId = " + userId +
+                " ORDER BY capacity_devices.id DESC LIMIT " + first_value + ', ' + pageSize + ";"
 
             db.getConnection((err: any, conn: any) => {
                 conn.query(query, (err: any, results: any) => {

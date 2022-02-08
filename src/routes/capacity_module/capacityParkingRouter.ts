@@ -16,7 +16,7 @@ class CapacityParkingRouter {
      * Create capacity device
      * POST ('/')
      */
-     public createParking = () => this.router.post('/', (req: Request, res: Response) => {
+    public createParking = () => this.router.post('/', (req: Request, res: Response) => {
         const params = req.body;
 
         capacityParkingController.createParking(params.name, params.description, params.currentCapacity, params.maxCapacity, params.address, params.userId)
@@ -24,11 +24,6 @@ class CapacityParkingRouter {
                 res.send(response)
             })
             .catch(err => {
-                /*res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })*/
                 res.send(err)
             })
     })
@@ -37,17 +32,13 @@ class CapacityParkingRouter {
      * Get a capacity device with an ID
      * GET ('/:id') 
      */
-    public getParkingList = () => this.router.get('/:userId', (req: Request, res: Response) => {
-        capacityParkingController.getParkingList(parseInt(req.params.userId))
+    public getParkingList = () => this.router.get('/:userId/:pageSize/:pageIndex', (req: Request, res: Response) => {
+        capacityParkingController.getParkingList(parseInt(req.params.userId), parseInt(req.params.pageSize), parseInt(req.params.pageIndex))
             .then(response => {
                 res.send(response)
             })
             .catch(err => {
-                res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })
+                res.send(err)
             })
     })
 

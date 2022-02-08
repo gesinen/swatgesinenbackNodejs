@@ -6,10 +6,10 @@ class CapacityCartelLineRouter {
     public router: Router = Router();
 
     constructor() {
-        this.createCapacityDeviceAction();
-        this.getCapacityDeviceByIdAction();
-        this.updateCapacityDeviceAction();
-        this.removeCapacityDevice();
+        this.getCartelLines();
+        this.createCartelLine();
+        this.deleteCartelLine();
+        //this.updateCapacityDeviceAction();
     }
 
     /**
@@ -19,16 +19,24 @@ class CapacityCartelLineRouter {
     public createCartelLine = () => this.router.post('/', (req: Request, res: Response) => {
         const params = req.body;
 
-        capacityDevicesController.createCapacityDevice(params.name, params.description, parseInt(params.sensor_id), parseInt(params.user_id), 0, parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
+        capacityCartelLineController.createCartelLine(parseInt(params.sensor_id), parseInt(params.user_id) ,parseInt(params.max_capacity))
             .then(response => {
                 res.send(response)
             })
             .catch(err => {
-                /*res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })*/
+                res.send(err)
+            })
+    })
+    /**
+     * Get a capacity device with an ID
+     * GET ('/:id') 
+     */
+    public getCartelLines = () => this.router.get('/:cartelId', (req: Request, res: Response) => {
+        capacityCartelLineController.getCartelLines(parseInt(req.params.cartelId))
+            .then(response => {
+                res.send(response)
+            })
+            .catch(err => {
                 res.send(err)
             })
     })
@@ -36,24 +44,24 @@ class CapacityCartelLineRouter {
     /**
      * Get a capacity device with an ID
      * GET ('/:id') 
-     */
+     *
     public getFreeCartelLines = () => this.router.get('/:id', (req: Request, res: Response) => {
-        capacityDevicesController.getCapacityDeviceById(parseInt(req.params.id))
+        capacityCartelLineController.getFreeCartelLines(parseInt(req.params.id))
             .then(response => {
                 res.send(response)
             })
             .catch(err => {
-                /*res.send({
+                res.send({
                     http: 401,
                     status: 'Failed',
                     error: err
-                })*/
+                })
                 res.send(err)
             })
-    })
+    })*/
 
-    public removeCapacityDevice = () => this.router.delete('/:id', (req: Request, res: Response) => {
-        capacityDevicesController.deleteCapacityDevice(parseInt(req.params.id))
+    public deleteCartelLine = () => this.router.delete('/:id', (req: Request, res: Response) => {
+        capacityCartelLineController.deleteCapacityCartelLine(parseInt(req.params.id))
             .then(response => {
                 res.send(response)
             })
@@ -65,7 +73,7 @@ class CapacityCartelLineRouter {
     /**
      * Update a capacity device
      * PUT ('/:id')
-     */
+     *
     public updateCapacityDeviceAction = () => this.router.put('/:id', (req: Request, res: Response) => {
         const id = parseInt(req.params.id);
         const params = req.body;
@@ -77,7 +85,7 @@ class CapacityCartelLineRouter {
             .catch(err => {
                 res.send(err)
             })
-    })
+    })*/
 
 }
 
