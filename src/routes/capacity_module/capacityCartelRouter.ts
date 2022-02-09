@@ -19,7 +19,7 @@ class CapacityCartelRouter {
     public createCartel = () => this.router.post('/', (req: Request, res: Response) => {
         const params = req.body;
         console.log("createCartelParams", params)
-        capacityCartelController.createCapacityCartel(parseInt(params.sensorId), params.name, params.description, params.latitude, params.longitude, params.authToken, params.provider, parseInt(params.userId), params.cartelLines)
+        capacityCartelController.createCapacityCartel(parseInt(params.sensorId), params.name, params.description, params.latitude, params.longitude, parseInt(params.userId), params.cartelLines)
             .then(response => {
                 res.send(response)
             })

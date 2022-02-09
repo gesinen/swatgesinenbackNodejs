@@ -6,7 +6,7 @@ class CapacityTypeRibbonRouter {
     public router: Router = Router();
 
     constructor() {
-        this.getCapacityRibbonDevice();
+        this.getAllCapacityRibbonDevicesInner();
         this.createCapacityRibbonDevice();
         this.removeCapacityRibbonDevice();
         //this.removeCapacityDevice();
@@ -32,8 +32,8 @@ class CapacityTypeRibbonRouter {
      * Get a capacity device with an ID
      * GET ('/:id') 
      */
-    public getCapacityRibbonDevice = () => this.router.get('/:id', (req: Request, res: Response) => {
-        capacityTypeRibbonController.getCapacityRibbonDevice(parseInt(req.params.id))
+    public getAllCapacityRibbonDevicesInner = () => this.router.get('/all', (req: Request, res: Response) => {
+        capacityTypeRibbonController.getAllCapacityRibbonDevicesInner()
             .then(response => {
                 res.send(response)
             })

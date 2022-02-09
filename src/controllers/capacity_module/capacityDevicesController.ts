@@ -40,65 +40,91 @@ class CapacityDevicesController {
                     async (error: any, results: any, fields: any) => {
                         conn.release()
 
-                        if (results && results.length == 0) {
+                        try {
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: 'Error',
+                                    response: "Capacity device could not be created"
+                                })
+                            } else {
+                                console.log(results)
+                                let lastInsertCapacityDeviceId: any = results.insertId
+                                if (type == "parking_individual") {
+                                    let capacitySpotCreateRes: any = await capacityTypeSpotController.createCapacitySpotDevice(lastInsertCapacityDeviceId, false)
+                                        .catch(err => {
+                                            console.log(err)
+                                            resolve({
+                                                http: 204,
+                                                status: 'Error',
+                                                message: err,
+                                                response: "Capacity spot device could not be created"
+                                            })
+                                        })
+                                    if (capacitySpotCreateRes.http != 200) {
+                                        this.deleteCapacityDevice(lastInsertCapacityDeviceId).catch(err => {
+                                            console.log(err)
+                                            resolve({
+                                                http: 204,
+                                                status: 'Error',
+                                                message: err,
+                                                response: "Capacity spot device could not be deleted"
+                                            })
+                                        })
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            response: "Capacity spot device could not be created"
+                                        })
+                                    }
+                                } else {
+                                    let capacityRibbonCreateRes: any = await capacityTypeRibbonController.createCapacityRibbonDevice(lastInsertCapacityDeviceId, parkingId)
+                                        .catch(err => {
+                                            console.log(err)
+                                            resolve({
+                                                http: 204,
+                                                status: 'Error',
+                                                message: err,
+                                                response: "Capacity ribbon device could not be created"
+                                            })
+                                        })
+                                    if (capacityRibbonCreateRes.http != 200) {
+                                        this.deleteCapacityDevice(lastInsertCapacityDeviceId).catch(err => {
+                                            console.log(err)
+                                            resolve({
+                                                http: 204,
+                                                status: 'Error',
+                                                message: err,
+                                                response: "Capacity ribbon device could not be deleted"
+                                            })
+                                        })
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            response: "Capacity ribbon device could not be created"
+                                        })
+                                    }
+                                }
+                            }
+
+                            if (error) {
+                                reject({ error: error })
+                            } else {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    response: "The capacity device has been created succesfully"
+                                })
+                            }
+                        } catch (error) {
                             resolve({
                                 http: 204,
                                 status: 'Error',
-                                response: "Capacity device could not be created"
+                                message: err,
+                                response: "Capacity spot device could not be created"
                             })
-                        } else {
-                            console.log(results)
-                            let lastInsertCapacityDeviceId: any = results.insertId
-                            if (type == "parking_individual") {
-                                let capacitySpotCreateRes: any = await capacityTypeSpotController.createCapacitySpotDevice(lastInsertCapacityDeviceId, false)
-                                    .catch(err => {
-                                        console.log(err)
-                                        resolve({
-                                            http: 204,
-                                            status: 'Error',
-                                            message: err,
-                                            response: "Capacity spot device could not be created"
-                                        })
-                                    })
-                                if (capacitySpotCreateRes.http != 200) {
-                                    this.deleteCapacityDevice(lastInsertCapacityDeviceId)
-                                    resolve({
-                                        http: 204,
-                                        status: 'Error',
-                                        response: "Capacity spot device could not be created"
-                                    })
-                                }
-                            } else {
-                                let capacityRibbonCreateRes: any = await capacityTypeRibbonController.createCapacityRibbonDevice(lastInsertCapacityDeviceId, parkingId)
-                                    .catch(err => {
-                                        console.log(err)
-                                        resolve({
-                                            http: 204,
-                                            status: 'Error',
-                                            message: err,
-                                            response: "Capacity ribbon device could not be created"
-                                        })
-                                    })
-                                if (capacityRibbonCreateRes.http != 200) {
-                                    this.deleteCapacityDevice(lastInsertCapacityDeviceId)
-                                    resolve({
-                                        http: 204,
-                                        status: 'Error',
-                                        response: "Capacity ribbon device could not be created"
-                                    })
-                                }
-                            }
                         }
 
-                        if (error) {
-                            reject({ error: error })
-                        } else {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                response: "The capacity device has been created succesfully"
-                            })
-                        }
                     }
                 )
             })
@@ -281,7 +307,7 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             const first_value = (pageSize * pageIndex) - pageSize;
 
-            var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_gateway_pkid.mac_number FROM capacity_devices LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE userId = " + userId +
+            var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE userId = " + userId +
                 " ORDER BY capacity_devices.id DESC LIMIT " + first_value + ', ' + pageSize + ";"
             db.getConnection((err: any, conn: any) => {
                 conn.query(query, (err: any, results: any) => {

@@ -11,37 +11,55 @@ class CapacityDevicesController {
 
     public async getCapacityCartelList(userId: number, pageSize: number, pageIndex: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            const first_value = (pageSize * pageIndex) - pageSize;
+            try {
+                const first_value = (pageSize * pageIndex) - pageSize;
 
-            var query = "SELECT * FROM capacity_cartel WHERE userId = " + userId +
-                " ORDER BY capacity_cartel.id DESC LIMIT " + first_value + ', ' + pageSize + ";"
+                var query = "SELECT capacity_cartel.*, sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_cartel " +
+                    " LEFT JOIN sensor_info ON sensor_info.id = capacity_cartel.sensorId LEFT JOIN sensor_gateway_pkid ON" +
+                    " sensor_gateway_pkid.sensor_id=sensor_info.id WHERE userId = " + userId +
+                    " ORDER BY capacity_cartel.id DESC LIMIT " + first_value + ', ' + pageSize + ";"
 
 
-            db.getConnection((err: any, results: any) => {
-                if (err) {
-                    reject({
-                        http: 401,
-                        status: 'Failed',
-                        error: err
-                    })
-                }
-
-                conn.query(query, (error: any, results: any) => {
-                    if (error) {
+                db.getConnection((err: any, results: any) => {
+                    if (err) {
                         reject({
                             http: 401,
                             status: 'Failed',
-                            error: error
+                            error: err
                         })
                     }
 
-                    resolve({
-                        http: 200,
-                        status: 'Success',
-                        capacity_devices: results
+                    conn.query(query, (error: any, results: any) => {
+                        if (error) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: error
+                            })
+                        }
+                        if (results) {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                capacity_devices: results
+                            })
+                        } else {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: error
+                            })
+                        }
+
                     })
                 })
-            })
+            } catch (error) {
+                reject({
+                    http: 401,
+                    status: 'Failed',
+                    error: error
+                })
+            }
         })
     }
 
@@ -95,57 +113,56 @@ class CapacityDevicesController {
      *
      * @return
      */
-    public async createCapacityCartel(sensorId: number, name: string, description: string, latitude: number, longitude: number = 0, authToken: string, provider: string, userId: number, cartelLines: any[]): Promise<object> {
+    public async createCapacityCartel(sensorId: number, name: string, description: string, latitude: number, longitude: number = 0, userId: number, cartelLines: any[]): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             try {
                 db.getConnection((err: any, conn: any) => {
-                    conn.query(
-                        "INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, `authToken`, `provider`, `userId`)" +
-                        " VALUES (" + sensorId + ", '" + name + "','" + description + "', " + latitude + ", " + longitude + ", '" +
-                        authToken + "', '" + provider + "'," + userId + ");",
-                        async (error: any, results: any, fields: any) => {
-                            conn.release()
-                            if (results && results.length == 0) {
-                                resolve({
-                                    http: 204,
-                                    status: 'Error',
-                                    response: "Cartel could not be created"
-                                })
-                            } else {
-                                let linesCreated = 0
-                                for (const cartelLine of cartelLines) {
-                                    console.log(results)
-                                    let lastInsertCartelId: any = results.insertId
-                                    let createCartelLineRes: any = await capacityCartelLineController.createCartelLine(lastInsertCartelId, cartelLine.parkingId,
-                                        cartelLine.lineNum).catch(err => {
-                                            console.log(error)
-                                            reject({ error: error })
-                                        })
-                                    if (createCartelLineRes.http == 200) {
-                                        linesCreated++
-                                    } else {
-                                        this.deleteCapacityCartel(lastInsertCartelId)
-                                        resolve({
-                                            http: 204,
-                                            status: 'Error',
-                                            response: "Some cartel line could not be created"
-                                        })
-                                    }
+                    let query = "INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, `userId`)" +
+                        " VALUES (" + sensorId + ", '" + name + "','" + description + "', " + latitude + ", " + longitude + "," + userId + ");"
+                    console.log(query)
+                    conn.query(query, async (error: any, results: any, fields: any) => {
+                        conn.release()
+                        if (results && results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Error',
+                                response: "Cartel could not be created"
+                            })
+                        } else {
+                            let linesCreated = 0
+                            console.log(results)
+                            let lastInsertCartelId: any = results.insertId
+                            for (let cartelLine of cartelLines) {
+                                let createCartelLineRes: any = await capacityCartelLineController.createCartelLine(lastInsertCartelId, cartelLine.parkingId,
+                                    cartelLine.lineNum).catch(err => {
+                                        console.log(error)
+                                        reject({ error: error })
+                                    })
+                                if (createCartelLineRes.http == 200) {
+                                    linesCreated++
+                                } else {
+                                    this.deleteCapacityCartel(lastInsertCartelId)
+                                    resolve({
+                                        http: 204,
+                                        status: 'Error',
+                                        response: "Some cartel line could not be created"
+                                    })
                                 }
                             }
-                            if (error) {
-                                console.log(error)
-                                reject({ error: error })
-                            } else {
-                                resolve({
-                                    http: 200,
-                                    status: 'Success',
-                                    response: "The capacity cartel has been created succesfully"
-                                })
-                            }
                         }
+                        if (error) {
+                            console.log(error)
+                            reject({ error: error })
+                        } else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                response: "The capacity cartel has been created succesfully"
+                            })
+                        }
+                    }
                     )
                 })
             } catch (error) {

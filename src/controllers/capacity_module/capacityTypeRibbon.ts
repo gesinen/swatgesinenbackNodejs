@@ -8,10 +8,13 @@ import { Utils } from "../../utils/Utils";
  */
 class CapacityDevicesController {
 
-    public async getCapacityRibbonDevice(id: number): Promise<any> {
+    public async getAllCapacityRibbonDevicesInner(): Promise<any> {
         return new Promise((resolve, reject) => {
-            var query = "SELECT * FROM capacity_type_ribbon WHERE id = " + id;
-
+            var query = "SELECT sensor_info.device_EUI"
+                + ",sensor_gateway_pkid.mac_number FROM capacity_devices " +
+                " INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId INNER JOIN sensor_gateway_pkid" +
+                " ON sensor_gateway_pkid.sensor_id=sensor_info.id";
+            console.log(query)
             db.getConnection((err: any, results: any) => {
                 if (err) {
                     reject({
