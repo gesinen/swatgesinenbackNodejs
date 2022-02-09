@@ -29,6 +29,8 @@ const db = mysql.createPool({
     database: 'swat_gesinen'
 });
 
+
+
 // Asynchronous mysql query
 async function query(sql) {
     return new Promise((resolve, reject) => {
@@ -53,6 +55,60 @@ async function query(sql) {
     })
 }
 
+async function getCurrentCapacityAndParkingId(deviceEui) {
+    let sqlGetCurrentCapacity = "SELECT capacity_parking.currentCapacity, capacity_parking.id as parkingId FROM `sensor_info` INNER JOIN capacity_devices ON " +
+        "capacity_devices.sensorId=sensor_info.id INNER JOIN capacity_type_ribbon ON " +
+        "capacity_type_ribbon.capacityDeviceId=capacity_devices.id INNER JOIN capacity_parking ON" +
+        " capacity_parking.id=capacity_type_ribbon.parkingId WHERE sensor_info.device_EUI = '" + deviceEui + "';"
+    let res = await query(sqlGetCurrentCapacity)
+        //console.log("res", res[0].currentCapacity)
+    return {
+        currentCapacity: res[0].currentCapacity,
+        parkingId: res[0].parkingId
+    }
+}
+
+async function getParkingCartelDeviceEuiAndLines(parkingId) {
+    let sqlGetParkingCartelsIds = "SELECT capacity_cartel_line.cartelId FROM capacity_cartel " +
+        "LEFT JOIN capacity_cartel_line ON capacity_cartel.id=capacity_cartel_line.cartelId LEFT JOIN sensor_info ON " +
+        "sensor_info.id=capacity_cartel.sensorId WHERE capacity_cartel_line.parkingId=" + parkingId + ";";
+    //console.log(sqlGetParkingCartelsIds)
+    let res = await query(sqlGetParkingCartelsIds)
+        //console.log("res", res[0].currentCapacity)
+    resArray = []
+    for (const element of res) {
+        let sqlGetParkingCartelDeviceEuiAndLines =
+            "SELECT sensor_info.device_EUI as cartelDeviceEUI,capacity_cartel_line.lineNum, capacity_parking.currentCapacity " +
+            "FROM `capacity_cartel_line` RIGHT JOIN capacity_cartel ON capacity_cartel.id=capacity_cartel_line.cartelId" +
+            " LEFT JOIN capacity_parking ON capacity_parking.id=capacity_cartel_line.parkingId RIGHT JOIN sensor_info" +
+            " ON sensor_info.id=capacity_cartel.sensorId WHERE capacity_cartel_line.cartelId=" + element.cartelId + " AND " +
+            "capacity_cartel_line.parkingId IS NULL OR capacity_cartel_line.parkingId IS NOT NULL AND " +
+            "capacity_cartel_line.cartelId=" + element.cartelId + ";";
+        //console.log(sqlGetParkingCartelDeviceEuiAndLines)
+        let res = await query(sqlGetParkingCartelDeviceEuiAndLines)
+            //console.log("getParkingCartelDeviceEuiAndLines", res)
+        resArray.push(res)
+    }
+    return resArray
+}
+
+async function filterMqttMessage(deviceEUI, messageFormated) {
+    return new Promise(async(resolve, reject) => {
+        let currentCapacity
+        for (const element of storedData) {
+            if (element.device_EUI.localeCompare(deviceEUI) == 0) {
+                //console.log("gatewayMac", gatewayMac)
+                //console.log("topic deviceEUI", deviceEUI)
+                //console.log("message", messageFormated)
+                currentCapacity = await getCurrentCapacityAndParkingId(deviceEUI)
+                    //console.log("currentCapacity", currentCapacity)
+                    //let updateSql = "UPDATE capacity_parking SET `currentCapacity`=" + currentCapacity + " WHERE id=" + element.parkingId + ";"
+            }
+        }
+        resolve(currentCapacity)
+    })
+}
+
 let querySql = "SELECT capacity_parking.id as parkingId, capacity_parking.currentCapacity, capacity_parking.maxCapacity," +
     " capacity_devices.id, sensor_info.device_EUI, sensor_gateway_pkid.mac_number FROM capacity_devices " +
     " INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId INNER JOIN sensor_gateway_pkid" +
@@ -73,7 +129,7 @@ query(querySql).then(rows => {
 
     client.on('connect', function() {
         console.log('Connected')
-            //console.log(storedData)
+        console.log(storedData)
         storedData.forEach(element => {
             client.subscribe(element.mac_number + '/#', function(err) {
                 if (!err) {
@@ -84,58 +140,30 @@ query(querySql).then(rows => {
 
     })
 
-    client.on('message', function(topic, message) {
+    client.on('message', async function(topic, message) {
         console.log(topic, "topic")
             // message is Buffer
         let messageFormated = message.toString()
-        console.log("message", messageFormated)
-
-        let deviceEUI = topic.split("/")[4]
-        console.log("deviceEUI", deviceEUI)
-
-        storedData.forEach(element => {
-            console.log("stored data elem.device_EUI", element.device_EUI)
-            console.log("topic deviceEUI", deviceEUI)
-
-            if (element.device_EUI.localeCompare(deviceEUI) == 0) {
-                console.log("DE LOCOS")
-                let updateSql = "UPDATE capacity_parking SET `currentCapacity`=" + currentCapacity + " WHERE id=" + element.parkingId + ";"
-            }
+            //console.log("message", messageFormated)
+        let deviceEUI
+        let gatewayMac
+        if (topic.split("/")) {
+            deviceEUI = topic.split("/")[4]
+                //console.log("deviceEUI", deviceEUI)
+            gatewayMac = topic.split("/")[0]
+        } //console.log("gatewayMac", gatewayMac)
+        let currentCapacityAndParkingId = await filterMqttMessage(deviceEUI, messageFormated)
+            //console.log("currentCapacityAndParkingId", currentCapacityAndParkingId)
+        let cartelDeviceEUIandLinesArray = await getParkingCartelDeviceEuiAndLines(currentCapacityAndParkingId.parkingId)
+        console.log("cartelDeviceEUIandLinesArray", cartelDeviceEUIandLinesArray)
+        cartelDeviceEUIandLinesArray.forEach((element, index) => {
+            let setTopic = gatewayMac + "/application/2/device/" + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI + "/tx"
+            let setMessage = "0x1b 0x06 " + cartelDeviceEUIandLinesArray[index][0].currentCapacity + " p1m " + cartelDeviceEUIandLinesArray[index][1].currentCapacity + " p2m"
+            console.log("FINAL TOPIC", setTopic)
+            console.log("FINAL setMessage", setMessage)
         });
-        client.end()
+        //console.log("cartelDeviceEUIandLines", cartelDeviceEUIandLinesArray)
+
+        //client.end()
     })
 })
-
-//this.connect();
-
-
-//this.suscribe("macGateway/#")
-
-
-
-/**
- * Save a new measure 
- * GET postalcode/ambiental/1/#
- * 
- * Body: {
- *  "deviceEui": 1,
- *  "value": 10.32,
- *  "unit": "ppm"
- *  "type": "CO2"
- * }
- * 
- */
-/*public syncDevice = () => {
-    this.suscribe('deviceSync');
-
-    // When a message arrives
-    this.client.on("message", async (topic: any, message: any) => {
-        if (topic == 'deviceSync') {
-
-            this.publish("deviceSync/" + jsonData.device.deviceEui,
-                '{\n\"SYNCHRONIZED\":\"' + jsonData.device.deviceEui + '\"\n}'
-            )
-
-        }
-    });
-}*/
