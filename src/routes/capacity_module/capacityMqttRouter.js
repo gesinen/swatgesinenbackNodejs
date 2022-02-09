@@ -92,6 +92,56 @@ async function getParkingCartelDeviceEuiAndLines(parkingId) {
     return resArray
 }
 
+function newMsgFormatter(number) {
+    let res = '';
+    let n = number.toString();
+
+    if (n.length == 1) {
+        res = '00 0' + n;
+    } else if (n.length == 2) {
+        res = '00 ' + n;
+    } else if (n.length == 3) {
+        res = '0' + n[0] + ' ' + n[1] + '' + n[2];
+    } else {
+        res = '' + n[0] + '' + n[1] + ' ' + n[2] + '' + n[3]
+    }
+
+    return res;
+}
+
+function hexToBase64(str) {
+    return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
+}
+// Setting a new value to a counter
+function setCurrentCounter(dev, num) {
+    const getwayMAC = dev.mac_number;
+    const applicationId = 2;
+    const deviceEUI = dev.device_EUI;
+    const fPort = 1;
+
+    const pre = 'A0'
+    const data = pre + ' ' + newMsgFormatter(num)
+        //const data64 = this.hexToBase64(data) + '==';
+    const data64 = hexToBase64(data);
+
+    const topic = getwayMAC + "/application/" + applicationId + "/device/" + deviceEUI + "/tx";
+    let msg = JSON.stringify({
+        confirmed: true,
+        fPort: fPort,
+        data: data64
+    });
+
+    console.log('DATA', data)
+    console.log('TOPIC', topic)
+    console.log('MSG', msg)
+
+    //const topic_ = 'b827ebdac54c/application/2/device/181f3c71bff07000/tx'
+
+    this._mqttService.publish(topic, msg, { qos: 1 }).subscribe(res => {
+        console.log('ack', res);
+    });
+}
+
 async function filterMqttMessage(deviceEUI, messageFormated) {
     return new Promise(async(resolve, reject) => {
         let currentCapacity
@@ -161,6 +211,10 @@ query(querySql).then(rows => {
             let setMessage = "0x1b 0x06 " + cartelDeviceEUIandLinesArray[index][0].currentCapacity + " p1m " + cartelDeviceEUIandLinesArray[index][1].currentCapacity + " p2m"
             console.log("FINAL TOPIC", setTopic)
             console.log("FINAL setMessage", setMessage)
+            let dev
+            dev.mac_number = gatewayMac
+            dev_dev.device_EUI = cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI
+            setCurrentCounter(dev)
         });
         //console.log("cartelDeviceEUIandLines", cartelDeviceEUIandLinesArray)
 
