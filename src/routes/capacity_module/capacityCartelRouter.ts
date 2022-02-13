@@ -7,9 +7,10 @@ class CapacityCartelRouter {
 
     constructor() {
         this.getCartel();
+        this.getCartelById();
         this.createCartel();
         this.deleteCartel();
-        //this.updateCartel();
+        this.updateCartel();
     }
 
     /**
@@ -43,6 +44,21 @@ class CapacityCartelRouter {
             })
     })
 
+    /**
+     * Get a capacity device with an ID
+     * GET ('/:id') 
+     */
+    public getCartelById = () => this.router.get('/:id', (req: Request, res: Response) => {
+        capacityCartelController.getCartelById(parseInt(req.params.id))
+            .then(response => {
+                res.send(response)
+            })
+            .catch(err => {
+
+                res.send(err)
+            })
+    })
+
     public deleteCartel = () => this.router.delete('/:id', (req: Request, res: Response) => {
         capacityCartelController.deleteCapacityCartel(parseInt(req.params.id))
             .then(response => {
@@ -56,19 +72,19 @@ class CapacityCartelRouter {
     /**
      * Update a capacity device
      * PUT ('/:id')
-     *
-    public updateCapacityDeviceAction = () => this.router.put('/:id', (req: Request, res: Response) => {
+     */
+    public updateCartel = () => this.router.put('/:id', (req: Request, res: Response) => {
         const id = parseInt(req.params.id);
         const params = req.body;
 
-        capacityCartelController.updateCapacityDevice(id, params.name, params.description, parseInt(params.sensor_id), parseInt(params.capacity), parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
+        capacityCartelController.updateCapacityCartel(id, params.cartelLines, params.name, params.description,parseInt(params.sensorId), params.latitude, params.longitude, params.authToken, params.provider)
             .then(response => {
                 res.send(response)
             })
             .catch(err => {
                 res.send(err)
             })
-    })*/
+    })
 
 }
 

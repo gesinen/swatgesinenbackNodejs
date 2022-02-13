@@ -63,6 +63,45 @@ class CapacityDevicesController {
         })
     }
 
+    public async getCartelById(id: number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            var query = "SELECT * FROM capacity_cartel WHERE id=" + id;
+
+            db.getConnection((err: any, results: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, async (error: any, results: any) => {
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    let cartelLines: any = await capacityCartelLineController.getCartelLines(results[0].id).catch(err => {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    })
+                    results[0].cartelLines = cartelLines.result
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
+                    })
+                })
+            })
+        })
+    }
+
     public async getCartelsWithFreeLines(): Promise<any> {
         return new Promise((resolve, reject) => {
             var query = "SELECT capacity_cartel.*, COUNT(*) as cartelFreeLines FROM capacity_cartel INNER JOIN capacity_cartel_line ON capacity_cartel.id=capacity_cartel_line.cartelId WHERE capacity_cartel_line.parkingId IS NULL GROUP BY capacity_cartel.id";
@@ -137,8 +176,8 @@ class CapacityDevicesController {
                             for (let cartelLine of cartelLines) {
                                 let createCartelLineRes: any = await capacityCartelLineController.createCartelLine(lastInsertCartelId, cartelLine.parkingId,
                                     cartelLine.lineNum).catch(err => {
-                                        console.log(error)
-                                        reject({ error: error })
+                                        console.log(err)
+                                        reject({ error: err })
                                     })
                                 if (createCartelLineRes.http == 200) {
                                     linesCreated++
@@ -189,11 +228,11 @@ class CapacityDevicesController {
      * 
      * @returns 
      */
-    public async updateCapacityDevice(id: number, name?: string, description?: string, sensor_id?: number, capacity?: number, max_capacity?: number, type?: string, address?: string, coordinates_x?: string, coordinates_y?: string): Promise<object> {
+    public async updateCapacityCartel(id: number, cartelLines: any[], name?: string, description?: string, sensorId?: number, latitude?: number, longitude?: number, authToken?: string, provider?: string): Promise<object> {
 
         return new Promise((resolve, reject) => {
 
-            if (!name && !description && !sensor_id && !capacity && !max_capacity && !type && !address && !coordinates_x && !coordinates_y) {
+            if (!name && !description && !sensorId && !latitude && !longitude && !authToken && !provider) {
                 reject({
                     http: 406,
                     status: 'Failed',
@@ -201,7 +240,7 @@ class CapacityDevicesController {
                 })
             }
 
-            var query = "UPDATE capacity_devices SET"
+            var query = "UPDATE capacity_cartel SET"
 
             // Checking if each param is not empty and adding it to the query
             if (name) {
@@ -210,26 +249,20 @@ class CapacityDevicesController {
             if (description) {
                 query += " description = '" + description + "',"
             }
-            if (sensor_id) {
-                query += " sensor_id = " + sensor_id + ","
+            if (sensorId) {
+                query += " sensorId = " + sensorId + ","
             }
-            if (capacity) {
-                query += " capacity = " + capacity + ","
+            if (latitude) {
+                query += " latitude = " + latitude + ","
             }
-            if (max_capacity) {
-                query += " max_capacity = " + max_capacity + ","
+            if (longitude) {
+                query += " longitude = " + longitude + ","
             }
-            if (type) {
-                query += " type = '" + type + "',"
+            if (authToken) {
+                query += " authToken = '" + authToken + "',"
             }
-            if (address) {
-                query += " address = '" + address + "',"
-            }
-            if (coordinates_x) {
-                query += " coordinates_x = '" + coordinates_x + "',"
-            }
-            if (coordinates_y) {
-                query += " coordinates_y = '" + coordinates_y + "',"
+            if (provider) {
+                query += " provider = '" + provider + "',"
             }
 
             // Removing the last comma
@@ -240,29 +273,56 @@ class CapacityDevicesController {
 
             // Running the query
             db.getConnection((err: any, conn: any) => {
-                conn.query(query, (error: any, results: any) => {
+                conn.query(query, async (error: any, results: any) => {
                     conn.release()
 
                     if (error) {
                         reject({
                             http: 401,
                             status: 'Failed',
-                            error: err
+                            error: err,
+                            query: query
                         })
                     }
 
-                    if (results.length == 0) {
-                        resolve({
-                            http: 204,
-                            status: 'Success',
-                            result: "There are no capacity devices with this ID",
+                    if (results == undefined) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: "result undefined",
+                            query: query
                         })
                     } else {
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            result: "The capacity device has been updated successfully"
-                        })
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "There is no capacity cartel with this ID",
+                            })
+                        } else {
+                            for (const cartelLineObj of cartelLines) {
+                                let res: any = await capacityCartelLineController.updateCartelLine(id, cartelLineObj.parkingId, cartelLineObj.lineNum).catch(err => {
+                                    console.log(err)
+                                    reject({
+                                        http: 401,
+                                        status: 'Failed',
+                                        error: err
+                                    })
+                                })
+                                if (res.http != 200) {
+                                    resolve({
+                                        http: 204,
+                                        status: 'Success',
+                                        result: "Some capacity line couldnt be updated",
+                                    })
+                                }
+                            }
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: "The capacity cartel has been updated successfully"
+                            })
+                        }
                     }
                 })
             })

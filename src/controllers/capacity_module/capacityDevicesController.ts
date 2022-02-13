@@ -144,9 +144,9 @@ class CapacityDevicesController {
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
-                var query = "SELECT * FROM capacity_devices WHERE id = " + id;
+                var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE capacity_devices.id=" + id + ";";
 
-                conn.query(query, (err: any, results: any) => {
+                conn.query(query, async (err: any, results: any) => {
                     if (err) {
                         reject({
                             http: 401,
@@ -163,6 +163,33 @@ class CapacityDevicesController {
                                 capacity_device: {}
                             })
                         } else {
+                            if (results[0].type == "parking_individual") {
+                                let res: any = await capacityTypeSpotController.getCapacitySpotDevice(results[0].id).catch(err => {
+                                    console.log(err)
+                                    resolve({
+                                        http: 204,
+                                        status: 'Error',
+                                        message: err,
+                                        response: "Capacity spot device could not be retrieved"
+                                    })
+                                })
+                                console.log("res", res)
+                                results[0].status = res.result[0].status
+                                results[0].spotDeviceId = res.result[0].id
+                            } else {
+                                let res: any = await capacityTypeRibbonController.getCapacityRibbonDeviceById(results[0].id).catch(err => {
+                                    console.log(err)
+                                    resolve({
+                                        http: 204,
+                                        status: 'Error',
+                                        message: err,
+                                        response: "Capacity ribbon device could not be retrieved"
+                                    })
+                                })
+                                console.log("res", res)
+                                results[0].parkingId = res.result[0].parkingId
+                                results[0].ribbonDeviceId = res.result[0].id
+                            }
                             resolve({
                                 http: 200,
                                 status: 'Success',
@@ -192,11 +219,12 @@ class CapacityDevicesController {
      * 
      * @returns 
      */
-    public async updateCapacityDevice(id: number, name?: string, description?: string, sensor_id?: number, capacity?: number, max_capacity?: number, type?: string, address?: string, coordinates_x?: string, coordinates_y?: string): Promise<object> {
+    public async updateCapacityDevice(id: number, name?: string, description?: string, sensorId?: number, authToken?: string, provider?: string, type?: string,
+        address?: string, latitude?: number, longitude?: number, ribbonDeviceId?: number, parkingId?: number, spotDeviceId?: number, status?: boolean): Promise<object> {
 
         return new Promise((resolve, reject) => {
 
-            if (!name && !description && !sensor_id && !capacity && !max_capacity && !type && !address && !coordinates_x && !coordinates_y) {
+            if (!name && !description && !sensorId && !authToken && !provider && !type && !address && !latitude && !longitude) {
                 reject({
                     http: 406,
                     status: 'Failed',
@@ -213,14 +241,14 @@ class CapacityDevicesController {
             if (description) {
                 query += " description = '" + description + "',"
             }
-            if (sensor_id) {
-                query += " sensor_id = " + sensor_id + ","
+            if (authToken) {
+                query += " authToken = '" + authToken + "',"
             }
-            if (capacity) {
-                query += " capacity = " + capacity + ","
+            if (provider) {
+                query += " provider = '" + provider + "',"
             }
-            if (max_capacity) {
-                query += " max_capacity = " + max_capacity + ","
+            if (sensorId) {
+                query += " sensorId = " + sensorId + ","
             }
             if (type) {
                 query += " type = '" + type + "',"
@@ -228,11 +256,11 @@ class CapacityDevicesController {
             if (address) {
                 query += " address = '" + address + "',"
             }
-            if (coordinates_x) {
-                query += " coordinates_x = '" + coordinates_x + "',"
+            if (latitude) {
+                query += " latitude = " + latitude + ","
             }
-            if (coordinates_y) {
-                query += " coordinates_y = '" + coordinates_y + "',"
+            if (longitude) {
+                query += " longitude = " + longitude + ","
             }
 
             // Removing the last comma
@@ -258,9 +286,30 @@ class CapacityDevicesController {
                         resolve({
                             http: 204,
                             status: 'Success',
-                            result: "There are no capacity devices with this ID",
+                            result: "There is no capacity device with this ID",
                         })
                     } else {
+                        if (type == "parking_individual") {
+                            capacityTypeSpotController.updateCapacitySpotDevice(spotDeviceId, status).catch(err => {
+                                console.log(err)
+                                resolve({
+                                    http: 204,
+                                    status: 'Error',
+                                    message: err,
+                                    response: "Capacity spot device could not be updated"
+                                })
+                            })
+                        } else {
+                            capacityTypeRibbonController.updateCapacityRibbonDevice(ribbonDeviceId, parkingId).catch(err => {
+                                console.log(err)
+                                resolve({
+                                    http: 204,
+                                    status: 'Error',
+                                    message: err,
+                                    response: "Capacity ribbon device could not be updated"
+                                })
+                            })
+                        }
                         resolve({
                             http: 200,
                             status: 'Success',

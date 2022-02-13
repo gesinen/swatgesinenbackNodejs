@@ -42,6 +42,38 @@ class CapacityDevicesController {
         })
     }
 
+    public async getCartelById(id: number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            var query = "SELECT * FROM capacity_cartel WHERE id=" + id;
+
+            db.getConnection((err: any, results: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
+                    })
+                })
+            })
+        })
+    }
+
     public async getCartelsWithFreeLines(): Promise<any> {
         return new Promise((resolve, reject) => {
             var query = "SELECT capacity_cartel.*, COUNT(*) as cartelFreeLines FROM capacity_cartel INNER JOIN capacity_cartel_line ON capacity_cartel.id=capacity_cartel_line.cartelId WHERE capacity_cartel_line.ribbonId IS NULL GROUP BY capacity_cartel.id";
@@ -186,11 +218,11 @@ class CapacityDevicesController {
      * 
      * @returns 
      */
-    public async updateCapacityDevice(id: number, name?: string, description?: string, sensor_id?: number, capacity?: number, max_capacity?: number, type?: string, address?: string, coordinates_x?: string, coordinates_y?: string): Promise<object> {
+    public async updateCapacityParking(id: number, name?: string, description?: string, currentCapacity?: number, maxCapacity?: number, address?: string): Promise<object> {
 
         return new Promise((resolve, reject) => {
 
-            if (!name && !description && !sensor_id && !capacity && !max_capacity && !type && !address && !coordinates_x && !coordinates_y) {
+            if (!name && !description && !currentCapacity && !maxCapacity && !address) {
                 reject({
                     http: 406,
                     status: 'Failed',
@@ -198,7 +230,7 @@ class CapacityDevicesController {
                 })
             }
 
-            var query = "UPDATE capacity_devices SET"
+            var query = "UPDATE capacity_parking SET"
 
             // Checking if each param is not empty and adding it to the query
             if (name) {
@@ -207,26 +239,14 @@ class CapacityDevicesController {
             if (description) {
                 query += " description = '" + description + "',"
             }
-            if (sensor_id) {
-                query += " sensor_id = " + sensor_id + ","
+            if (currentCapacity) {
+                query += " currentCapacity = '" + currentCapacity + "',"
             }
-            if (capacity) {
-                query += " capacity = " + capacity + ","
-            }
-            if (max_capacity) {
-                query += " max_capacity = " + max_capacity + ","
-            }
-            if (type) {
-                query += " type = '" + type + "',"
+            if (maxCapacity) {
+                query += " maxCapacity = '" + maxCapacity + "',"
             }
             if (address) {
                 query += " address = '" + address + "',"
-            }
-            if (coordinates_x) {
-                query += " coordinates_x = '" + coordinates_x + "',"
-            }
-            if (coordinates_y) {
-                query += " coordinates_y = '" + coordinates_y + "',"
             }
 
             // Removing the last comma
@@ -252,13 +272,13 @@ class CapacityDevicesController {
                         resolve({
                             http: 204,
                             status: 'Success',
-                            result: "There are no capacity devices with this ID",
+                            result: "There are no capacity parkings with this ID",
                         })
                     } else {
                         resolve({
                             http: 200,
                             status: 'Success',
-                            result: "The capacity device has been updated successfully"
+                            result: "The capacity parking has been updated successfully"
                         })
                     }
                 })

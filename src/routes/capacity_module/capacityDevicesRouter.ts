@@ -122,8 +122,8 @@ class CapacityDevicesRouter {
     public updateCapacityDeviceAction = () => this.router.put('/:id', (req: Request, res: Response) => {
         const id = parseInt(req.params.id);
         const params = req.body;
-
-        capacityDevicesController.updateCapacityDevice(id, params.name, params.description, parseInt(params.sensor_id), parseInt(params.capacity), parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
+        capacityDevicesController.updateCapacityDevice(id, params.name, params.description, parseInt(params.sensorId), params.authToken, params.provider,
+            params.type, params.address, params.latitude, params.longitude, params.ribbonDeviceId, params.parkingId, params.spotDeviceId, params.status)
             .then(response => {
                 res.send(response)
             })

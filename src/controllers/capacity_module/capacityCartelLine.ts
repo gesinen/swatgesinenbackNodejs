@@ -13,7 +13,7 @@ class CapacityCartelLineController {
             var query = "SELECT * FROM capacity_cartel_line WHERE cartelId=" + cartelId + ";";
 
             db.getConnection((err: any, results: any) => {
-                console.log(results)
+                //console.log(results)
                 if (err) {
                     reject({
                         http: 401,
@@ -140,11 +140,11 @@ class CapacityCartelLineController {
      * 
      * @returns 
      */
-    public async updateCapacityDevice(id: number, name?: string, description?: string, sensor_id?: number, capacity?: number, max_capacity?: number, type?: string, address?: string, coordinates_x?: string, coordinates_y?: string): Promise<object> {
+    public async updateCartelLine(cartelId: number, parkingId: number, lineNum: number): Promise<object> {
 
         return new Promise((resolve, reject) => {
 
-            if (!name && !description && !sensor_id && !capacity && !max_capacity && !type && !address && !coordinates_x && !coordinates_y) {
+            if (!cartelId && !parkingId && !lineNum) {
                 reject({
                     http: 406,
                     status: 'Failed',
@@ -152,42 +152,21 @@ class CapacityCartelLineController {
                 })
             }
 
-            var query = "UPDATE capacity_devices SET"
+            var query = "UPDATE capacity_cartel_line SET"
 
             // Checking if each param is not empty and adding it to the query
-            if (name) {
-                query += " name = '" + name + "',"
+            if (parkingId) {
+                query += " parkingId = " + parkingId + ","
             }
-            if (description) {
-                query += " description = '" + description + "',"
-            }
-            if (sensor_id) {
-                query += " sensor_id = " + sensor_id + ","
-            }
-            if (capacity) {
-                query += " capacity = " + capacity + ","
-            }
-            if (max_capacity) {
-                query += " max_capacity = " + max_capacity + ","
-            }
-            if (type) {
-                query += " type = '" + type + "',"
-            }
-            if (address) {
-                query += " address = '" + address + "',"
-            }
-            if (coordinates_x) {
-                query += " coordinates_x = '" + coordinates_x + "',"
-            }
-            if (coordinates_y) {
-                query += " coordinates_y = '" + coordinates_y + "',"
+            if (lineNum) {
+                query += " lineNum = " + lineNum + ","
             }
 
             // Removing the last comma
             query = query.slice(0, -1);
 
             // Adding the WHERE condition 
-            query += " WHERE id = " + id;
+            query += " WHERE cartelId = " + cartelId + " AND lineNum=" + lineNum;
 
             // Running the query
             db.getConnection((err: any, conn: any) => {
@@ -198,22 +177,31 @@ class CapacityCartelLineController {
                         reject({
                             http: 401,
                             status: 'Failed',
-                            error: err
+                            error: err,
+                            query: query
                         })
                     }
-
-                    if (results.length == 0) {
-                        resolve({
-                            http: 204,
-                            status: 'Success',
-                            result: "There are no capacity devices with this ID",
+                    if (results == undefined) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: "result undefined",
+                            query: query
                         })
                     } else {
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            result: "The capacity device has been updated successfully"
-                        })
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "There is no cartel line with this ID",
+                            })
+                        } else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: "The cartel line has been updated successfully"
+                            })
+                        }
                     }
                 })
             })

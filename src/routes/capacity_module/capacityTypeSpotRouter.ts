@@ -9,7 +9,7 @@ class CapacityTypeSpotRouter {
         this.getCapacitySpotDevice();
         this.createCapacitySpotDevice();
         this.removeCapacitySpotDevice();
-        //this.updateCapacityDeviceAction();
+        this.updateCapacityDeviceAction();
     }
 
     /**
@@ -55,19 +55,19 @@ class CapacityTypeSpotRouter {
     /**
      * Update a capacity device
      * PUT ('/:id')
-     *
+     */
     public updateCapacityDeviceAction = () => this.router.put('/:id', (req: Request, res: Response) => {
         const id = parseInt(req.params.id);
         const params = req.body;
 
-        capacityDevicesController.updateCapacityDevice(id, params.name, params.description, parseInt(params.sensor_id), parseInt(params.capacity), parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
+        capacityTypeSpotController.updateCapacitySpotDevice(id, params.capacityDeviceId, params.status)
             .then(response => {
                 res.send(response)
             })
             .catch(err => {
                 res.send(err)
             })
-    })*/
+    })
 
 }
 
