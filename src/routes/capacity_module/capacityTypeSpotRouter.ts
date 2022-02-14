@@ -60,7 +60,7 @@ class CapacityTypeSpotRouter {
         const id = parseInt(req.params.id);
         const params = req.body;
 
-        capacityTypeSpotController.updateCapacitySpotDevice(id, params.capacityDeviceId, params.status)
+        capacityTypeSpotController.updateCapacitySpotDevice(id, params.status)
             .then(response => {
                 res.send(response)
             })

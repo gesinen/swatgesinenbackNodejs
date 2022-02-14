@@ -174,8 +174,8 @@ class CapacityDevicesController {
                                     })
                                 })
                                 console.log("res", res)
-                                results[0].status = res.result[0].status
-                                results[0].spotDeviceId = res.result[0].id
+                                results[0].status = res.capacity_devices[0].status
+                                results[0].spotDeviceId = res.capacity_devices[0].id
                             } else {
                                 let res: any = await capacityTypeRibbonController.getCapacityRibbonDeviceById(results[0].id).catch(err => {
                                     console.log(err)

@@ -75,7 +75,7 @@ class CapacityTypeRibbonRouter {
         const id = parseInt(req.params.id);
         const params = req.body;
 
-        capacityTypeRibbonController.updateCapacityRibbonDevice(id, params.capacityDeviceId, params.parkingId)
+        capacityTypeRibbonController.updateCapacityRibbonDevice(id, params.parkingId)
             .then(response => {
                 res.send(response)
             })
