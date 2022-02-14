@@ -16,7 +16,7 @@ const database_1 = __importDefault(require("../../database"));
 /*
  * /users
  */
-class IrrigationDeviceInputController {
+class IrrigationDeviceLinkController {
     /**
      * GET ('/information/:id')
      * Getting the information about the user
@@ -26,11 +26,11 @@ class IrrigationDeviceInputController {
      *
      * @return
      */
-    getIrrigationInputDeviceById(id) {
+    getIrrigationDeviceLinkById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT * FROM irrigation_device_input WHERE id = " + id;
+                    let query = "SELECT * FROM irrigation_device_link WHERE id = " + id;
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -40,6 +40,231 @@ class IrrigationDeviceInputController {
                                 error: error
                             });
                         }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There is no irrigation device link with this ID'
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results[0]
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
+    getLinkByIrrigationDeviceId(irrigationDeviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT * FROM irrigation_device_link WHERE irrigationDeviceId = " + irrigationDeviceId;
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There is no irrigation device link with this ID'
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
+    getIrrigationDeviceInputByLinkIdAndOutputId(linkId, outputId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT * FROM irrigation_device_link WHERE id = " + linkId + " AND irrigationDeviceOutputId=" + outputId;
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There is no irrigation device link with this ID'
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results[0]
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
+    storeIrrigationDeviceLink(irrigationDeviceInputId, irrigationDeviceOutputId, irrigationDeviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "INSERT INTO irrigation_device_link (irrigationDeviceInputId,irrigationDeviceOutputId,irrigationDeviceId)" +
+                        " VALUES (" + irrigationDeviceInputId + "," + irrigationDeviceOutputId + "," + irrigationDeviceId + ")";
+                    console.log("query", query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        console.log(results);
+                        if (results.affectedRows == 1) {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: 'Irrigation device link inserted succesfully',
+                                insertId: results.insertId
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                message: "Irrigation device link could not be inserted",
+                                result: results
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
+    updateIrrigationDeviceLink(linkDeviceId, irrigationDeviceInputId, irrigationDeviceOutputId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    try {
+                        let query = "UPDATE irrigation_device_link SET irrigationDeviceInputId=" + irrigationDeviceInputId +
+                            ", irrigationDeviceOutputId=" + irrigationDeviceOutputId
+                            + " WHERE id=" + linkDeviceId + ";";
+                        conn.query(query, (error, results) => {
+                            conn.release();
+                            console.log(query);
+                            if (error) {
+                                reject({
+                                    http: 406,
+                                    status: 'Failed',
+                                    error: error
+                                });
+                            }
+                            console.log(results);
+                            if (results && results.affectedRows == 1) {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    result: 'Irrigation device input updated succesfully'
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 204,
+                                    status: 'Success',
+                                    message: "Irrigation device input could not be updated",
+                                    result: results
+                                });
+                            }
+                        });
+                    }
+                    catch (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        });
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
+    deleteIrrigationLinkDeviceByOutputId(outputId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "DELETE FROM irrigation_device_link WHERE irrigationDeviceOutputId=" + outputId + ";";
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        console.log(results);
                         if (results.length == 0) {
                             resolve({
                                 http: 204,
@@ -58,88 +283,6 @@ class IrrigationDeviceInputController {
         });
     }
     /**
- * GET ('/information/:id')
- * Getting the information about the user
- *
- * @async
- * @param id - The user Id
- *
- * @return
- */
-    getInputByIrrigationDeviceId(irrigationDeviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT * FROM irrigation_device_input WHERE irrigationDeviceId = " + irrigationDeviceId;
-                    conn.query(query, (error, results) => {
-                        conn.release();
-                        if (error) {
-                            reject({
-                                http: 406,
-                                status: 'Failed',
-                                error: error
-                            });
-                        }
-                        if (results && results.length == 0) {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                result: 'There is no irrigation device input with this ID'
-                            });
-                        }
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            result: results
-                        });
-                    });
-                });
-            });
-        });
-    }
-    /**
- * GET ('/information/:id')
- * Getting the information about the user
- *
- * @async
- * @param id - The user Id
- *
- * @return
- */
-    getIrrigationInputDeviceByIrrigationDeviceIdAndName(name, irrigationDeviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT * FROM irrigation_device_input WHERE name = '" + name + "' AND irrigationDeviceId=" + irrigationDeviceId;
-                    console.log("query", query);
-                    conn.query(query, (error, results) => {
-                        conn.release();
-                        if (error) {
-                            reject({
-                                http: 406,
-                                status: 'Failed',
-                                error: error
-                            });
-                        }
-                        console.log("res", results);
-                        if (results == undefined) {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                result: 'There is no irrigation device input with this ID'
-                            });
-                        }
-                        resolve({
-                            http: 200,
-                            status: 'Success',
-                            result: results[0]
-                        });
-                    });
-                });
-            });
-        });
-    }
-    /**
      * GET ('/information/:id')
      * Getting the information about the user
      *
@@ -148,168 +291,11 @@ class IrrigationDeviceInputController {
      *
      * @return
      */
-    storeIrrigationInputDevice(irrigationDeviceId, sensorId, lastTemperature, lastHumidity, sensorIndex, name, connectionType, authToken, provider) {
+    deleteIrrigationLinkDevice(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let providerCheck = provider;
-                    if (provider == undefined) {
-                        providerCheck = '';
-                    }
-                    let authCheck = authToken;
-                    if (authToken == undefined) {
-                        authCheck = '';
-                    }
-                    let query = "INSERT INTO irrigation_device_input (irrigationDeviceId,sensorId,lastHumidity,lastTemperature,sensorIndex, name,connectionType,authToken,provider)" +
-                        " VALUES (" + irrigationDeviceId + "," + sensorId + "," + lastHumidity + "," +
-                        lastTemperature + "," + sensorIndex + ", '" + name + "', '" + connectionType + "','" +
-                        authCheck + "','" + providerCheck + "')";
-                    console.log("query", query);
-                    conn.query(query, (error, results) => {
-                        conn.release();
-                        if (error) {
-                            reject({
-                                http: 406,
-                                status: 'Failed',
-                                error: error
-                            });
-                        }
-                        console.log(results);
-                        if (results && results.affectedRows == 1) {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                result: 'Irrigation device input inserted succesfully',
-                                insertId: results.insertId
-                            });
-                        }
-                        else {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                message: "Irrigation device input could not be inserted",
-                                result: results
-                            });
-                        }
-                    });
-                });
-            });
-        });
-    }
-    /**
-     * GET ('/information/:id')
-     * Getting the information about the user
-     *
-     * @async
-     * @param id - The user Id
-     *
-     * @return
-     */
-    getIrrigationInputDevicesByIrregationDeviceId(irrigationDeviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT COUNT(*) as sensorsCount FROM irrigation_device_input WHERE irrigationDeviceId=" + irrigationDeviceId + ";";
-                    console.log("query", query);
-                    conn.query(query, (error, results) => {
-                        conn.release();
-                        if (error) {
-                            reject({
-                                http: 406,
-                                status: 'Failed',
-                                error: error
-                            });
-                        }
-                        console.log(results);
-                        if (results) {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                message: 'Irrigation device inputs retrieved succesfully',
-                                result: results.sensorsCount
-                            });
-                        }
-                        else {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                message: "Irrigation device inputs could not be retrieved",
-                                result: results
-                            });
-                        }
-                    });
-                });
-            });
-        });
-    }
-    /**
-     * GET ('/information/:id')
-     * Getting the information about the user
-     *
-     * @async
-     * @param id - The user Id
-     *
-     * @return
-     */
-    updateIrrigationInputDevice(id, sensorId, name, connectionType, authToken, provider) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
-                    let providerCheck = provider;
-                    if (provider == undefined) {
-                        providerCheck = '';
-                    }
-                    let authCheck = authToken;
-                    if (authToken == undefined) {
-                        authCheck = '';
-                    }
-                    let query = "UPDATE irrigation_device_input SET sensorId=" + sensorId + ", name='" + name + "', connectionType='" +
-                        connectionType + "', authToken='" + authCheck + "', provider='" + providerCheck + "' WHERE id=" + id + ";";
-                    conn.query(query, (error, results) => {
-                        conn.release();
-                        console.log(query);
-                        if (error) {
-                            reject({
-                                http: 406,
-                                status: 'Failed',
-                                error: error
-                            });
-                        }
-                        console.log(results);
-                        if (results.affectedRows == 1) {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                result: 'Irrigation device input updated succesfully'
-                            });
-                        }
-                        else {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                message: "Irrigation device input could not be updated",
-                                result: results
-                            });
-                        }
-                    });
-                });
-            });
-        });
-    }
-    /**
-     * GET ('/information/:id')
-     * Getting the information about the user
-     *
-     * @async
-     * @param id - The user Id
-     *
-     * @return
-     */
-    deleteIrrigationInputDevice(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
-                    let query = "DELETE FROM irrigation_device_input WHERE id=" + id + ";";
+                    let query = "DELETE FROM irrigation_device_link WHERE id=" + id + ";";
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -338,4 +324,4 @@ class IrrigationDeviceInputController {
         });
     }
 }
-exports.default = new IrrigationDeviceInputController();
+exports.default = new IrrigationDeviceLinkController();

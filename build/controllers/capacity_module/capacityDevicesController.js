@@ -13,7 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../../database"));
-const database_2 = __importDefault(require("../../database"));
+const capacityTypeRibbon_1 = __importDefault(require("./capacityTypeRibbon"));
+const capacityTypeSpot_1 = __importDefault(require("./capacityTypeSpot"));
 /*
  * /capacity/devices
  */
@@ -36,25 +37,104 @@ class CapacityDevicesController {
      *
      * @return
      */
-    createCapacityDevice(name, description = "", sensor_id, user_id, capacity = 0, max_capacity, type, address = "", coordinates_x = "", coordinates_y = "") {
+    createCapacityDevice(sensorId, name, description, latitude, longitude, authToken, provider, userId, type, parkingId) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                database_2.default.getConnection((err, conn) => {
-                    conn.query("INSERT INTO capacity_devices" +
-                        "(name, description, sensor_id, user_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y)" +
-                        " VALUES ('" + name + "','" + description + "'," + sensor_id + "," + user_id + "," + capacity + "," + max_capacity + ",'" + type + "','" + address + "','" + coordinates_x + "','" + coordinates_y + "')", (error, results, fields) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "INSERT INTO `capacity_devices` (`sensorId`, `name`, `description`, `latitude`, `longitude`, " +
+                        "`authToken`, `provider`, `userId`, `type`) VALUES (" + sensorId + ", '" + name + "', '" + description + "', " + latitude +
+                        ", " + longitude + ", '" + authToken + "', '" + provider + "', " + userId + ", '" + type + "');";
+                    console.log(query);
+                    conn.query(query, (error, results, fields) => __awaiter(this, void 0, void 0, function* () {
                         conn.release();
-                        if (error) {
-                            reject({ error: error });
+                        try {
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: 'Error',
+                                    response: "Capacity device could not be created"
+                                });
+                            }
+                            else {
+                                console.log(results);
+                                let lastInsertCapacityDeviceId = results.insertId;
+                                if (type == "parking_individual") {
+                                    let capacitySpotCreateRes = yield capacityTypeSpot_1.default.createCapacitySpotDevice(lastInsertCapacityDeviceId, false)
+                                        .catch(err => {
+                                        console.log(err);
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            message: err,
+                                            response: "Capacity spot device could not be created"
+                                        });
+                                    });
+                                    if (capacitySpotCreateRes.http != 200) {
+                                        this.deleteCapacityDevice(lastInsertCapacityDeviceId).catch(err => {
+                                            console.log(err);
+                                            resolve({
+                                                http: 204,
+                                                status: 'Error',
+                                                message: err,
+                                                response: "Capacity spot device could not be deleted"
+                                            });
+                                        });
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            response: "Capacity spot device could not be created"
+                                        });
+                                    }
+                                }
+                                else {
+                                    let capacityRibbonCreateRes = yield capacityTypeRibbon_1.default.createCapacityRibbonDevice(lastInsertCapacityDeviceId, parkingId)
+                                        .catch(err => {
+                                        console.log(err);
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            message: err,
+                                            response: "Capacity ribbon device could not be created"
+                                        });
+                                    });
+                                    if (capacityRibbonCreateRes.http != 200) {
+                                        this.deleteCapacityDevice(lastInsertCapacityDeviceId).catch(err => {
+                                            console.log(err);
+                                            resolve({
+                                                http: 204,
+                                                status: 'Error',
+                                                message: err,
+                                                response: "Capacity ribbon device could not be deleted"
+                                            });
+                                        });
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            response: "Capacity ribbon device could not be created"
+                                        });
+                                    }
+                                }
+                            }
+                            if (error) {
+                                reject({ error: error });
+                            }
+                            else {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    response: "The capacity device has been created succesfully"
+                                });
+                            }
                         }
-                        else {
+                        catch (error) {
                             resolve({
-                                http: 200,
-                                status: 'Success',
-                                response: "The capacity device has been created succesfully"
+                                http: 204,
+                                status: 'Error',
+                                message: err,
+                                response: "Capacity spot device could not be created"
                             });
                         }
-                    });
+                    }));
                 });
             });
         });
@@ -70,9 +150,10 @@ class CapacityDevicesController {
     getCapacityDeviceById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                database_2.default.getConnection((err, conn) => {
-                    var query = "SELECT * FROM capacity_devices WHERE id = " + id;
-                    conn.query(query, (err, results) => {
+                database_1.default.getConnection((err, conn) => {
+                    var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE capacity_devices.id=" + id + ";";
+                    conn.query(query, (err, results) => __awaiter(this, void 0, void 0, function* () {
+                        conn.release();
                         if (err) {
                             reject({
                                 http: 401,
@@ -90,6 +171,34 @@ class CapacityDevicesController {
                                 });
                             }
                             else {
+                                if (results[0].type == "parking_individual") {
+                                    let res = yield capacityTypeSpot_1.default.getCapacitySpotDevice(results[0].id).catch(err => {
+                                        console.log(err);
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            message: err,
+                                            response: "Capacity spot device could not be retrieved"
+                                        });
+                                    });
+                                    console.log("res", res);
+                                    results[0].status = res.capacity_devices[0].status;
+                                    results[0].spotDeviceId = res.capacity_devices[0].id;
+                                }
+                                else {
+                                    let res = yield capacityTypeRibbon_1.default.getCapacityRibbonDeviceById(results[0].id).catch(err => {
+                                        console.log(err);
+                                        resolve({
+                                            http: 204,
+                                            status: 'Error',
+                                            message: err,
+                                            response: "Capacity ribbon device could not be retrieved"
+                                        });
+                                    });
+                                    console.log("res", res);
+                                    results[0].parkingId = res.result[0].parkingId;
+                                    results[0].ribbonDeviceId = res.result[0].id;
+                                }
                                 resolve({
                                     http: 200,
                                     status: 'Success',
@@ -97,7 +206,7 @@ class CapacityDevicesController {
                                 });
                             }
                         }
-                    });
+                    }));
                 });
             });
         });
@@ -119,10 +228,10 @@ class CapacityDevicesController {
      *
      * @returns
      */
-    updateCapacityDevice(id, name, description, sensor_id, capacity, max_capacity, type, address, coordinates_x, coordinates_y) {
+    updateCapacityDevice(id, name, description, sensorId, authToken, provider, type, address, latitude, longitude, ribbonDeviceId, parkingId, spotDeviceId, status) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                if (!name && !description && !sensor_id && !capacity && !max_capacity && !type && !address && !coordinates_x && !coordinates_y) {
+                if (!name && !description && !sensorId && !authToken && !provider && !type && !address && !latitude && !longitude) {
                     reject({
                         http: 406,
                         status: 'Failed',
@@ -137,14 +246,14 @@ class CapacityDevicesController {
                 if (description) {
                     query += " description = '" + description + "',";
                 }
-                if (sensor_id) {
-                    query += " sensor_id = " + sensor_id + ",";
+                if (authToken) {
+                    query += " authToken = '" + authToken + "',";
                 }
-                if (capacity) {
-                    query += " capacity = " + capacity + ",";
+                if (provider) {
+                    query += " provider = '" + provider + "',";
                 }
-                if (max_capacity) {
-                    query += " max_capacity = " + max_capacity + ",";
+                if (sensorId) {
+                    query += " sensorId = " + sensorId + ",";
                 }
                 if (type) {
                     query += " type = '" + type + "',";
@@ -152,18 +261,18 @@ class CapacityDevicesController {
                 if (address) {
                     query += " address = '" + address + "',";
                 }
-                if (coordinates_x) {
-                    query += " coordinates_x = '" + coordinates_x + "',";
+                if (latitude) {
+                    query += " latitude = " + latitude + ",";
                 }
-                if (coordinates_y) {
-                    query += " coordinates_y = '" + coordinates_y + "',";
+                if (longitude) {
+                    query += " longitude = " + longitude + ",";
                 }
                 // Removing the last comma
                 query = query.slice(0, -1);
                 // Adding the WHERE condition 
                 query += " WHERE id = " + id;
                 // Running the query
-                database_2.default.getConnection((err, conn) => {
+                database_1.default.getConnection((err, conn) => {
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -177,10 +286,32 @@ class CapacityDevicesController {
                             resolve({
                                 http: 204,
                                 status: 'Success',
-                                result: "There are no capacity devices with this ID",
+                                result: "There is no capacity device with this ID",
                             });
                         }
                         else {
+                            if (type == "parking_individual") {
+                                capacityTypeSpot_1.default.updateCapacitySpotDevice(spotDeviceId, status).catch(err => {
+                                    console.log(err);
+                                    resolve({
+                                        http: 204,
+                                        status: 'Error',
+                                        message: err,
+                                        response: "Capacity spot device could not be updated"
+                                    });
+                                });
+                            }
+                            else {
+                                capacityTypeRibbon_1.default.updateCapacityRibbonDevice(id, parkingId).catch(err => {
+                                    console.log(err);
+                                    resolve({
+                                        http: 204,
+                                        status: 'Error',
+                                        message: err,
+                                        response: "Capacity ribbon device could not be updated"
+                                    });
+                                });
+                            }
                             resolve({
                                 http: 200,
                                 status: 'Success',
@@ -195,8 +326,9 @@ class CapacityDevicesController {
     deleteCapacityDevice(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                database_2.default.getConnection((err, conn) => {
+                database_1.default.getConnection((err, conn) => {
                     conn.query("DELETE FROM capacity_devices WHERE id = " + id, (err, results) => {
+                        conn.release();
                         if (err) {
                             reject({
                                 http: 401,
@@ -224,11 +356,13 @@ class CapacityDevicesController {
      *
      * @returns
      */
-    getUserCapacityDevices(user_id) {
+    getUserCapacityDevicesList(userId, pageSize, pageIndex) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                var query = "SELECT * FROM capacity_devices WHERE user_id = " + user_id;
-                database_2.default.getConnection((err, conn) => {
+                const first_value = (pageSize * pageIndex) - pageSize;
+                var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE userId = " + userId +
+                    " ORDER BY capacity_devices.id DESC LIMIT " + first_value + ', ' + pageSize + ";";
+                database_1.default.getConnection((err, conn) => {
                     conn.query(query, (err, results) => {
                         conn.release();
                         if (err) {
@@ -243,15 +377,15 @@ class CapacityDevicesController {
                                 resolve({
                                     http: 204,
                                     status: 'Success',
-                                    result: "This user has no capacity devices",
-                                    capacity_devices: []
+                                    message: "This user has no capacity devices",
+                                    result: []
                                 });
                             }
                             else {
                                 resolve({
                                     http: 200,
                                     status: 'Success',
-                                    capacity_devices: results
+                                    result: results
                                 });
                             }
                         }
@@ -273,7 +407,7 @@ class CapacityDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 var query = "SELECT * FROM capacity_devices ORDER BY capacity DESC LIMIT 4";
-                database_2.default.getConnection((err, conn) => {
+                database_1.default.getConnection((err, conn) => {
                     if (err) {
                         reject({
                             http: 401,
@@ -313,7 +447,7 @@ class CapacityDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 var query = "SELECT * FROM capacity_devices ORDER BY capacity ASC LIMIT 4";
-                database_2.default.getConnection((err, conn) => {
+                database_1.default.getConnection((err, conn) => {
                     if (err) {
                         reject({
                             http: 401,
@@ -344,7 +478,7 @@ class CapacityDevicesController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 var query = "SELECT name, capacity, type FROM capacity_devices WHERE user_id = " + userId;
-                database_2.default.getConnection((err, results) => {
+                database_1.default.getConnection((err, conn) => {
                     if (err) {
                         reject({
                             http: 401,
@@ -352,7 +486,7 @@ class CapacityDevicesController {
                             error: err
                         });
                     }
-                    database_1.default.query(query, (error, results) => {
+                    conn.query(query, (error, results) => {
                         if (error) {
                             reject({
                                 http: 401,

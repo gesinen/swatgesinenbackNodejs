@@ -12,7 +12,7 @@ class CapacityCartelLineController {
         return new Promise((resolve, reject) => {
             var query = "SELECT * FROM capacity_cartel_line WHERE cartelId=" + cartelId + ";";
 
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 //console.log(results)
                 if (err) {
                     reject({
@@ -23,6 +23,8 @@ class CapacityCartelLineController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
                     if (error) {
                         reject({
                             http: 401,
@@ -45,8 +47,7 @@ class CapacityCartelLineController {
         return new Promise((resolve, reject) => {
             var query = "SELECT * FROM capacity_cartel_line WHERE parkingId IS NULL"
 
-            db.getConnection((err: any, results: any) => {
-                console.log(results)
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -56,6 +57,8 @@ class CapacityCartelLineController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
                     if (error) {
                         reject({
                             http: 401,
@@ -97,9 +100,14 @@ class CapacityCartelLineController {
         return new Promise((resolve: any, reject: any) => {
             db.getConnection((err: any, conn: any) => {
                 try {
-                    conn.query(
-                        "INSERT INTO `capacity_cartel_line` (`cartelId`, `parkingId`, `lineNum`) VALUES (" + cartelId + ", " + parkingId + ", " + lineNum + ")",
-                        (error: any, results: any, fields: any) => {
+
+                    let query = "INSERT INTO `capacity_cartel_line` (`cartelId`, `parkingId`, `lineNum`) VALUES (" + cartelId + ", " + parkingId + ", " + lineNum + ")";
+                    
+                    if(parkingId == undefined) {
+                        query = "INSERT INTO `capacity_cartel_line` (`cartelId`, `parkingId`, `lineNum`) VALUES (" + cartelId + ", NULL, " + lineNum + ")"
+                    }
+
+                    conn.query(query, (error: any, results: any, fields: any) => {
                             conn.release()
 
                             if (error) {
@@ -212,6 +220,8 @@ class CapacityCartelLineController {
         return new Promise((resolve, reject) => {
             db.getConnection((err: any, conn: any) => {
                 conn.query("DELETE FROM capacity_cartel_line WHERE id = " + id, (err: any, results: any) => {
+                    conn.release()
+                    
                     if (err) {
                         reject({
                             http: 401,

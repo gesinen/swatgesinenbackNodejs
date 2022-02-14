@@ -12,6 +12,7 @@ class CapacityParkingRouter {
         this.deleteParking();
         this.updateParkingCapacity();
         this.updateCapacityDeviceAction();
+        this.getParkingSensors();
     }
 
     /**
@@ -49,7 +50,7 @@ class CapacityParkingRouter {
      * GET ('/:id') 
      */
     public getParkingById = () => this.router.get('/:id', (req: Request, res: Response) => {
-        capacityParkingController.getCartelById(parseInt(req.params.id))
+        capacityParkingController.getParking(parseInt(req.params.id))
             .then(response => {
                 res.send(response)
             })
@@ -100,6 +101,16 @@ class CapacityParkingRouter {
             .catch(err => {
                 res.send(err)
             })
+    })
+
+    public getParkingSensors = () => this.router.get('/mqtt/:id', (req: Request, res:Response) => {
+        const id = parseInt(req.params.id);
+
+        capacityParkingController.getParkingSensors(id).then(response => {
+            res.send(response)
+        }).catch(err => {
+            res.send(err)
+        })
     })
 
 }

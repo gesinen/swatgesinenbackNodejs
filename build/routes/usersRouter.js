@@ -53,6 +53,20 @@ class UsersRouter {
                 res.send(err);
             });
         });
+        /**
+         * Get the user data
+         * GET ('/login')
+         */
+        this.getUserIdByMailAction = () => this.router.post('/getUserByNif/:mail', (req, res) => {
+            const mail = req.params.mail;
+            usersController_1.default.getUserIdByMail(mail)
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
         this.getUserInformationAction();
         this.getUserLoginAction();
     }

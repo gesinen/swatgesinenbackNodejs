@@ -18,6 +18,11 @@ const loraDashboardRouter_1 = __importDefault(require("./routes/lora_module/lora
 const irrigationDeviceRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceRouter"));
 const irrigationDeviceOutputRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceOutputRouter"));
 const irrigationDeviceInputRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceInputRouter"));
+const capacityCartelRouter_1 = __importDefault(require("./routes/capacity_module/capacityCartelRouter"));
+const capacityCartelLineRouter_1 = __importDefault(require("./routes/capacity_module/capacityCartelLineRouter"));
+const capacityParkingRouter_1 = __importDefault(require("./routes/capacity_module/capacityParkingRouter"));
+const capacityTypeRibbonRouter_1 = __importDefault(require("./routes/capacity_module/capacityTypeRibbonRouter"));
+const capacityTypeSpotRouter_1 = __importDefault(require("./routes/capacity_module/capacityTypeSpotRouter"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -34,6 +39,11 @@ class Server {
     routes() {
         this.app.use('/v2/users', usersRouter_1.default);
         this.app.use('/v2/capacity/devices', capacityDevicesRouter_1.default);
+        this.app.use('/v2/capacity/panels', capacityCartelRouter_1.default);
+        this.app.use('/v2/capacity/panels/line', capacityCartelLineRouter_1.default);
+        this.app.use('/v2/capacity/parkings', capacityParkingRouter_1.default);
+        this.app.use('/v2/capacity/devices/ribbon', capacityTypeRibbonRouter_1.default);
+        this.app.use('/v2/capacity/devices/spot', capacityTypeSpotRouter_1.default);
         this.app.use('/v2/water/devices', waterDevicesRouter_1.default);
         this.app.use('/v2/water/users', waterUsersRouter_1.default);
         this.app.use('/v2/water/observations', waterObservationsRouter_1.default);

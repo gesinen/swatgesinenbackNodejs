@@ -14,19 +14,70 @@ class CapacityDevicesRouter {
          */
         this.createCapacityDeviceAction = () => this.router.post('/', (req, res) => {
             const params = req.body;
-            capacityDevicesController_1.default.createCapacityDevice(params.name, params.description, parseInt(params.sensor_id), parseInt(params.user_id), 0, parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
+            capacityDevicesController_1.default.createCapacityDevice(parseInt(params.sensorId), params.name, params.description, params.latitude, params.longitude, params.authToken, params.provider, parseInt(params.userId), params.type, params.parkingId)
                 .then(response => {
                 res.send(response);
             })
                 .catch(err => {
-                /*res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })*/
                 res.send(err);
             });
         });
+        /**
+         * Import capacity device spot
+         * POST ('/')
+         *
+        public importCapacityDevicesAction = () => this.router.post('/import/spot', (req: Request, res: Response) => {
+            const params = req.body;
+            console.log(params)
+            capacityDevicesController.importCapacityDevicesLazo(params.capacity_devices, params.user_id)
+                .then(response => {
+                    res.send(response)
+                })
+                .catch(err => {
+                    /*res.send({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                    res.send(err)
+                })
+        })*/
+        /**
+         * Import capacity device parking_area
+         * POST ('/')
+         *
+        public importCapacityDevicesParkingAreaAction = () => this.router.post('/import/parking_area', (req: Request, res: Response) => {
+            const params = req.body;
+            console.log(params);
+            if (params.device_id) {
+                capacityDevicesController.importCapacityDevices(params.capacity_devices, params.user_id)
+                    .then(response => {
+                        res.send(response)
+                    })
+                    .catch(err => {
+                        /*res.send({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })*
+                        res.send(err)
+                    })
+            } else {
+                capacityDevicesController.importCapacityDevicesLazo(params.capacity_devices, params.user_id)
+                    .then(response => {
+                        res.send(response)
+                    })
+                    .catch(err => {
+                        /*res.send({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })*
+                        res.send(err)
+                    })
+            }
+    
+        })*/
         /**
          * Get a capacity device with an ID
          * GET ('/:id')
@@ -37,11 +88,6 @@ class CapacityDevicesRouter {
                 res.send(response);
             })
                 .catch(err => {
-                /*res.send({
-                    http: 401,
-                    status: 'Failed',
-                    error: err
-                })*/
                 res.send(err);
             });
         });
@@ -61,7 +107,7 @@ class CapacityDevicesRouter {
         this.updateCapacityDeviceAction = () => this.router.put('/:id', (req, res) => {
             const id = parseInt(req.params.id);
             const params = req.body;
-            capacityDevicesController_1.default.updateCapacityDevice(id, params.name, params.description, parseInt(params.sensor_id), parseInt(params.capacity), parseInt(params.max_capacity), params.type, params.address, params.coordinates_x, params.coordinates_y)
+            capacityDevicesController_1.default.updateCapacityDevice(id, params.name, params.description, parseInt(params.sensorId), params.authToken, params.provider, params.type, params.address, params.latitude, params.longitude, params.ribbonDeviceId, params.parkingId, params.spotDeviceId, params.status)
                 .then(response => {
                 res.send(response);
             })
@@ -73,8 +119,8 @@ class CapacityDevicesRouter {
          * Get capacity devices of a user
          * GET ('/:userId')
          */
-        this.getUserCapacityDevicesAction = () => this.router.get('/list/:userId', (req, res) => {
-            capacityDevicesController_1.default.getUserCapacityDevices(parseInt(req.params.userId))
+        this.getUserCapacityDevicesListAction = () => this.router.get('/:userId/:pageSize/:pageIndex', (req, res) => {
+            capacityDevicesController_1.default.getUserCapacityDevicesList(parseInt(req.params.userId), parseInt(req.params.pageSize), parseInt(req.params.pageIndex))
                 .then(response => {
                 res.send(response);
             })
@@ -111,10 +157,12 @@ class CapacityDevicesRouter {
         this.createCapacityDeviceAction();
         this.getCapacityDeviceByIdAction();
         this.updateCapacityDeviceAction();
-        this.getUserCapacityDevicesAction();
+        this.getUserCapacityDevicesListAction();
         this.getMostCapacityDevicesAction();
         this.getLessCapacityDevicesAction();
         this.removeCapacityDevice();
+        //this.importCapacityDevicesAction();
+        //this.importCapacityDevicesParkingAreaAction();
     }
 }
 const capacityDevicesRoutes = new CapacityDevicesRouter();

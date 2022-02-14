@@ -20,7 +20,7 @@ class CapacityDevicesController {
                     " ORDER BY capacity_cartel.id DESC LIMIT " + first_value + ', ' + pageSize + ";"
 
 
-                db.getConnection((err: any, results: any) => {
+                db.getConnection((err: any, conn: any) => {
                     if (err) {
                         reject({
                             http: 401,
@@ -30,6 +30,8 @@ class CapacityDevicesController {
                     }
 
                     conn.query(query, (error: any, results: any) => {
+                        conn.release()
+
                         if (error) {
                             reject({
                                 http: 401,
@@ -67,7 +69,7 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             var query = "SELECT * FROM capacity_cartel WHERE id=" + id;
 
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -77,6 +79,8 @@ class CapacityDevicesController {
                 }
 
                 conn.query(query, async (error: any, results: any) => {
+                    conn.release()
+
                     if (error) {
                         reject({
                             http: 401,
@@ -106,7 +110,7 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             var query = "SELECT capacity_cartel.*, COUNT(*) as cartelFreeLines FROM capacity_cartel INNER JOIN capacity_cartel_line ON capacity_cartel.id=capacity_cartel_line.cartelId WHERE capacity_cartel_line.parkingId IS NULL GROUP BY capacity_cartel.id";
 
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -116,6 +120,8 @@ class CapacityDevicesController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release();
+
                     if (error) {
                         reject({
                             http: 401,
@@ -160,7 +166,7 @@ class CapacityDevicesController {
                 db.getConnection((err: any, conn: any) => {
                     let query = "INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, `userId`)" +
                         " VALUES (" + sensorId + ", '" + name + "','" + description + "', " + latitude + ", " + longitude + "," + userId + ");"
-                    console.log(query)
+
                     conn.query(query, async (error: any, results: any, fields: any) => {
                         conn.release()
                         if (results && results.length == 0) {
@@ -334,6 +340,7 @@ class CapacityDevicesController {
             db.getConnection((err: any, conn: any) => {
                 conn.query("DELETE FROM capacity_cartel WHERE id = " + id,
                     (err: any, results: any) => {
+                        conn.release()
                         if (err) {
                             reject({
                                 http: 401,

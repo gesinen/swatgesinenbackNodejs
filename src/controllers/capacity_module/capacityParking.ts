@@ -14,7 +14,7 @@ class CapacityDevicesController {
             var query = "SELECT * FROM capacity_parking WHERE userId = " + userId +
                 " ORDER BY capacity_parking.id DESC LIMIT " + first_value + ', ' + pageSize + ";"
 
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -24,6 +24,42 @@ class CapacityDevicesController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        capacity_devices: results
+                    })
+                })
+            })
+        })
+    }
+
+    public async getParking(id: number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            var query = "SELECT * FROM capacity_parking WHERE id = "+ id;
+
+            db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
                     if (error) {
                         reject({
                             http: 401,
@@ -46,7 +82,7 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             var query = "SELECT * FROM capacity_cartel WHERE id=" + id;
 
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -56,6 +92,8 @@ class CapacityDevicesController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
                     if (error) {
                         reject({
                             http: 401,
@@ -78,7 +116,7 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             var query = "SELECT capacity_cartel.*, COUNT(*) as cartelFreeLines FROM capacity_cartel INNER JOIN capacity_cartel_line ON capacity_cartel.id=capacity_cartel_line.cartelId WHERE capacity_cartel_line.ribbonId IS NULL GROUP BY capacity_cartel.id";
 
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -88,6 +126,8 @@ class CapacityDevicesController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
                     if (error) {
                         reject({
                             http: 401,
@@ -129,6 +169,14 @@ class CapacityDevicesController {
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
                 conn.query("INSERT INTO `capacity_parking` (`name`, `description`, `currentCapacity`, `maxCapacity`, `address`, `userId`) VALUES ('" + name + "', '" + description + "', " + currentCapacity + ", " + maxCapacity + ",'" + address + "'," + userId + ");",
                     (error: any, results: any, fields: any) => {
                         conn.release()
@@ -171,6 +219,14 @@ class CapacityDevicesController {
 
             // Running the query
             db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
@@ -257,6 +313,14 @@ class CapacityDevicesController {
 
             // Running the query
             db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
@@ -289,8 +353,18 @@ class CapacityDevicesController {
     public async deleteCapacityParking(id: number): Promise<object> {
         return new Promise((resolve, reject) => {
             db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
                 conn.query("DELETE FROM capacity_parking WHERE id = " + id,
                     (err: any, results: any) => {
+                        conn.release()
+
                         if (err) {
                             reject({
                                 http: 401,
@@ -301,6 +375,43 @@ class CapacityDevicesController {
                             resolve({
                                 http: 200,
                                 status: 'Success'
+                            })
+                        }
+                    })
+            })
+        })
+    }
+
+    public getParkingSensors(id: number): Promise<object> {
+        return new Promise((resolve, reject) => {
+            db.getConnection((err: any, conn: any) => {
+
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+                
+                let query = "SELECT capacity_cartel.sensorId, capacity_cartel.id, sensor_info.*, capacity_cartel_line.cartelId, capacity_cartel_line.parkingId, sensor_gateway_pkid.mac_number, sensor_gateway_pkid.sensor_id FROM capacity_cartel LEFT JOIN sensor_info ON sensor_info.id = capacity_cartel.sensorId LEFT JOIN capacity_cartel_line ON capacity_cartel_line.cartelId = capacity_cartel.id LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id = sensor_info.id WHERE capacity_cartel_line.parkingId = " + id
+                console.log(query)
+                
+                conn.query(query, (err: any, results: any) => {
+                    conn.release()
+                    
+                        console.log(results)
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            })
+                        } else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                sensors: results
                             })
                         }
                     })

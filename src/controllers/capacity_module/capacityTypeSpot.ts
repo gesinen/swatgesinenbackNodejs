@@ -12,7 +12,7 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             var query = "SELECT * FROM capacity_type_spot WHERE id = " + id;
 
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -22,6 +22,8 @@ class CapacityDevicesController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
                     if (error) {
                         reject({
                             http: 401,
@@ -160,6 +162,7 @@ class CapacityDevicesController {
             db.getConnection((err: any, conn: any) => {
                 conn.query("DELETE FROM capacity_type_spot WHERE id = " + id,
                     (err: any, results: any) => {
+                        conn.release()
                         if (err) {
                             reject({
                                 http: 401,

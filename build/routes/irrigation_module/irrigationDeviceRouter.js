@@ -14,7 +14,7 @@ class IrrigationDeviceRouter {
          */
         this.getIrrigationDeviceById = () => this.router.get('/:id', (req, res) => {
             const id = parseInt(req.params.id);
-            irrigationDeviceController_1.default.getIrrigationDeviceById(id)
+            irrigationDeviceController_1.default.getIrrigationDeviceByIdInner(id)
                 .then(response => {
                 res.send(response);
             })
@@ -61,7 +61,7 @@ class IrrigationDeviceRouter {
             const params = req.body;
             console.log("router store params");
             console.log(params);
-            irrigationDeviceController_1.default.storeIrrigationDevice(params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
+            irrigationDeviceController_1.default.storeIrrigationDevice(params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors, params.sensorId)
                 .then(response => {
                 res.send(response);
             })
@@ -74,10 +74,11 @@ class IrrigationDeviceRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.updateIrrigationDevice = () => this.router.put('/:id', (req, res) => {
-            const id = req.params.id;
+        this.updateIrrigationDevice = () => this.router.put('/:irrigationDeviceId', (req, res) => {
             const params = req.body;
-            irrigationDeviceController_1.default.updateIrrigationDevice(id, params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
+            const irrigationDeviceId = parseInt(req.params.irrigationDeviceId);
+            console.log("params", params);
+            irrigationDeviceController_1.default.updateIrrigationDevice(irrigationDeviceId, params.sensorId, params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
                 .then(response => {
                 res.send(response);
             })

@@ -30,7 +30,173 @@ class IrrigationDeviceOutputController {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "SELECT * FROM irrigation_device_output WHERE id = " + id;
+                    let query = "SELECT * FROM irrigation_device_output INNER JOIN irrigation_device_link ON irrigation_device_link.irrigationDeviceOutputId=irrigation_device_output.id INNER JOIN irrigation_device_input ON irrigation_device_input.id=irrigation_device_link.irrigationDeviceInputId WHERE irrigation.device.output.id = " + id;
+                    console.log("queryGetIrrigationOutputDevice", query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There is no irrigation device output with this ID'
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results[0]
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+ * GET ('/information/:id')
+ * Getting the information about the user
+ *
+ * @async
+ * @param id - The user Id
+ *
+ * @return
+ */
+    getOutputByIrrigationDeviceId(irrigationDeviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    //let query = "SELECT irrigation_device_output.name,irrigation_device_output.description,irrigation_device_output.id,irrigation_device_output.sensorIdInput as inputSensorId FROM irrigation_device_output WHERE irrigation_device_output.irrigationDeviceId = " + irrigationDeviceId;
+                    let query = "SELECT irrigation_device_output.name,irrigation_device_output.description,irrigation_device_output.id,irrigation_device_output.sensorIdInput as inputSensorId, irrigation_device_input.name as inputSensorName FROM irrigation_device_output LEFT JOIN irrigation_device_link ON irrigation_device_link.irrigationDeviceOutputId=irrigation_device_output.id LEFT JOIN irrigation_device_input ON irrigation_device_input.id=irrigation_device_link.irrigationDeviceInputId WHERE irrigation_device_output.irrigationDeviceId = " + irrigationDeviceId;
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results && results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There is no irrigation device output with this ID'
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+ * GET ('/information/:id')
+ * Getting the information about the user
+ *
+ * @async
+ * @param id - The user Id
+ *
+ * @return
+ */
+    getOutputIndexUPDATE(irrigationOutputDeviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT sensorIndex FROM irrigation_device_output WHERE id=" + irrigationOutputDeviceId;
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There is no irrigation device output with this ID'
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results[0]
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+* GET ('/information/:id')
+* Getting the information about the user
+*
+* @async
+* @param id - The user Id
+*
+* @return
+*/
+    getOutputIndexINSERT(irrigationDeviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT sensorIndex FROM irrigation_device_output WHERE irrigationDeviceId=" + irrigationDeviceId + " ORDER BY sensorIndex DESC LIMIT 1";
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: 'There is no irrigation device output with this ID'
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results[0]
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+ * GET ('/information/:id')
+ * Getting the information about the user
+ *
+ * @async
+ * @param id - The user Id
+ *
+ * @return
+ */
+    getByIrrigationDeviceIdAndIndex(irrigationDeviceId, sensorIndex) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT * FROM irrigation_device_output WHERE irrigationDeviceId=" + irrigationDeviceId + " AND sensorIndex=" + sensorIndex;
+                    console.log(query);
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -106,42 +272,56 @@ class IrrigationDeviceOutputController {
      *
      * @return
      */
-    storeIrrigationOutputDevice(irrigationDeviceId, sensorId, sensorIndex, intervals, status, name) {
+    storeIrrigationOutputDevice(irrigationDeviceId, sensorId, sensorIndex, intervals, status, name, sensorIdInput, description) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                database_1.default.getConnection((err, conn) => {
-                    let query = "INSERT INTO irrigation_device_output (irrigationDeviceId,sensorId,sensorIndex,intervals,status,name)" +
-                        " VALUES (" + irrigationDeviceId + "," + sensorId + "," + sensorIndex + ",'" +
-                        intervals + "'," + status + ",'" + name + "')";
-                    console.log("query", query);
-                    conn.query(query, (error, results) => {
-                        conn.release();
-                        if (error) {
-                            reject({
-                                http: 406,
-                                status: 'Failed',
-                                error: error
-                            });
+                try {
+                    database_1.default.getConnection((err, conn) => {
+                        let sensorIdInputCheck = sensorIdInput;
+                        console.log("sensorIdInput", sensorIdInput);
+                        if (sensorIdInput == undefined) {
+                            sensorIdInputCheck = 'NULL';
                         }
-                        console.log(results);
-                        if (results.affectedRows == 1) {
-                            resolve({
-                                http: 200,
-                                status: 'Success',
-                                result: 'Irrigation device output inserted succesfully',
-                                insertId: results.insertId
-                            });
-                        }
-                        else {
-                            resolve({
-                                http: 204,
-                                status: 'Success',
-                                message: "Irrigation device output could not be inserted",
-                                result: results
-                            });
-                        }
+                        let query = "INSERT INTO irrigation_device_output (irrigationDeviceId,sensorId,sensorIndex,intervals,status,name,sensorIdInput,description)" +
+                            " VALUES (" + irrigationDeviceId + "," + sensorId + "," + sensorIndex + ",'" +
+                            intervals + "'," + status + ",'" + name + "'," + sensorIdInputCheck + ",'" + description + "');";
+                        console.log("query", query);
+                        conn.query(query, (error, results) => {
+                            conn.release();
+                            if (error) {
+                                reject({
+                                    http: 406,
+                                    status: 'Failed',
+                                    error: error
+                                });
+                            }
+                            console.log(results);
+                            if (results && results.affectedRows != undefined && results.affectedRows == 1) {
+                                resolve({
+                                    http: 200,
+                                    status: 'Success',
+                                    result: 'Irrigation device output inserted succesfully',
+                                    insertId: results.insertId
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 204,
+                                    status: 'Success',
+                                    message: "Irrigation device output could not be inserted",
+                                    result: results
+                                });
+                            }
+                        });
                     });
-                });
+                }
+                catch (error) {
+                    reject({
+                        http: 406,
+                        status: 'Failed',
+                        error: error
+                    });
+                }
             });
         });
     }
@@ -154,13 +334,17 @@ class IrrigationDeviceOutputController {
      *
      * @return
      */
-    updateIrrigationOutputDevice(id, irrigationDeviceId, sensorId, sensorIndex, intervals, status, name) {
+    updateIrrigationOutputDevice(irrigationDeviceId, sensorId, index, name, sensorIdInput, description) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    let query = "UPDATE irrigation_device_output SET irrigationDeviceId=" + irrigationDeviceId + ", sensorId=" + sensorId +
-                        ", sensorIndex=" + sensorIndex + ",intervals='" + intervals + "', status=" + status + ", name='" + name + "' WHERE id=" + id + ";";
-                    console.log(query);
+                    let sensorIdInputCheck = sensorIdInput;
+                    sensorIdInputCheck = 'NULL';
+                    if (sensorIdInput) {
+                        sensorIdInputCheck = sensorIdInput;
+                    }
+                    let query = "UPDATE irrigation_device_output SET sensorId=" + sensorId + ",sensorIdInput=" + sensorIdInputCheck + ",name='" + name + "',description='" + description + "' WHERE `sensorIndex`=" + index + " AND irrigationDeviceId=" + irrigationDeviceId + ";";
+                    console.log("queryUpdOutput", query);
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
@@ -171,7 +355,7 @@ class IrrigationDeviceOutputController {
                             });
                         }
                         console.log(results);
-                        if (results.affectedRows == 1) {
+                        if (results && results.affectedRows == 1) {
                             resolve({
                                 http: 200,
                                 status: 'Success',
@@ -217,7 +401,7 @@ class IrrigationDeviceOutputController {
                             });
                         }
                         console.log(results);
-                        if (results.affectedRows > 0) {
+                        if (results && results.affectedRows > 0) {
                             resolve({
                                 http: 200,
                                 status: 'Success',

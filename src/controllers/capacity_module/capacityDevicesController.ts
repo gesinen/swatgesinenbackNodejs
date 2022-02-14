@@ -147,6 +147,8 @@ class CapacityDevicesController {
                 var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE capacity_devices.id=" + id + ";";
 
                 conn.query(query, async (err: any, results: any) => {
+                    conn.release()
+
                     if (err) {
                         reject({
                             http: 401,
@@ -300,7 +302,7 @@ class CapacityDevicesController {
                                 })
                             })
                         } else {
-                            capacityTypeRibbonController.updateCapacityRibbonDevice(ribbonDeviceId, parkingId).catch(err => {
+                            capacityTypeRibbonController.updateCapacityRibbonDevice(id, parkingId).catch(err => {
                                 console.log(err)
                                 resolve({
                                     http: 204,
@@ -325,6 +327,8 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             db.getConnection((err: any, conn: any) => {
                 conn.query("DELETE FROM capacity_devices WHERE id = " + id, (err: any, results: any) => {
+                    conn.release()
+
                     if (err) {
                         reject({
                             http: 401,
@@ -488,7 +492,7 @@ class CapacityDevicesController {
         return new Promise((resolve, reject) => {
             var query = "SELECT name, capacity, type FROM capacity_devices WHERE user_id = " + userId;
 
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,

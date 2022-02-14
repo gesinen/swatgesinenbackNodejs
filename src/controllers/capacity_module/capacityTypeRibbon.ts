@@ -15,7 +15,7 @@ class CapacityDevicesController {
                 " INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId INNER JOIN sensor_gateway_pkid" +
                 " ON sensor_gateway_pkid.sensor_id=sensor_info.id";
             console.log(query)
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -25,6 +25,8 @@ class CapacityDevicesController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
                     if (error) {
                         reject({
                             http: 401,
@@ -45,9 +47,9 @@ class CapacityDevicesController {
 
     public async getCapacityRibbonDeviceById(id: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            var query = "SELECT * FROM capacity_type_ribbon WHERE id=" + id;
+            var query = "SELECT * FROM capacity_type_ribbon WHERE capacityDeviceId=" + id;
             console.log(query)
-            db.getConnection((err: any, results: any) => {
+            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
                         http: 401,
@@ -57,6 +59,8 @@ class CapacityDevicesController {
                 }
 
                 conn.query(query, (error: any, results: any) => {
+                    conn.release()
+                    
                     if (error) {
                         reject({
                             http: 401,
@@ -157,13 +161,14 @@ class CapacityDevicesController {
             query = query.slice(0, -1);
 
             // Adding the WHERE condition 
-            query += " WHERE id = " + id;
-
+            query += " WHERE capacityDeviceId = " + id;
+            console.log('QUERY', query)
             // Running the query
             db.getConnection((err: any, conn: any) => {
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
+                    console.log('RESULTADO', results)
                     if (error) {
                         reject({
                             http: 401,
@@ -193,7 +198,7 @@ class CapacityDevicesController {
     public async deleteCapacityRibbonDevice(id: number): Promise<object> {
         return new Promise((resolve, reject) => {
             db.getConnection((err: any, conn: any) => {
-                conn.query("DELETE FROM capacity_type_ribbon WHERE id = " + id, (err: any, results: any) => {
+                conn.query("DELETE FROM capacity_type_ribbon WHERE capacityDeviceId = " + id, (err: any, results: any) => {
                     if (err) {
                         reject({
                             http: 401,
