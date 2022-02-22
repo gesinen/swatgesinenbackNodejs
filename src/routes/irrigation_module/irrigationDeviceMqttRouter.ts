@@ -7,31 +7,26 @@
 
 import MqttRouter from "../../MqttRouter";
 
-
-
 export default class irrigationMqttRouter extends MqttRouter {
+  // Constructor
+  constructor() {
+    super();
+    this.connect();
+  }
 
-
-    // Constructor
-    constructor() {
-        super();
-        this.connect();
-    }
-
-
-    /**
-     * Save a new measure 
-     * GET postalcode/ambiental/1/#
-     * 
-     * Body: {
-     *  "deviceEui": 1,
-     *  "value": 10.32,
-     *  "unit": "ppm"
-     *  "type": "CO2"
-     * }
-     * 
-     */
-    /*public syncDevice = () => {
+  /**
+   * Save a new measure
+   * GET postalcode/ambiental/1/#
+   *
+   * Body: {
+   *  "deviceEui": 1,
+   *  "value": 10.32,
+   *  "unit": "ppm"
+   *  "type": "CO2"
+   * }
+   *
+   */
+  /*public syncDevice = () => {
         this.suscribe('deviceSync');
 
         // When a message arrives
@@ -45,5 +40,4 @@ export default class irrigationMqttRouter extends MqttRouter {
             }
         });
     }*/
-
 }

@@ -1,5 +1,7 @@
+// @ts-nocheck
 import express, { Application } from 'express';
 import morgan from 'morgan';
+import app from 'insure-express';
 import cors from 'cors';
 
 import usersRouter from './routes/usersRouter';
@@ -23,10 +25,10 @@ import capacityTypeSpotRouter from './routes/capacity_module/capacityTypeSpotRou
 
 class Server {
 
-    public app: Application;
+    public app: Application = express();
 
     constructor() {
-        this.app = express();
+        app.start()
         this.config();
         this.routes();
     }

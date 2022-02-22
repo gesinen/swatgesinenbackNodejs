@@ -3,8 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// @ts-nocheck
 const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
+const insure_express_1 = __importDefault(require("insure-express"));
 const cors_1 = __importDefault(require("cors"));
 const usersRouter_1 = __importDefault(require("./routes/usersRouter"));
 const waterDevicesRouter_1 = __importDefault(require("./routes/water_module/waterDevicesRouter"));
@@ -35,6 +37,9 @@ class Server {
         this.app.use((0, cors_1.default)());
         this.app.use(express_1.default.json());
         this.app.use(express_1.default.urlencoded({ extended: false }));
+        this.app.listen(this.app.get('port'), () => {
+            console.log('Server on port', this.app.get('port'));
+        });
     }
     routes() {
         this.app.use('/v2/users', usersRouter_1.default);
@@ -56,9 +61,7 @@ class Server {
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter_1.default);
     }
     start() {
-        this.app.listen(this.app.get('port'), () => {
-            console.log('Server on port', this.app.get('port'));
-        });
+        insure_express_1.default.start();
     }
 }
 const server = new Server();
