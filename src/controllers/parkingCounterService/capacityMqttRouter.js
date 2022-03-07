@@ -11,7 +11,7 @@ const options = {
     clean: true,
     connectTimeout: 4000,
     // Auth
-    clientId: '1951624853',
+    clientId: '45678987654567',
     username: 'gesinen',
     password: 'gesinen2110',
 }
@@ -211,6 +211,13 @@ let querySql = "SELECT capacity_parking.id as parkingId, capacity_parking.curren
 */
 
 function sendToSentilo(parkingSensorName, provider, authToken, value) {
+    let date = new Date(Date.now())
+    let dateDayMonthYear = date.toLocaleDateString().split("/")
+    let timeHhMmSs = date.toTimeString().split(' ')[0]
+    let timestamp = dateDayMonthYear[1] + "/" + dateDayMonthYear[0] + "/" + dateDayMonthYear[2] + "T" + timeHhMmSs
+
+    console.log("dateDayMonthYear", dateDayMonthYear)
+    console.log("date.toTimeString().split(' ')", date.toTimeString().split(' '))
     var request = require('request');
     var options = {
         'method': 'PUT',
@@ -224,7 +231,7 @@ function sendToSentilo(parkingSensorName, provider, authToken, value) {
                 "sensor": parkingSensorName + "S01",
                 "observations": [{
                     "value": value,
-                    "timestamp": "01/03/2022T12:28:11"
+                    "timestamp": timestamp
                 }]
             }]
         })
@@ -317,8 +324,14 @@ query(querySql).then(rows => {
                                 if (capacityFreeSpaces < 0) {
                                     capacityFreeSpaces = 0
                                 }
+                                if (capacityFreeSpaces > parseInt(element[0].maxCapacity)) {
+                                    capacityFreeSpaces = parseInt(element[0].maxCapacity)
+                                }
                                 if (capacityFreeSpacesOther < 0) {
                                     capacityFreeSpacesOther = 0
+                                }
+                                if (capacityFreeSpacesOther > parseInt(element[1].maxCapacity)) {
+                                    capacityFreeSpacesOther = parseInt(element[1].maxCapacity)
                                 }
                                 console.log("capacityCalculated", capacityCalculated)
                                 console.log("capacityFreeSpaces", capacityFreeSpaces)
@@ -367,8 +380,14 @@ query(querySql).then(rows => {
                                 if (capacityFreeSpaces < 0) {
                                     capacityFreeSpaces = 0
                                 }
+                                if (capacityFreeSpaces > parseInt(element[1].maxCapacity)) {
+                                    capacityFreeSpaces = parseInt(element[1].maxCapacity)
+                                }
                                 if (capacityFreeSpacesOther < 0) {
                                     capacityFreeSpacesOther = 0
+                                }
+                                if (capacityFreeSpacesOther > parseInt(element[0].maxCapacity)) {
+                                    capacityFreeSpacesOther = parseInt(element[0].maxCapacity)
                                 }
                                 let setMessageHex = "1B 06 " + intToHex(capacityFreeSpacesOther) + " 0 " + intToHex(capacityFreeSpaces) + " 0"
                                 let setMessage = hexToBase64(setMessageHex)
