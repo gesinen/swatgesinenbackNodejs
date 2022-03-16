@@ -196,6 +196,63 @@ class CapacityDevicesController {
         })
     } // createCapacityDevice ()
 
+    public async updateParkingActualCapacity(id: number, currentCapacity: number): Promise<object> {
+
+        return new Promise((resolve, reject) => {
+
+
+            var query = "UPDATE capacity_parking SET"
+
+            // Checking if each param is not empty and adding it to the query
+            if (currentCapacity) {
+                query += " currentCapacity = '" + currentCapacity + "',"
+            }
+
+            // Removing the last comma
+            query = query.slice(0, -1);
+
+            // Adding the WHERE condition 
+            query += " WHERE id = " + id;
+
+            // Running the query
+            db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: "There are no parkings with this ID",
+                        })
+                    } else {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: "The parking capacity has been updated successfully"
+                        })
+                    }
+                })
+            })
+        })
+    } // ()
+
     public async updateParkingCapacity(id: number, currentCapacity: number, maxCapacity: number): Promise<object> {
 
         return new Promise((resolve, reject) => {

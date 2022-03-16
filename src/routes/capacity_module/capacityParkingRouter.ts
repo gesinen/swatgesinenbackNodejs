@@ -11,6 +11,7 @@ class CapacityParkingRouter {
     this.deleteParking();
     this.updateParkingCapacity();
     this.updateCapacityDeviceAction();
+    this.updateParkingActualCapacity();
     this.getParkingSensors();
   }
 
@@ -108,6 +109,25 @@ class CapacityParkingRouter {
           res.send(err);
         });
     });
+
+  /**
+   * Update a capacity device
+   * PUT ('/:id')
+   */
+   public updateParkingActualCapacity = () =>
+   this.router.put("/currentspaces/:id", (req: Request, res: Response) => {
+     const id = parseInt(req.params.id);
+     const params = req.body;
+
+     capacityParkingController
+       .updateParkingActualCapacity(id, params.currentCapacity)
+       .then((response) => {
+         res.send(response);
+       })
+       .catch((err) => {
+         res.send(err);
+       });
+   });
 
   /**
    * Update a capacity device
