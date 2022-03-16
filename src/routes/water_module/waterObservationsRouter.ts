@@ -8,6 +8,7 @@ class WaterObservationsRouter {
   constructor() {
     this.importFileAction();
     this.getObservationsByDeviceId();
+    this.getWaterDeviceObservationsMediumValueInRange();
   }
 
   /**
@@ -55,6 +56,28 @@ class WaterObservationsRouter {
             res.send(err);
           });
       }
+    );
+
+  /**
+* Get observations by device id in date range
+* POST ('/observationsByDeviceId')
+*/
+  public getWaterDeviceObservationsMediumValueInRange = () =>
+    this.router.get("/mediumValueInRange/:waterDeviceId/:fromDate/:toDate", (req: Request, res: Response) => {
+      const params = req.params;
+      waterObservationsController
+        .getObservationsByRangeDateAndDeviceId(
+          params.waterDeviceId,
+          params.fromDate,
+          params.toDate
+        )
+        .then((response) => {
+          res.send(response);
+        })
+        .catch((err) => {
+          res.send(err);
+        });
+    }
     );
 }
 

@@ -110,7 +110,8 @@ class WaterDevicesRouter {
               device.numModuleLora,
               device.provider,
               device.authToken,
-              device.nif
+              device.nif,
+              device.groupId
             );
           if (updateRes.http != 200 || updateRes.result.affectedRows == 0) {
             waterDevicesWithErr.push(device.name);
@@ -152,7 +153,8 @@ class WaterDevicesRouter {
           params.numModuleLora,
           params.provider,
           params.authToken,
-          params.nif
+          params.nif,
+          params.groupId
         )
         .then((response) => {
           res.send(response);

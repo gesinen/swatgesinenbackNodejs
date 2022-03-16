@@ -794,7 +794,8 @@ class WaterDevicesController {
     numModuleLora: string,
     provider: string,
     authToken: string,
-    nif: string
+    nif: string,
+    groupId: any
   ) {
     let water_user_id = 0;
     if (nif) {
@@ -810,6 +811,10 @@ class WaterDevicesController {
     if (installAddress) {
       installAddress = installAddress.replace(/'/g, "");
     }
+    if (!groupId) {
+      groupId = 'NULL'
+    }
+
     var query =
       "UPDATE water_devices SET variable_name='" +
       variable_name +
@@ -833,6 +838,8 @@ class WaterDevicesController {
       authToken +
       "', water_user_id=" +
       water_user_id +
+      ", water_group_id=" +
+      groupId +
       " WHERE name='" +
       name +
       "'";
