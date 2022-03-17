@@ -183,6 +183,38 @@ function calculateCapacityIncOrDec(message) {
     return parseInt(entrada - salida + bidir1 - bidir2)
 }
 
+async function saveMessageLog(messageHex, capacityDeviceEUI, parkingId, currentCapacity, maxCapacity) {
+    let msgSplited = messageHex.split(",")
+    let entrada = hexToInt(msgSplited[1])
+    let salida = hexToInt(msgSplited[2])
+    let bidir1 = hexToInt(msgSplited[3])
+    let bidir2 = hexToInt(msgSplited[4])
+
+    if (entrada < 0) {
+        entrada = 0
+    }
+    if (salida < 0) {
+        salida = 0
+    }
+    if (bidir1 < 0) {
+        bidir1 = 0
+    }
+    if (bidir2 < 0) {
+        bidir2 = 0
+    }
+    parseInt(entrada - salida + bidir1 - bidir2)
+    messageInt = entrada + " " + salida + " " + bidir1 + " " + bidir2
+
+    sqlInsertLogOnTable = "INSERT INTO `capacity_devices_log` (`messageHex`, `messageInt`, `capacityDeviceEUI`, `parkingId`, `currentCapacity`, `maxCapacity`) VALUES " +
+        "('" + messageHex + "', '" + messageInt + "', '" + capacityDeviceEUI + "', " + parkingId + ", " + currentCapacity + ", " + maxCapacity + ");"
+
+    console.log("sqlInsertLogOnTable", sqlInsertLogOnTable);
+
+    query(sqlInsertLogOnTable).then(res => {
+        console.log(res)
+    })
+}
+
 async function filterMqttMessage(deviceEUI) {
     return new Promise(async(resolve, reject) => {
         let currentCapacity
@@ -360,12 +392,15 @@ query(querySql).then(rows => {
                                         console.log("FINAL preparedMESSAGE", JSON.stringify(messageReadyToSend))
 
                                         client.publish(setTopic, JSON.stringify(messageReadyToSend))
-                                        sendToSentilo(element[0].parkingSensorName, element[0].provider, element[0].authToken, capacityFreeSpaces)
                                         console.log("MQTT MSG SEND SUCCESFULLY");
+                                        saveMessageLog(messageFormated.object.DecodeDataHex, deviceEUI, cartelDeviceEUIandLinesArray[index][0].parkingId,
+                                            element[0].currentCapacity, element[0].maxCapacity)
                                     } else {
                                         console.log("CAPACITY HASNT BEEN UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
                                     }
                                 })
+                                sendToSentilo(element[0].parkingSensorName, element[0].provider, element[0].authToken, capacityFreeSpaces)
+
                             } else if (element[1].parkingId == currentCapacityAndParkingId.parkingId) {
                                 console.log("parking0", element[0].parkingId)
                                 console.log("parking1", element[1].parkingId)
@@ -411,13 +446,62 @@ query(querySql).then(rows => {
                                         console.log("FINAL preparedMESSAGE", JSON.stringify(messageReadyToSend))
 
                                         client.publish(setTopic, JSON.stringify(messageReadyToSend))
-                                        sendToSentilo(element[1].parkingSensorName, element[1].provider, element[1].authToken, capacityFreeSpaces)
                                         console.log("MQTT MSG SEND SUCCESFULLY");
+                                        saveMessageLog(messageFormated.object.DecodeDataHex, deviceEUI, cartelDeviceEUIandLinesArray[index][1].parkingId,
+                                            element[1].currentCapacity, element[1].maxCapacity)
                                     } else {
                                         console.log("CAPACITY HASNT BEEN UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
                                     }
                                 })
+                                sendToSentilo(element[1].parkingSensorName, element[1].provider, element[1].authToken, capacityFreeSpaces)
                             }
+
+                        } else if (element[0].parkingId != null && element[1].parkingId == null) {
+                            console.log("**** SOLO HAY 1 LINEA DE PARKING ****")
+                            console.log("parseInt(elem.currentCapacity)", parseInt(element[0].currentCapacity))
+                            let capacityCalculated = parseInt(element[0].currentCapacity) + parseInt(currentCapacityFromMsg)
+                            let capacityFreeSpaces = parseInt(element[0].maxCapacity) - parseInt(capacityCalculated)
+                            if (capacityFreeSpaces < 0) {
+                                capacityFreeSpaces = 0
+                            }
+                            if (capacityFreeSpaces > parseInt(element[0].maxCapacity)) {
+                                capacityFreeSpaces = parseInt(element[0].maxCapacity)
+                            }
+
+                            console.log("capacityCalculated", capacityCalculated)
+                            console.log("capacityFreeSpaces", capacityFreeSpaces)
+
+                            let setMessageHex = "1B 06 " + intToHex(capacityFreeSpaces) + " 0 0 0"
+                            let setMessage = hexToBase64(setMessageHex)
+                            let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
+                                capacityCalculated + " WHERE id=" + cartelDeviceEUIandLinesArray[index][0].parkingId + ";"
+
+                            //let setMessage = "0x1b 0x02 " + cartelDeviceEUIandLinesArray[index][0].currentCapacity.toString(16) + " p1m " + cartelDeviceEUIandLinesArray[index][1].currentCapacity + " p2m"
+                            console.log("FINAL TOPIC", setTopic)
+                            console.log("FINAL setMessageHEX", setMessageHex)
+                            console.log("FINAL setMessageB64", setMessage)
+                            console.log("sqlQueryUpdateParkingCapacity", sqlQueryUpdateParkingCapacity)
+
+                            query(sqlQueryUpdateParkingCapacity).then(res => {
+                                console.log(res)
+                                if (res.changedRows == 1) {
+                                    console.log("CAPACITY UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
+                                    let messageReadyToSend = {
+                                        confirmed: true,
+                                        fPort: 1,
+                                        data: setMessage
+                                    }
+                                    console.log("FINAL preparedMESSAGE", JSON.stringify(messageReadyToSend))
+
+                                    client.publish(setTopic, JSON.stringify(messageReadyToSend))
+                                    console.log("MQTT MSG SEND SUCCESFULLY");
+                                    saveMessageLog(messageFormated.object.DecodeDataHex, deviceEUI, cartelDeviceEUIandLinesArray[index][0].parkingId,
+                                        element[0].currentCapacity, element[0].maxCapacity)
+                                } else {
+                                    console.log("CAPACITY HASNT BEEN UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
+                                }
+                            })
+                            sendToSentilo(element[0].parkingSensorName, element[0].provider, element[0].authToken, capacityFreeSpaces)
 
                         }
                     });
