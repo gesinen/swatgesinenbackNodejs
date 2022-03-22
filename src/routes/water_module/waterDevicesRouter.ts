@@ -110,8 +110,10 @@ class WaterDevicesRouter {
               device.numModuleLora,
               device.provider,
               device.authToken,
-              device.nif,
-              device.groupId
+              device.user_nif,
+              device.groupId,
+              device.municipality_name,
+              device.sewerRateName
             );
           if (updateRes.http != 200 || updateRes.result.affectedRows == 0) {
             waterDevicesWithErr.push(device.name);
@@ -154,7 +156,9 @@ class WaterDevicesRouter {
           params.provider,
           params.authToken,
           params.nif,
-          params.groupId
+          params.groupId,
+          params.municipality_name,
+          params.sewerRateName
         )
         .then((response) => {
           res.send(response);

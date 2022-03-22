@@ -775,6 +775,142 @@ class WaterDevicesController {
   }
 
   /**
+ * GET ('/userByNif/:nif')
+ * Getting the information about the user by a given nif
+ *
+ * @async
+ * @param nif - The user nif
+ *
+ * @return
+ */
+  public async getWaterDeviceSewerRateIdByNameAndMunicipalityId(name: string, municipalityId: number): Promise<object> {
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((err: any, conn: any) => {
+        let query =
+          "SELECT * FROM municipality_sewer_rate WHERE usefor = '" + name + "' and municipality_id=" + municipalityId + ";";
+        console.log(query);
+        conn.query(query, (error: any, results: any) => {
+          conn.release();
+
+          if (error) {
+            reject({
+              http: 406,
+              status: "Failed",
+              error: error,
+            });
+          }
+
+          if (results.length && results.length == 0) {
+            resolve({
+              http: 204,
+              status: "Success",
+              result: "There are no water_module_users with this nif",
+              sewer_rate_data: {},
+            });
+          }
+          console.log("SEWERRATEDBHANDLER", results[0])
+
+          resolve({
+            http: 200,
+            status: "Success",
+            sewer_rate_data: results[0],
+          });
+        });
+      });
+    });
+  }
+
+  /**
+  * GET ('/userByNif/:nif')
+  * Getting the information about the user by a given nif
+  *
+  * @async
+  * @param nif - The user nif
+  *
+  * @return
+  */
+  public async getWaterDeviceMunicipalityIdByName(name: string): Promise<object> {
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((err: any, conn: any) => {
+        let query =
+          "SELECT * FROM water_municipality_info WHERE name = '" + name + "'";
+        console.log(query);
+        conn.query(query, (error: any, results: any) => {
+          conn.release();
+
+          if (error) {
+            reject({
+              http: 406,
+              status: "Failed",
+              error: error,
+            });
+          }
+
+          if (results.length && results.length == 0) {
+            resolve({
+              http: 204,
+              status: "Success",
+              result: "There is no municipality with the given name",
+              municipality_data: {},
+            });
+          }
+
+          resolve({
+            http: 200,
+            status: "Success",
+            municipality_data: results[0],
+          });
+        });
+      });
+    });
+  }
+
+  /**
+   * GET ('/userByNif/:nif')
+   * Getting the information about the user by a given nif
+   *
+   * @async
+   * @param nif - The user nif
+   *
+   * @return
+   */
+  public async getWaterDeviceDiameterIdByName(name: string): Promise<object> {
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((err: any, conn: any) => {
+        let query =
+          "SELECT * FROM municipality_diameters WHERE name = '" + name + "'";
+        console.log(query);
+        conn.query(query, (error: any, results: any) => {
+          conn.release();
+
+          if (error) {
+            reject({
+              http: 406,
+              status: "Failed",
+              error: error,
+            });
+          }
+
+          if (results.length && results.length == 0) {
+            resolve({
+              http: 204,
+              status: "Success",
+              result: "There is no diameter with this name",
+              diameter_data: {},
+            });
+          }
+
+          resolve({
+            http: 200,
+            status: "Success",
+            diameter_data: results[0],
+          });
+        });
+      });
+    });
+  }
+
+  /**
    * GET ('/:deviceId')
    *
    * @async
@@ -788,21 +924,52 @@ class WaterDevicesController {
     description: string,
     units: number,
     contractNumber: string,
-    deviceDiameter: number,
+    deviceDiameter: string,
     installAddress: string,
     numContador: string,
     numModuleLora: string,
     provider: string,
     authToken: string,
     nif: string,
-    groupId: any
+    groupId: any,
+    municipality_name: string,
+    sewerRateName: string
   ) {
+    /*
+    domestico -> 3
+    comercial -> 4
+    industrial -> 5
+    */
     let water_user_id = 0;
+    let municipalityId;
+    let sewerRateId;
+    let deviceDiameterId;
     if (nif) {
       let res: any = await waterUsersController.getUserByNif(nif);
-      console.log("res", res.user_module_data.id);
+      console.log("resNif", res.user_module_data);
       if (res.http == 200) {
         water_user_id = res.user_module_data.id;
+      }
+    }
+    if (municipality_name) {
+      let res: any = await this.getWaterDeviceMunicipalityIdByName(municipality_name);
+      console.log("resMunicipality", res.municipality_data);
+      if (res.http == 200) {
+        municipalityId = res.municipality_data.id;
+        if (sewerRateName) {
+          let resSewer: any = await this.getWaterDeviceSewerRateIdByNameAndMunicipalityId(sewerRateName, municipalityId);
+          console.log("resSewer", resSewer.sewer_rate_data);
+          if (resSewer.http == 200) {
+            sewerRateId = resSewer.sewer_rate_data.id;
+          }
+        }
+      }
+    }
+    if (deviceDiameter) {
+      let res: any = await this.getWaterDeviceDiameterIdByName(deviceDiameter);
+      console.log("resDiameter", res.diameter_data);
+      if (res.http == 200) {
+        deviceDiameterId = res.diameter_data.id;
       }
     }
     if (description) {
@@ -824,8 +991,6 @@ class WaterDevicesController {
       units +
       "',contract_number='" +
       contractNumber +
-      "',device_diameter='" +
-      deviceDiameter +
       "',installation_address='" +
       installAddress +
       "',numContador='" +
@@ -839,8 +1004,17 @@ class WaterDevicesController {
       "', water_user_id=" +
       water_user_id +
       ", water_group_id=" +
-      groupId +
-      " WHERE name='" +
+      groupId
+    if (municipalityId) {
+      query += ", municipality_id=" + municipalityId
+    }
+    if (deviceDiameterId) {
+      query += ", device_diameter=" + deviceDiameterId
+    }
+    if (sewerRateId) {
+      query += ", sewer_rate_id=" + sewerRateId
+    }
+    query += " WHERE name='" +
       name +
       "'";
     console.log(query);

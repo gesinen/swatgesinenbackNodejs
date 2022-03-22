@@ -25,10 +25,10 @@ import capacityTypeSpotRouter from './routes/capacity_module/capacityTypeSpotRou
 
 class Server {
 
-    public app: Application = express();
+    public app: Application;
 
     constructor() {
-        app.start()
+        this.app = express();
         this.config();
         this.routes();
     }
@@ -38,7 +38,7 @@ class Server {
         this.app.use(morgan('dev'));
         this.app.use(cors());
         this.app.use(express.json());
-        this.app.use(express.urlencoded({extended: false}))
+        this.app.use(express.urlencoded({ extended: false }))
     }
 
     routes(): void {
@@ -59,15 +59,17 @@ class Server {
         this.app.use('/v2/irrigation/devices', irrigationDeviceRouter);
         this.app.use('/v2/irrigation/devices/output', irrigationDeviceOutputRouter);
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter);
-        
+
     }
 
     start(): void {
         this.app.listen(this.app.get('port'), () => {
             console.log('Server on port', this.app.get('port'))
         })
+
     }
 }
+
 
 const server = new Server();
 server.start();
