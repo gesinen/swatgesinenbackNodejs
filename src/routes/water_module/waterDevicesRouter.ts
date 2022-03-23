@@ -19,7 +19,7 @@ class WaterDevicesRouter {
   public createWaterDeviceAction = () =>
     this.router.post("/", (req: Request, res: Response) => {
       const params = req.body;
-
+      console.log("createDevParams", params)
       waterDevicesController
         .createWaterDevice(
           params.name,
@@ -27,7 +27,7 @@ class WaterDevicesRouter {
           params.variable_name,
           params.water_group_id,
           params.water_user_id,
-          params.user_id,
+          params.userId,
           params.municipality_id,
           params.description,
           params.units,
