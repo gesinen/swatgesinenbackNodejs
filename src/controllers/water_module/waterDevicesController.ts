@@ -866,6 +866,51 @@ class WaterDevicesController {
   }
 
   /**
+ * GET ('/userByNif/:nif')
+ * Getting the information about the user by a given nif
+ *
+ * @async
+ * @param nif - The user nif
+ *
+ * @return
+ */
+  public async getWaterDeviceByContractNum(contractNumber: string): Promise<object> {
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((err: any, conn: any) => {
+        let query =
+          "SELECT * FROM `water_devices` WHERE `contract_number`='" + contractNumber + "'";
+        console.log(query);
+        conn.query(query, (error: any, results: any) => {
+          conn.release();
+
+          if (error) {
+            reject({
+              http: 406,
+              status: "Failed",
+              error: error,
+            });
+          }
+
+          if (results.length && results.length == 0) {
+            resolve({
+              http: 204,
+              status: "Success",
+              result: "There is no device with this contract number",
+              water_devices: {},
+            });
+          }
+
+          resolve({
+            http: 200,
+            status: "Success",
+            water_devices: results,
+          });
+        });
+      });
+    });
+  }
+
+  /**
    * GET ('/userByNif/:nif')
    * Getting the information about the user by a given nif
    *
@@ -1072,7 +1117,9 @@ class WaterDevicesController {
     numContador: string,
     numModuleLora: string,
     sensorId: string,
-    water_user_id: number
+    water_user_id: number,
+    municipality_id:number,
+    sewer_rate_id:number
   ) {
     if (description) {
       description = description.replace(/'/g, "");
@@ -1109,11 +1156,14 @@ class WaterDevicesController {
       sensorId +
       "', water_user_id=" +
       water_user_id +
+      ", municipality_id=" +
+      municipality_id +
+      ", sewer_rate_id=" +
+      sewer_rate_id +
       " WHERE id='" +
       id +
       "'";
     console.log("query", query);
-
     return new Promise((resolve: any, reject: any) => {
       db.getConnection((error: any, conn: any) => {
         // If the connection with the database fails

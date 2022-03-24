@@ -14,6 +14,7 @@ class WaterDevicesRouter {
     this.updateWaterDevicesFromExcel();
     this.getWaterDeviceListingSortedAction();
     this.updateWaterDeviceById();
+    this.getWaterDeviceByContractNumber();
   }
 
   public createWaterDeviceAction = () =>
@@ -24,17 +25,17 @@ class WaterDevicesRouter {
         .createWaterDevice(
           params.name,
           params.sensor_id,
-          params.variable_name,
+          params.variable_id,
           params.water_group_id,
           params.water_user_id,
           params.userId,
-          params.municipality_id,
+          params.municipality,
           params.description,
           params.units,
-          params.contract_number,
-          params.device_diameter,
-          params.sewer_rate_id,
-          params.installation_address
+          params.contractNumber,
+          params.deviceDiameter,
+          params.sewerRateId,
+          params.installationAddress
         )
         .then((response) => {
           res.send(response);
@@ -86,6 +87,19 @@ class WaterDevicesRouter {
             res.send(err);
           });
       }
+    );
+
+  public getWaterDeviceByContractNumber = () =>
+    this.router.get("/search/:contractnum", (req: Request, res: Response) => {
+      const params = req.params;
+      waterDevicesController.getWaterDeviceByContractNum(params.contractnum)
+        .then((response) => {
+          res.send(response);
+        })
+        .catch((err) => {
+          res.send(err);
+        });
+    }
     );
 
   public updateWaterDevicesFromExcel = () =>
@@ -145,7 +159,7 @@ class WaterDevicesRouter {
       waterDevicesController
         .updateWaterDeviceByName(
           params.name,
-          params.variableName,
+          params.variable_id,
           params.description,
           params.units,
           params.contractNumber,
@@ -156,9 +170,9 @@ class WaterDevicesRouter {
           params.provider,
           params.authToken,
           params.nif,
-          params.groupId,
-          params.municipality_name,
-          params.sewerRateName
+          params.group,
+          params.municipality,
+          params.sewerRateId
         )
         .then((response) => {
           res.send(response);
@@ -176,7 +190,7 @@ class WaterDevicesRouter {
         .updateWaterDeviceById(
           params.id,
           params.name,
-          params.variableName,
+          params.variable_id,
           params.description,
           params.units,
           params.contractNumber,
@@ -185,7 +199,9 @@ class WaterDevicesRouter {
           params.counterNumber,
           params.loraModuleNumber,
           params.sensor_id,
-          params.user
+          params.user,
+          params.municipality,
+          params.sewerRateId
         )
         .then((response) => {
           console.log(response);
