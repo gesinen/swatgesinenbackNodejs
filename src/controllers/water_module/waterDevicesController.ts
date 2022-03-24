@@ -475,7 +475,7 @@ class WaterDevicesController {
       "," +
       installation_address +
       ")";
-
+    console.log(query)
     return new Promise((resolve: any, reject: any) => {
       db.getConnection((error: any, conn: any) => {
         // If the connection with the database fails
@@ -529,7 +529,7 @@ class WaterDevicesController {
     const second_value = page_size * page_index;
 
     var query =
-      "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " +
+      "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
       user_id +
       " ORDER BY w.id DESC LIMIT " +
       first_value +
@@ -591,7 +591,7 @@ class WaterDevicesController {
     const first_value = page_size * page_index - page_size;
     const second_value = page_size * page_index;
     var query =
-      "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " +
+      "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
       user_id;
     if (sortByCol == "device_EUI") {
       query +=
@@ -613,7 +613,7 @@ class WaterDevicesController {
         page_size;
     } else {
       query =
-        "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " +
+        "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
         user_id +
         " ORDER BY w." +
         sortByCol +
