@@ -21,9 +21,10 @@ class IrrigationDeviceOutputRouter {
          * Get the user data
          * GET ('/information/:id')
          */
-        this.getIrrigationOutputDeviceById = () => this.router.get('/:id', (req, res) => {
+        this.getIrrigationOutputDeviceById = () => this.router.get("/:id", (req, res) => {
             const id = parseInt(req.params.id);
-            irrigationDeviceOutputController_1.default.getOutputByIrrigationDeviceId(id)
+            irrigationDeviceOutputController_1.default
+                .getOutputByIrrigationDeviceId(id)
                 .then((response) => {
                 res.send(response);
             })
@@ -35,13 +36,14 @@ class IrrigationDeviceOutputRouter {
          * Get the user data
          * GET ('/information/:id')
          */
-        this.getIrrigationOutputDeviceIntervalById = () => this.router.get('/intervals/:id', (req, res) => {
+        this.getIrrigationOutputDeviceIntervalById = () => this.router.get("/intervals/:id", (req, res) => {
             const id = parseInt(req.params.id);
-            irrigationDeviceOutputController_1.default.getIrrigationOutputDeviceIntervalById(id)
-                .then(response => {
+            irrigationDeviceOutputController_1.default
+                .getIrrigationOutputDeviceIntervalById(id)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -49,14 +51,15 @@ class IrrigationDeviceOutputRouter {
          * Get the user data
          * GET ('/information/:id')
          */
-        this.getByIrrigationDeviceIdAndIndex = () => this.router.get('/:id/:index', (req, res) => {
+        this.getByIrrigationDeviceIdAndIndex = () => this.router.get("/:id/:index", (req, res) => {
             const id = parseInt(req.params.id);
             const index = parseInt(req.params.index);
-            irrigationDeviceOutputController_1.default.getByIrrigationDeviceIdAndIndex(id, index)
-                .then(response => {
+            irrigationDeviceOutputController_1.default
+                .getByIrrigationDeviceIdAndIndex(id, index)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -65,11 +68,12 @@ class IrrigationDeviceOutputRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.storeIrrigationOutputDevice = () => this.router.post('/', (req, res) => {
+        this.storeIrrigationOutputDevice = () => this.router.post("/", (req, res) => {
             const params = req.body;
             console.log("router store params");
             console.log(params);
-            irrigationDeviceOutputController_1.default.storeIrrigationOutputDevice(params.irrigationDeviceId, params.sensorId, params.sensorIndex, params.intervals, params.status, params.name, params.sensorIdInput, params.description)
+            irrigationDeviceOutputController_1.default
+                .storeIrrigationOutputDevice(params.irrigationDeviceId, params.sensorId, params.sensorIndex, params.intervals, params.status, params.name, params.sensorIdInput, params.description)
                 .then((response) => {
                 res.send(response);
             })
@@ -82,9 +86,10 @@ class IrrigationDeviceOutputRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.deleteIrrigationOutputDevice = () => this.router.delete('/:id', (req, res) => {
+        this.deleteIrrigationOutputDevice = () => this.router.delete("/:id", (req, res) => {
             const id = parseInt(req.params.id);
-            irrigationDeviceOutputController_1.default.deleteIrrigationOutputDevice(id)
+            irrigationDeviceOutputController_1.default
+                .deleteIrrigationOutputDevice(id)
                 .then((response) => {
                 res.send(response);
             })
@@ -93,11 +98,11 @@ class IrrigationDeviceOutputRouter {
             });
         });
         /**
-        * Get user related municipality_id
-        * POST ('/municipality/{user_id}')
-        * params user_id -> id of the user we want to get the municipality_id from
-        */
-        this.updateValvesConfig = () => this.router.post('/config/valves', (req, res) => __awaiter(this, void 0, void 0, function* () {
+         * Get user related municipality_id
+         * POST ('/municipality/{user_id}')
+         * params user_id -> id of the user we want to get the municipality_id from
+         */
+        this.updateValvesConfig = () => this.router.post("/config/valves", (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const params = req.body;
                 console.log(params);
@@ -112,15 +117,15 @@ class IrrigationDeviceOutputRouter {
                 if (params.valves.length == acumRes) {
                     res.send({
                         http: 200,
-                        status: 'Success',
-                        result: 'Irrigation device valve intervals updated succesfully'
+                        status: "Success",
+                        result: "Irrigation device valve intervals updated succesfully",
                     });
                 }
                 else {
                     res.send({
                         http: 204,
-                        status: 'Success',
-                        result: 'Irrigation device valve intervals couldnt be updated'
+                        status: "Success",
+                        result: "Irrigation device valve intervals couldnt be updated",
                     });
                 }
             }
@@ -133,11 +138,12 @@ class IrrigationDeviceOutputRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.updateIrrigationOutputDevice = () => this.router.put('/', (req, res) => {
+        this.updateIrrigationOutputDevice = () => this.router.put("/", (req, res) => {
             console.log("*** updateIrrigationOutputDevice ***", "update");
             const params = req.body;
             console.log(params);
-            irrigationDeviceOutputController_1.default.updateIrrigationOutputDevice(params.irrigationDeviceId, params.sensorId, params.index, params.name, params.inputSensorId, params.description)
+            irrigationDeviceOutputController_1.default
+                .updateIrrigationOutputDevice(params.irrigationDeviceId, params.sensorId, params.index, params.name, params.inputSensorId, params.description)
                 .then((response) => {
                 res.send(response);
             })

@@ -13,8 +13,8 @@ class WaterDevicesRouter {
     this.updateWaterDeviceByNameAction();
     this.updateWaterDevicesFromExcel();
     this.getWaterDeviceListingSortedAction();
-    this.updateWaterDeviceById();
     this.getWaterDeviceByContractNumber();
+    this.updateWaterDeviceById();    
   }
 
   public createWaterDeviceAction = () =>
@@ -90,9 +90,10 @@ class WaterDevicesRouter {
     );
 
   public getWaterDeviceByContractNumber = () =>
-    this.router.get("/search/:contractnum", (req: Request, res: Response) => {
-      const params = req.params;
-      waterDevicesController.getWaterDeviceByContractNum(params.contractnum)
+    this.router.post("/search", (req: Request, res: Response) => {
+      const params = req.body;
+      console.log(params);
+      waterDevicesController.getWaterDeviceByFilterTypeValue(params.type,params.value,params.user_id,params.page_index,params.page_size)
         .then((response) => {
           res.send(response);
         })

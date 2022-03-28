@@ -12,13 +12,14 @@ class IrrigationDeviceRouter {
          * Get the user data
          * GET ('/information/:id')
          */
-        this.getIrrigationDeviceById = () => this.router.get('/:id', (req, res) => {
+        this.getIrrigationDeviceById = () => this.router.get("/:id", (req, res) => {
             const id = parseInt(req.params.id);
-            irrigationDeviceController_1.default.getIrrigationDeviceByIdInner(id)
-                .then(response => {
+            irrigationDeviceController_1.default
+                .getIrrigationDeviceByIdInner(id)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -26,25 +27,27 @@ class IrrigationDeviceRouter {
          * Get the user data
          * GET ('/information/:id')
          */
-        this.getIrrigationDeviceListing = () => this.router.get('/listing/:userId/:pageSize/:pageIndex', (req, res) => {
+        this.getIrrigationDeviceListing = () => this.router.get("/listing/:userId/:pageSize/:pageIndex", (req, res) => {
             const userId = parseInt(req.params.userId);
             const pageSize = parseInt(req.params.pageSize);
             const pageIndex = parseInt(req.params.pageIndex);
-            irrigationDeviceController_1.default.getIrrigationDeviceListing(userId, pageSize, pageIndex)
-                .then(response => {
+            irrigationDeviceController_1.default
+                .getIrrigationDeviceListing(userId, pageSize, pageIndex)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
         /**
-        * Get the user data
-        * GET ('/information/:id')
-        */
-        this.getIrrigationInputDevicesByIrregationDeviceId = () => this.router.get('/sensorNumber/:deviceId', (req, res) => {
+         * Get the user data
+         * GET ('/information/:id')
+         */
+        this.getIrrigationInputDevicesByIrregationDeviceId = () => this.router.get("/sensorNumber/:deviceId", (req, res) => {
             const irregationDeviceId = parseInt(req.params.deviceId);
-            irrigationDeviceController_1.default.getIrrigationInputDevicesByIrregationDeviceId(irregationDeviceId)
+            irrigationDeviceController_1.default
+                .getIrrigationInputDevicesByIrregationDeviceId(irregationDeviceId)
                 .then((response) => {
                 res.send(response);
             })
@@ -57,15 +60,16 @@ class IrrigationDeviceRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.storeIrrigationDevice = () => this.router.post('/', (req, res) => {
+        this.storeIrrigationDevice = () => this.router.post("/", (req, res) => {
             const params = req.body;
             console.log("router store params");
             console.log(params);
-            irrigationDeviceController_1.default.storeIrrigationDevice(params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors, params.sensorId)
-                .then(response => {
+            irrigationDeviceController_1.default
+                .storeIrrigationDevice(params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors, params.sensorId)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -74,15 +78,16 @@ class IrrigationDeviceRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.updateIrrigationDevice = () => this.router.put('/:irrigationDeviceId', (req, res) => {
+        this.updateIrrigationDevice = () => this.router.put("/:irrigationDeviceId", (req, res) => {
             const params = req.body;
             const irrigationDeviceId = parseInt(req.params.irrigationDeviceId);
             console.log("params", params);
-            irrigationDeviceController_1.default.updateIrrigationDevice(irrigationDeviceId, params.sensorId, params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
-                .then(response => {
+            irrigationDeviceController_1.default
+                .updateIrrigationDevice(irrigationDeviceId, params.sensorId, params.name, params.nameSentilo, params.latitude, params.longitude, params.description, params.status, params.userId, params.deviceTypeId, params.valves, params.sensors)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -91,13 +96,14 @@ class IrrigationDeviceRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.deleteIrrigationDevice = () => this.router.delete('/:irrigationDeviceId', (req, res) => {
+        this.deleteIrrigationDevice = () => this.router.delete("/:irrigationDeviceId", (req, res) => {
             const irrigationDeviceId = parseInt(req.params.irrigationDeviceId);
-            irrigationDeviceController_1.default.deleteIrrigationDevice(irrigationDeviceId)
-                .then(response => {
+            irrigationDeviceController_1.default
+                .deleteIrrigationDevice(irrigationDeviceId)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });

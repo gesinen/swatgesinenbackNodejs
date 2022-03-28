@@ -13,15 +13,16 @@ class WaterObservationsRouter {
          * Import observations file
          * POST ('/import')
          */
-        this.importFileAction = () => this.router.post('/import/', (req, res) => {
+        this.importFileAction = () => this.router.post("/import/", (req, res) => {
             const params = req.body;
             //console.log("importFileAction -- waterRouter")
             //console.log(req.body)
-            waterObservationsController_1.default.importFile(params, waterObservationsController_1.default.insertNewWaterObservations)
-                .then(response => {
+            waterObservationsController_1.default
+                .importFile(params, waterObservationsController_1.default.insertNewWaterObservations)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -29,19 +30,36 @@ class WaterObservationsRouter {
          * Get observations by device id in date range
          * POST ('/observationsByDeviceId')
          */
-        this.getObservationsByDeviceId = () => this.router.post('/observationsByDeviceId/', (req, res) => {
+        this.getObservationsByDeviceId = () => this.router.post("/observationsByDeviceId/", (req, res) => {
             const params = req.body;
             //console.log(req.body)
-            waterObservationsController_1.default.getObservationValuesByDeviceId(params.devicesIdArray, params.fromDate, params.userColSelection)
-                .then(response => {
+            waterObservationsController_1.default
+                .getObservationValuesByDeviceId(params.devicesIdArray, params.fromDate, params.userColSelection)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
+                res.send(err);
+            });
+        });
+        /**
+      * Get observations by device id in date range
+      * POST ('/observationsByDeviceId')
+      */
+        this.getWaterDeviceObservationsMediumValueInRange = () => this.router.get("/mediumValueInRange/:waterDeviceId/:fromDate/:toDate", (req, res) => {
+            const params = req.params;
+            waterObservationsController_1.default
+                .getObservationsByRangeDateAndDeviceId(params.waterDeviceId, params.fromDate, params.toDate)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
                 res.send(err);
             });
         });
         this.importFileAction();
         this.getObservationsByDeviceId();
+        this.getWaterDeviceObservationsMediumValueInRange();
     }
 }
 const waterObservationsRouter = new WaterObservationsRouter();

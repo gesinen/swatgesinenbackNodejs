@@ -13,13 +13,14 @@ class WaterGroupsRouter {
          * GET ('/:id')
          * params user_id -> id of the user we want to get users from
          */
-        this.getWaterGroupsByUser = () => this.router.get('/:user_id', (req, res) => {
+        this.getWaterGroupsByUser = () => this.router.get("/:user_id", (req, res) => {
             const params = req.params;
-            waterGroupsController_1.default.getWaterGroupsByUser(parseInt(params.user_id))
-                .then(response => {
+            waterGroupsController_1.default
+                .getWaterGroupsByUser(parseInt(params.user_id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -28,13 +29,14 @@ class WaterGroupsRouter {
          * GET ('/root/:id')
          * params user_id -> id of the user we want to get users from
          */
-        this.getWaterRootGroupByUser = () => this.router.get('/root/:user_id', (req, res) => {
+        this.getWaterRootGroupByUser = () => this.router.get("/root/:user_id", (req, res) => {
             const params = req.params;
-            waterGroupsController_1.default.getWaterRootGroupByUser(parseInt(params.user_id))
-                .then(response => {
+            waterGroupsController_1.default
+                .getWaterRootGroupByUser(parseInt(params.user_id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -43,13 +45,14 @@ class WaterGroupsRouter {
          * GET ('/root/:id')
          * params user_id -> id of the user we want to get users from
          */
-        this.getWaterGroupByParent = () => this.router.get('/parent/:group_id', (req, res) => {
+        this.getWaterGroupByParent = () => this.router.get("/parent/:group_id", (req, res) => {
             const params = req.params;
-            waterGroupsController_1.default.getWaterGroupsByParent(parseInt(params.group_id))
-                .then(response => {
+            waterGroupsController_1.default
+                .getWaterGroupsByParent(parseInt(params.group_id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });

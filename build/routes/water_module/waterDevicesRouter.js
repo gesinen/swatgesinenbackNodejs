@@ -17,37 +17,52 @@ const waterDevicesController_1 = __importDefault(require("../../controllers/wate
 class WaterDevicesRouter {
     constructor() {
         this.router = (0, express_1.Router)();
-        this.createWaterDeviceAction = () => this.router.post('/', (req, res) => {
+        this.createWaterDeviceAction = () => this.router.post("/", (req, res) => {
             const params = req.body;
-            waterDevicesController_1.default.createWaterDevice(params.name, params.sensor_id, params.variable_name, params.water_group_id, params.water_user_id, params.user_id, params.municipality_id, params.description, params.units, params.contract_number, params.device_diameter, params.sewer_rate_id, params.installation_address)
-                .then(response => {
+            console.log("createDevParams", params);
+            waterDevicesController_1.default
+                .createWaterDevice(params.name, params.sensor_id, params.variable_id, params.water_group_id, params.water_user_id, params.userId, params.municipality, params.description, params.units, params.contractNumber, params.deviceDiameter, params.sewerRateId, params.installationAddress)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.getWaterDeviceListingAction = () => this.router.get('/page/:user_id/:page_index/:page_size', (req, res) => {
+        this.getWaterDeviceListingAction = () => this.router.get("/page/:user_id/:page_index/:page_size", (req, res) => {
             const params = req.params;
-            waterDevicesController_1.default.getWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
-                .then(response => {
+            waterDevicesController_1.default
+                .getWaterDevicesListing(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.getWaterDeviceListingSortedAction = () => this.router.get('/page/:user_id/:page_index/:page_size/:sort_by_col/:direction', (req, res) => {
+        this.getWaterDeviceListingSortedAction = () => this.router.get("/page/:user_id/:page_index/:page_size/:sort_by_col/:direction", (req, res) => {
             const params = req.params;
-            waterDevicesController_1.default.getWaterDevicesListingSorted(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size), params.sort_by_col, params.direction)
-                .then(response => {
+            waterDevicesController_1.default
+                .getWaterDevicesListingSorted(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size), params.sort_by_col, params.direction)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.updateWaterDevicesFromExcel = () => this.router.post('/update/', (req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.getWaterDeviceByContractNumber = () => this.router.post("/search", (req, res) => {
+            const params = req.body;
+            console.log(params);
+            waterDevicesController_1.default.getWaterDeviceByFilterTypeValue(params.type, params.value, params.user_id, params.page_index, params.page_size)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
+        this.updateWaterDevicesFromExcel = () => this.router.post("/update/", (req, res) => __awaiter(this, void 0, void 0, function* () {
             const params = req.body;
             try {
                 console.log("updateWaterDevices", params);
@@ -55,7 +70,7 @@ class WaterDevicesRouter {
                 let contador = 0;
                 let successCount = 0;
                 for (const device of params) {
-                    let updateRes = yield waterDevicesController_1.default.updateWaterDeviceByName(device.name, device.variableName, device.description, device.units, device.contractNumber, device.deviceDiameter, device.installAddress, device.numContador, device.numModuleLora, device.provider, device.authToken, device.nif);
+                    let updateRes = yield waterDevicesController_1.default.updateWaterDeviceByName(device.name, device.variableName, device.description, device.units, device.contractNumber, device.deviceDiameter, device.installAddress, device.numContador, device.numModuleLora, device.provider, device.authToken, device.user_nif, device.groupId, device.municipality_name, device.sewerRateName);
                     if (updateRes.http != 200 || updateRes.result.affectedRows == 0) {
                         waterDevicesWithErr.push(device.name);
                         contador++;
@@ -68,12 +83,12 @@ class WaterDevicesRouter {
                 //params.forEach(async (device: any) => { });
                 res.send({
                     http: 200,
-                    status: 'Success',
+                    status: "Success",
                     res: {
                         notInsertedDevices: waterDevicesWithErr,
                         notInsertedDevicesNumber: contador,
-                        updateSuccededNum: successCount
-                    }
+                        updateSuccededNum: successCount,
+                    },
                 });
             }
             catch (error) {
@@ -81,35 +96,38 @@ class WaterDevicesRouter {
                 console.log(error);
             }
         }));
-        this.updateWaterDeviceByNameAction = () => this.router.put('/name/', (req, res) => {
+        this.updateWaterDeviceByNameAction = () => this.router.put("/name/", (req, res) => {
             const params = req.body;
-            waterDevicesController_1.default.updateWaterDeviceByName(params.name, params.variableName, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installAddress, params.numContador, params.numModuleLora, params.provider, params.authToken, params.nif)
-                .then(response => {
+            waterDevicesController_1.default
+                .updateWaterDeviceByName(params.name, params.variable_id, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installAddress, params.numContador, params.numModuleLora, params.provider, params.authToken, params.nif, params.group, params.municipality, params.sewerRateId)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.updateWaterDeviceById = () => this.router.put('/', (req, res) => {
+        this.updateWaterDeviceById = () => this.router.put("/", (req, res) => {
             const params = req.body;
             console.log(params);
-            waterDevicesController_1.default.updateWaterDeviceById(params.id, params.name, params.variableName, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installationAddress, params.counterNumber, params.loraModuleNumber, params.sensor_id, params.user)
-                .then(response => {
+            waterDevicesController_1.default
+                .updateWaterDeviceById(params.id, params.name, params.variable_id, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installationAddress, params.counterNumber, params.loraModuleNumber, params.sensor_id, params.user, params.municipality, params.sewerRateId)
+                .then((response) => {
                 console.log(response);
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.getWaterDeviceByIdAction = () => this.router.get('/:deviceId', (req, res) => {
+        this.getWaterDeviceByIdAction = () => this.router.get("/:deviceId", (req, res) => {
             const params = req.params;
-            waterDevicesController_1.default.getWaterDeviceById(parseInt(params.deviceId))
-                .then(response => {
+            waterDevicesController_1.default
+                .getWaterDeviceById(parseInt(params.deviceId))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -118,15 +136,16 @@ class WaterDevicesRouter {
          * POST ('/import/{userId}')
          * userId -> id of the user doing the import
          */
-        this.importFileAction = () => this.router.post('/import/:userId', (req, res) => {
+        this.importFileAction = () => this.router.post("/import/:userId", (req, res) => {
             const params = req.body;
             //console.log("importFileAction -- waterDevicesRouter")
             //console.log(req.body)
-            waterDevicesController_1.default.importFile(params.file_to_upload, params.municipality_id, req.params.userId, params.provider, params.authToken, params.selectedUnitValue)
-                .then(response => {
+            waterDevicesController_1.default
+                .importFile(params.file_to_upload, params.municipality_id, req.params.userId, params.provider, params.authToken, params.selectedUnitValue)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -137,6 +156,7 @@ class WaterDevicesRouter {
         this.updateWaterDeviceByNameAction();
         this.updateWaterDevicesFromExcel();
         this.getWaterDeviceListingSortedAction();
+        this.getWaterDeviceByContractNumber();
         this.updateWaterDeviceById();
     }
 }

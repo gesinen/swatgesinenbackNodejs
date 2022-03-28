@@ -22,16 +22,16 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query_servers, (err, results) => {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         let gateway_id = results[0].id;
@@ -40,25 +40,26 @@ class LoraDashboardController {
                             const element = results[i];
                             servers.push(element.name);
                         }
-                        var query2 = "SELECT u.first_name AS user_name, COUNT(si.id) AS sensors FROM sensor_info AS si INNER JOIN users AS u ON u.id = si.user_id WHERE si.user_id = " + userId;
+                        var query2 = "SELECT u.first_name AS user_name, COUNT(si.id) AS sensors FROM sensor_info AS si INNER JOIN users AS u ON u.id = si.user_id WHERE si.user_id = " +
+                            userId;
                         conn.query(query2, (err2, results2) => {
                             conn.release();
                             if (err2) {
                                 reject({
                                     http: 401,
-                                    status: 'Failed',
-                                    error: err2
+                                    status: "Failed",
+                                    error: err2,
                                 });
                             }
                             let obj = {
                                 network_servers: servers,
                                 sensors: results2[0].sensors,
-                                user_name: results2[0].user_name
+                                user_name: results2[0].user_name,
                             };
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: obj
+                                status: "Success",
+                                result: obj,
                             });
                         });
                     });
@@ -68,14 +69,15 @@ class LoraDashboardController {
     } // ()
     getNetworkServerSensorStatus(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query = "SELECT si.device_EUI, sp.status FROM sensor_ping AS sp INNER JOIN sensor_info AS si ON sp.device_EUI = si.device_EUI WHERE si.user_id = " + userId;
+            var query = "SELECT si.device_EUI, sp.status FROM sensor_ping AS sp INNER JOIN sensor_info AS si ON sp.device_EUI = si.device_EUI WHERE si.user_id = " +
+                userId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -83,14 +85,14 @@ class LoraDashboardController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         let activeSensors = [];
                         let desactiveSensors = [];
                         results.forEach((element) => {
-                            if (element.status == 'Active') {
+                            if (element.status == "Active") {
                                 activeSensors.push(element);
                             }
                             else {
@@ -99,11 +101,11 @@ class LoraDashboardController {
                         });
                         resolve({
                             http: 200,
-                            status: 'Success',
+                            status: "Success",
                             result: {
                                 active_sensors: activeSensors,
-                                desactive_sensors: desactiveSensors
-                            }
+                                desactive_sensors: desactiveSensors,
+                            },
                         });
                     });
                 });
@@ -118,8 +120,8 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -127,8 +129,8 @@ class LoraDashboardController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         let resp = {
@@ -139,7 +141,7 @@ class LoraDashboardController {
                                 DR2: 0,
                                 DR1: 0,
                                 DR0: 0,
-                                NC: 0
+                                NC: 0,
                             },
                             rssi: {
                                 excellent: 0,
@@ -147,8 +149,8 @@ class LoraDashboardController {
                                 good: 0,
                                 low: 0,
                                 very_low: 0,
-                                no_signal: 0
-                            }
+                                no_signal: 0,
+                            },
                         };
                         results.forEach((element) => {
                             // Spreading factor
@@ -195,8 +197,8 @@ class LoraDashboardController {
                         });
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            result: resp
+                            status: "Success",
+                            result: resp,
                         });
                     });
                 });
@@ -205,14 +207,15 @@ class LoraDashboardController {
     } // ()
     getNetworkServerPackages(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query = "SELECT id, name, lost_fCnt, first_frame_counter_fCnt, latest_frame_counter_fCnt FROM sensor_info WHERE user_id = " + userId;
+            var query = "SELECT id, name, lost_fCnt, first_frame_counter_fCnt, latest_frame_counter_fCnt FROM sensor_info WHERE user_id = " +
+                userId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -220,14 +223,14 @@ class LoraDashboardController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            result: results
+                            status: "Success",
+                            result: results,
                         });
                     });
                 });
@@ -243,22 +246,22 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query_servers, (err, results) => {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         let gateway_name = results[0].name;
                         let gateway_id = results[0].id;
                         let server_id_raw = results[0].server_id;
-                        let server_ids = server_id_raw.split(',');
+                        let server_ids = server_id_raw.split(",");
                         var query2 = "SELECT s.name AS network_servers, (SELECT COUNT( si.id) FROM sensor_info AS si) AS sensors, u.first_name AS user_name FROM servers s LEFT JOIN users AS u ON u.id = s.user_id WHERE s.id = ";
                         let servers_query = "";
                         for (let i = 0; i < server_ids.length; i++) {
@@ -281,15 +284,15 @@ class LoraDashboardController {
                             if (err2) {
                                 reject({
                                     http: 401,
-                                    status: 'Failed',
-                                    error: err2
+                                    status: "Failed",
+                                    error: err2,
                                 });
                             }
                             let obj = {
                                 network_servers: new Array(),
                                 sensors: results2[0].sensors,
                                 user_name: results2[0].user_name,
-                                gateway_name: gateway_name
+                                gateway_name: gateway_name,
                             };
                             for (let i = 0; i < results2.length; i++) {
                                 const element = results2[i];
@@ -297,8 +300,8 @@ class LoraDashboardController {
                             }
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: obj
+                                status: "Success",
+                                result: obj,
                             });
                         });
                     });
@@ -314,8 +317,8 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -323,14 +326,14 @@ class LoraDashboardController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         let activeSensors = [];
                         let desactiveSensors = [];
                         results.forEach((element) => {
-                            if (element.status == 'Active') {
+                            if (element.status == "Active") {
                                 activeSensors.push(element);
                             }
                             else {
@@ -339,11 +342,11 @@ class LoraDashboardController {
                         });
                         resolve({
                             http: 200,
-                            status: 'Success',
+                            status: "Success",
                             result: {
                                 active_sensors: activeSensors,
-                                desactive_sensors: desactiveSensors
-                            }
+                                desactive_sensors: desactiveSensors,
+                            },
                         });
                     });
                 });
@@ -358,8 +361,8 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -367,8 +370,8 @@ class LoraDashboardController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         let resp = {
@@ -379,7 +382,7 @@ class LoraDashboardController {
                                 DR2: 0,
                                 DR1: 0,
                                 DR0: 0,
-                                NC: 0
+                                NC: 0,
                             },
                             rssi: {
                                 excellent: 0,
@@ -387,8 +390,8 @@ class LoraDashboardController {
                                 good: 0,
                                 low: 0,
                                 very_low: 0,
-                                no_signal: 0
-                            }
+                                no_signal: 0,
+                            },
                         };
                         results.forEach((element) => {
                             // Spreading factor
@@ -435,8 +438,8 @@ class LoraDashboardController {
                         });
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            result: resp
+                            status: "Success",
+                            result: resp,
                         });
                     });
                 });
@@ -451,8 +454,8 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -460,14 +463,14 @@ class LoraDashboardController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            result: results
+                            status: "Success",
+                            result: results,
                         });
                     });
                 });
@@ -483,8 +486,8 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query_servers, (err, results) => {
@@ -492,8 +495,8 @@ class LoraDashboardController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         var servers = [];
@@ -505,13 +508,13 @@ class LoraDashboardController {
                             let server_ids = element.id;
                             res.push({
                                 id: server_ids,
-                                name: server_names
+                                name: server_names,
                             });
                         }
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            result: res
+                            status: "Success",
+                            result: res,
                         });
                     });
                 });
@@ -526,8 +529,8 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query_servers, (err, results) => {
@@ -535,8 +538,8 @@ class LoraDashboardController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         var servers = [];
@@ -548,13 +551,13 @@ class LoraDashboardController {
                             let server_ids = element.id;
                             res.push({
                                 id: server_ids,
-                                name: server_names
+                                name: server_names,
                             });
                         }
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            result: res
+                            status: "Success",
+                            result: res,
                         });
                     });
                 });
@@ -563,22 +566,23 @@ class LoraDashboardController {
     }
     getNetworkServerGeneralInformationSelected(networkServerId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query_servers = "SELECT server_id, id, name, user_id, sensors_id FROM gateways WHERE id = " + networkServerId;
+            var query_servers = "SELECT server_id, id, name, user_id, sensors_id FROM gateways WHERE id = " +
+                networkServerId;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query_servers, (err, results) => {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         var servers = [];
@@ -606,18 +610,18 @@ class LoraDashboardController {
                             if (err2) {
                                 reject({
                                     http: 401,
-                                    status: 'Failed',
-                                    error: err2
+                                    status: "Failed",
+                                    error: err2,
                                 });
                             }
                             let obj = {
                                 network_servers: servers,
-                                sensors: results2.length
+                                sensors: results2.length,
                             };
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: obj
+                                status: "Success",
+                                result: obj,
                             });
                         });
                     });
@@ -633,16 +637,16 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query_servers, (err, results) => {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         var sensors = [];
@@ -666,14 +670,14 @@ class LoraDashboardController {
                             if (err) {
                                 reject({
                                     http: 401,
-                                    status: 'Failed',
-                                    error: err
+                                    status: "Failed",
+                                    error: err,
                                 });
                             }
                             let activeSensors = [];
                             let desactiveSensors = [];
                             results2.forEach((element) => {
-                                if (element.status == 'Active') {
+                                if (element.status == "Active") {
                                     activeSensors.push(element);
                                 }
                                 else {
@@ -682,11 +686,11 @@ class LoraDashboardController {
                             });
                             resolve({
                                 http: 200,
-                                status: 'Success',
+                                status: "Success",
                                 result: {
                                     active_sensors: activeSensors,
-                                    desactive_sensors: desactiveSensors
-                                }
+                                    desactive_sensors: desactiveSensors,
+                                },
                             });
                         });
                     });
@@ -702,16 +706,16 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query_servers, (err, results) => {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         var sensors = [];
@@ -730,15 +734,15 @@ class LoraDashboardController {
                             }
                             ind += 1;
                         });
-                        console.log('probando ------------', query2);
+                        console.log("probando ------------", query2);
                         conn.query(query2, (err, results2) => {
                             conn.release();
-                            console.log('testing ==============', results2);
+                            console.log("testing ==============", results2);
                             if (err) {
                                 reject({
                                     http: 401,
-                                    status: 'Failed',
-                                    error: err
+                                    status: "Failed",
+                                    error: err,
                                 });
                             }
                             let resp = {
@@ -749,7 +753,7 @@ class LoraDashboardController {
                                     DR2: 0,
                                     DR1: 0,
                                     DR0: 0,
-                                    NC: 0
+                                    NC: 0,
                                 },
                                 rssi: {
                                     excellent: 0,
@@ -757,8 +761,8 @@ class LoraDashboardController {
                                     good: 0,
                                     low: 0,
                                     very_low: 0,
-                                    no_signal: 0
-                                }
+                                    no_signal: 0,
+                                },
                             };
                             results2.forEach((element) => {
                                 // Spreading factor
@@ -805,8 +809,8 @@ class LoraDashboardController {
                             });
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: resp
+                                status: "Success",
+                                result: resp,
                             });
                         });
                     });
@@ -822,16 +826,16 @@ class LoraDashboardController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query_servers, (err, results) => {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         var sensors = [];
@@ -855,14 +859,14 @@ class LoraDashboardController {
                             if (err) {
                                 reject({
                                     http: 401,
-                                    status: 'Failed',
-                                    error: err
+                                    status: "Failed",
+                                    error: err,
                                 });
                             }
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: results
+                                status: "Success",
+                                result: results,
                             });
                         });
                     });

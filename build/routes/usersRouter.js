@@ -13,13 +13,14 @@ class UsersRouter {
          * Get the user data
          * GET ('/information/:id')
          */
-        this.getUserInformationAction = () => this.router.get('/information/:id', (req, res) => {
+        this.getUserInformationAction = () => this.router.get("/information/:id", (req, res) => {
             const id = parseInt(req.params.id);
-            usersController_1.default.getUserInformation(id)
-                .then(response => {
+            usersController_1.default
+                .getUserInformation(id)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -28,13 +29,14 @@ class UsersRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.getUserServersAction = () => this.router.get('/municipality/:user_id', (req, res) => {
+        this.getUserServersAction = () => this.router.get("/municipality/:user_id", (req, res) => {
             const user_id = req.params.user_id;
-            waterUsersController_1.default.getWaterUserMunicipalityId(parseInt(user_id))
-                .then(response => {
+            waterUsersController_1.default
+                .getWaterUserMunicipalityId(parseInt(user_id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -42,14 +44,15 @@ class UsersRouter {
          * Get the user data
          * GET ('/login')
          */
-        this.getUserLoginAction = () => this.router.post('/login', (req, res) => {
+        this.getUserLoginAction = () => this.router.post("/login", (req, res) => {
             const mail = req.body.email;
             const pass = req.body.password;
-            usersController_1.default.getUserLogin(mail, pass)
-                .then(response => {
+            usersController_1.default
+                .getUserLogin(mail, pass)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -57,13 +60,14 @@ class UsersRouter {
          * Get the user data
          * GET ('/login')
          */
-        this.getUserIdByMailAction = () => this.router.post('/getUserByNif/:mail', (req, res) => {
+        this.getUserIdByMailAction = () => this.router.post("/getUserByNif/:mail", (req, res) => {
             const mail = req.params.mail;
-            usersController_1.default.getUserIdByMail(mail)
-                .then(response => {
+            usersController_1.default
+                .getUserIdByMail(mail)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });

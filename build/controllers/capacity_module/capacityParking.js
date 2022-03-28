@@ -189,6 +189,55 @@ class CapacityDevicesController {
             });
         });
     } // createCapacityDevice ()
+    updateParkingActualCapacity(id, currentCapacity) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                var query = "UPDATE capacity_parking SET";
+                // Checking if each param is not empty and adding it to the query
+                if (currentCapacity) {
+                    query += " currentCapacity = '" + currentCapacity + "',";
+                }
+                // Removing the last comma
+                query = query.slice(0, -1);
+                // Adding the WHERE condition 
+                query += " WHERE id = " + id;
+                // Running the query
+                database_1.default.getConnection((err, conn) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        if (results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "There are no parkings with this ID",
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: "The parking capacity has been updated successfully"
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    } // ()
     updateParkingCapacity(id, currentCapacity, maxCapacity) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {

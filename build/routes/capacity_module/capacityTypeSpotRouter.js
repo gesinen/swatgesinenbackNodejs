@@ -12,13 +12,14 @@ class CapacityTypeSpotRouter {
          * Create capacity device
          * POST ('/')
          */
-        this.createCapacitySpotDevice = () => this.router.post('/', (req, res) => {
+        this.createCapacitySpotDevice = () => this.router.post("/", (req, res) => {
             const params = req.body;
-            capacityTypeSpot_1.default.createCapacitySpotDevice(parseInt(params.capacityDeviceId), params.status)
-                .then(response => {
+            capacityTypeSpot_1.default
+                .createCapacitySpotDevice(parseInt(params.capacityDeviceId), params.status)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -26,21 +27,23 @@ class CapacityTypeSpotRouter {
          * Get a capacity device with an ID
          * GET ('/:id')
          */
-        this.getCapacitySpotDevice = () => this.router.get('/:id', (req, res) => {
-            capacityTypeSpot_1.default.getCapacitySpotDevice(parseInt(req.params.id))
-                .then(response => {
+        this.getCapacitySpotDevice = () => this.router.get("/:id", (req, res) => {
+            capacityTypeSpot_1.default
+                .getCapacitySpotDevice(parseInt(req.params.id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.removeCapacitySpotDevice = () => this.router.delete('/:id', (req, res) => {
-            capacityTypeSpot_1.default.deleteCapacitySpotDevice(parseInt(req.params.id))
-                .then(response => {
+        this.removeCapacitySpotDevice = () => this.router.delete("/:id", (req, res) => {
+            capacityTypeSpot_1.default
+                .deleteCapacitySpotDevice(parseInt(req.params.id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -48,14 +51,15 @@ class CapacityTypeSpotRouter {
          * Update a capacity device
          * PUT ('/:id')
          */
-        this.updateCapacityDeviceAction = () => this.router.put('/:id', (req, res) => {
+        this.updateCapacityDeviceAction = () => this.router.put("/:id", (req, res) => {
             const id = parseInt(req.params.id);
             const params = req.body;
-            capacityTypeSpot_1.default.updateCapacitySpotDevice(id, params.status)
-                .then(response => {
+            capacityTypeSpot_1.default
+                .updateCapacitySpotDevice(id, params.status)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });

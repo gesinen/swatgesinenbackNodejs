@@ -31,14 +31,15 @@ class WaterDevicesController {
             //console.log("**** importFileController ****")
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 // First we check if we have the given sensors -> deviceEUI
-                yield sensorController_1.default.getSensorsByDevEUI(json_file_data)
+                yield sensorController_1.default
+                    .getSensorsByDevEUI(json_file_data)
                     .then((response) => __awaiter(this, void 0, void 0, function* () {
                     //console.log("*********** getSensorsByDevEUI response ***********")
                     if (response.result.length == 0) {
                         resolve({
                             http: 204,
-                            status: 'Success',
-                            message: "There are no sensors with the given DEVEUI"
+                            status: "Success",
+                            message: "There are no sensors with the given DEVEUI",
                         });
                     }
                     //console.log("***** json_file_data *****")
@@ -57,22 +58,27 @@ class WaterDevicesController {
                             if (provider != undefined && authToken != undefined) {
                                 //console.log("***** addedSensorRow.name *****")
                                 //console.log(addedSensorRow.name)
-                                lastObservation = yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, provider, authToken);
+                                lastObservation =
+                                    yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, provider, authToken);
                                 //console.log("*** usando token y auth por parametro ***")
                             }
                             else {
-                                lastObservation = yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token);
+                                lastObservation =
+                                    yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token);
                                 //console.log("*** usando token y auth desde sensor_info ***")
                             }
                             if (lastObservation != undefined && lastObservation.code != 401) {
-                                if (selectedUnitValue == 'liter') {
-                                    json_data[contador].lastObservation = lastObservation.observations[0].value / 1000;
+                                if (selectedUnitValue == "liter") {
+                                    json_data[contador].lastObservation =
+                                        lastObservation.observations[0].value / 1000;
                                 }
                                 else {
-                                    json_data[contador].lastObservation = lastObservation.observations[0].value;
+                                    json_data[contador].lastObservation =
+                                        lastObservation.observations[0].value;
                                 }
                                 //console.log(lastObservation.observations[0])
-                                json_data[contador].lastObservationDate = lastObservation.observations[0].time;
+                                json_data[contador].lastObservationDate =
+                                    lastObservation.observations[0].time;
                             }
                             contador++;
                         }
@@ -84,60 +90,60 @@ class WaterDevicesController {
                     //console.log(json_data)
                     let sensorsMismatchingDeviceEUI = DeviceEUIcheckResponse.notAddedSensors;
                     // if sensors are created correctly i create the related water devices
-                    if (response.status == 'Success') {
+                    if (response.status == "Success") {
                         yield this.createMultipleWaterDevices(json_data, user_id, selectedUnitValue, provider, authToken)
                             .then((response) => {
                             // if sensors are created correctly i create the related water devices
-                            if (response.status == 'Success') {
+                            if (response.status == "Success") {
                                 if (response.result && response.result.length == 0) {
                                     resolve({
                                         http: 204,
-                                        status: 'Success',
+                                        status: "Success",
                                         result: {
                                             message: "No water devices could be imported",
-                                            notCreatedSensorlist: sensorsMismatchingDeviceEUI
-                                        }
+                                            notCreatedSensorlist: sensorsMismatchingDeviceEUI,
+                                        },
                                     });
                                 }
                                 else {
                                     //console.log(response)
                                     resolve({
                                         http: 200,
-                                        status: 'Success',
+                                        status: "Success",
                                         result: {
                                             sensorsCreatedNum: response.response.affectedRows,
-                                            notCreatedSensorlist: sensorsMismatchingDeviceEUI
-                                        }
+                                            notCreatedSensorlist: sensorsMismatchingDeviceEUI,
+                                        },
                                     });
                                 }
                             }
                             else {
                                 reject({
                                     http: 401,
-                                    status: 'Failed',
-                                    error: response.error
+                                    status: "Failed",
+                                    error: response.error,
                                 });
                             }
                         })
-                            .catch(err => {
+                            .catch((err) => {
                             console.log(err);
                             reject({
                                 http: 401,
-                                status: 'Failed',
+                                status: "Failed",
                                 error: "error importing devices",
-                                msgError: err
+                                msgError: err,
                             });
                         });
                     }
                     else {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: "error getting created sensors by dev_EUI"
+                            status: "Failed",
+                            error: "error getting created sensors by dev_EUI",
                         });
                     }
                 }))
-                    .catch(err => {
+                    .catch((err) => {
                     //console.log(err)
                 });
             }));
@@ -157,7 +163,8 @@ class WaterDevicesController {
                     for (const element of json_file_data) {
                         //const index: any = json_file_data.indexOf(element);
                         if (element.device_EUI) {
-                            sensorIndex = sensors_json.findIndex(sensor => sensor.device_EUI.toUpperCase() === element.device_EUI.toUpperCase());
+                            sensorIndex = sensors_json.findIndex((sensor) => sensor.device_EUI.toUpperCase() ===
+                                element.device_EUI.toUpperCase());
                         }
                         else {
                             sensorIndex = -1;
@@ -191,12 +198,14 @@ class WaterDevicesController {
                                     sensors_json[sensorIndex].numModuleLora = element.numModuleLora;
                                 }
                                 if (element.contractNumber) {
-                                    sensors_json[sensorIndex].contractNumber = element.contractNumber;
+                                    sensors_json[sensorIndex].contractNumber =
+                                        element.contractNumber;
                                 }
                                 if (element.UserDni) {
                                     let response = yield waterUsersController_1.default.getUserByNif(element.UserDni);
                                     if (response.http == 200 && response.user_module_data) {
-                                        sensors_json[sensorIndex].water_user_id = response.user_module_data.id;
+                                        sensors_json[sensorIndex].water_user_id =
+                                            response.user_module_data.id;
                                     }
                                     else {
                                         // If water user id is undefined we should not be able to create the device
@@ -212,17 +221,17 @@ class WaterDevicesController {
                             // If deviceEUI doesnt exist we add this to an array that will be shown on erro lod to user
                             notAddedSensors.push(element);
                             /*console.log("***** SENSOR NOT ADDED *****")
-                            console.log(element);*/
+                                        console.log(element);*/
                         }
                     }
                     /*console.log("***** ADD SENSOR INFO *****")
-                    console.log({
-                        addedSensors: sensors_json,
-                            notAddedSensors: notAddedSensors
-                    })*/
+                            console.log({
+                                addedSensors: sensors_json,
+                                    notAddedSensors: notAddedSensors
+                            })*/
                     resolve({
                         addedSensors: sensors_json,
-                        notAddedSensors: notAddedSensors
+                        notAddedSensors: notAddedSensors,
                     });
                 }
                 catch (err) {
@@ -237,8 +246,8 @@ class WaterDevicesController {
             let insert_values = "";
             let lastObservationTimestamp;
             if (provider == undefined || authToken == undefined) {
-                provider = '';
-                authToken = '';
+                provider = "";
+                authToken = "";
             }
             //console.log(sensors_created)
             //console.log("*** CREATING WATER DEVICES ***")
@@ -249,43 +258,81 @@ class WaterDevicesController {
                 try {
                     if (element.lastObservationDate != undefined) {
                         lastObservationTimestamp = new Date(element.lastObservationDate)
-                            .toISOString().slice(0, -5).replace("T", " ");
+                            .toISOString()
+                            .slice(0, -5)
+                            .replace("T", " ");
                     }
                     else {
-                        lastObservationTimestamp = '9999-99-99 00:00:00.000000';
+                        lastObservationTimestamp = "9999-99-99 00:00:00.000000";
                         element.lastObservation = false;
                     }
-                    description = element.description.replace(/'/g, '');
+                    description = element.description.replace(/'/g, "");
                 }
                 catch (error) {
                     console.log(error);
                 }
                 if (!element.lastObservation) {
-                    insert_values += "('" + Utils_1.Utils.checkUndefined(element.name) + "','" +
-                        Utils_1.Utils.checkUndefined(element.id) + "','" +
-                        Utils_1.Utils.checkUndefined(user_id) + "','" + Utils_1.Utils.checkUndefined(unit) + "','" +
-                        description + "', NULL ,'1999-10-10 00:00:00.000000',' " +
-                        +Utils_1.Utils.checkUndefined(element.numContador) + "','" + Utils_1.Utils.checkUndefined(element.numModuleLora) +
-                        "','" + Utils_1.Utils.checkUndefined(element.contractNumber) + "',current_timestamp(), current_timestamp(), '"
-                        + provider + "', '" + authToken + "'),";
+                    insert_values +=
+                        "('" +
+                            Utils_1.Utils.checkUndefined(element.name) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(element.id) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(user_id) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(unit) +
+                            "','" +
+                            description +
+                            "', NULL ,'1999-10-10 00:00:00.000000',' " +
+                            +Utils_1.Utils.checkUndefined(element.numContador) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(element.numModuleLora) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(element.contractNumber) +
+                            "',current_timestamp(), current_timestamp(), '" +
+                            provider +
+                            "', '" +
+                            authToken +
+                            "'),";
                 }
                 else {
                     //console.log("*** lastObservationTimestamp ***")
                     //console.log(lastObservationTimestamp)
                     //console.log("*** lastObservation ***")
                     //console.log(element.lastObservation)
-                    insert_values += "('" + Utils_1.Utils.checkUndefined(element.name) + "','" +
-                        Utils_1.Utils.checkUndefined(element.id) + "','" +
-                        Utils_1.Utils.checkUndefined(user_id) + "','" + Utils_1.Utils.checkUndefined(unit) + "','"
-                        + Utils_1.Utils.checkUndefined(element.description) + "','" + element.lastObservation + "','" +
-                        lastObservationTimestamp + "','" + Utils_1.Utils.checkUndefined(element.numContador) + "','" +
-                        Utils_1.Utils.checkUndefined(element.numModuleLora) + "','" + Utils_1.Utils.checkUndefined(element.contractNumber) +
-                        "',current_timestamp(), current_timestamp(), '" + provider + "', '" + authToken + "'),";
+                    insert_values +=
+                        "('" +
+                            Utils_1.Utils.checkUndefined(element.name) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(element.id) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(user_id) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(unit) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(element.description) +
+                            "','" +
+                            element.lastObservation +
+                            "','" +
+                            lastObservationTimestamp +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(element.numContador) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(element.numModuleLora) +
+                            "','" +
+                            Utils_1.Utils.checkUndefined(element.contractNumber) +
+                            "',current_timestamp(), current_timestamp(), '" +
+                            provider +
+                            "', '" +
+                            authToken +
+                            "'),";
                 }
             });
             var query = "INSERT INTO `water_devices` (`name`, `sensor_id`, " +
                 "`user_id`, `units`, `description`, `last_observation`, `last_message`, `numContador`, `numModuleLora`," +
-                " `contract_number`, `created_dt`, `updated_dt`,`provider`,`authToken`) VALUES " + insert_values.slice(0, -1) + ";";
+                " `contract_number`, `created_dt`, `updated_dt`,`provider`,`authToken`) VALUES " +
+                insert_values.slice(0, -1) +
+                ";";
             console.log(query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
@@ -293,8 +340,8 @@ class WaterDevicesController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -307,15 +354,15 @@ class WaterDevicesController {
                             console.log(err);
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            response: results
+                            status: "Success",
+                            response: results,
                         });
                     });
                 });
@@ -369,15 +416,42 @@ class WaterDevicesController {
             if (installation_address) {
                 installation_address = "'" + installation_address + "'";
             }
-            var query = "INSERT INTO water_devices (name, sensor_id, variable_name, water_group_id, water_user_id, user_id, municipality_id, description, units, contract_number, device_diameter, sewer_rate_id, installation_address) VALUES (" + name + "," + sensor_id + "," + variable_name + "," + water_group_id + "," + water_user_id + "," + user_id + "," + municipality_id + "," + description + "," + units + "," + contract_number + "," + device_diameter + "," + sewer_rate_id + "," + installation_address + ")";
+            var query = "INSERT INTO water_devices (name, sensor_id, variable_name, water_group_id, water_user_id, user_id, municipality_id, description, units, contract_number, device_diameter, sewer_rate_id, installation_address) VALUES (" +
+                name +
+                "," +
+                sensor_id +
+                "," +
+                variable_name +
+                "," +
+                water_group_id +
+                "," +
+                water_user_id +
+                "," +
+                user_id +
+                "," +
+                municipality_id +
+                "," +
+                description +
+                "," +
+                units +
+                "," +
+                contract_number +
+                "," +
+                device_diameter +
+                "," +
+                sewer_rate_id +
+                "," +
+                installation_address +
+                ")";
+            console.log(query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -386,15 +460,15 @@ class WaterDevicesController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            response: 'The water device has been created successfully.'
+                            status: "Success",
+                            response: "The water device has been created successfully.",
                         });
                     });
                 });
@@ -413,9 +487,14 @@ class WaterDevicesController {
      */
     getWaterDevicesListing(user_id, page_index, page_size) {
         return __awaiter(this, void 0, void 0, function* () {
-            const first_value = (page_size * page_index) - page_size;
-            const second_value = (page_size * page_index);
-            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w.id DESC LIMIT " + first_value + ', ' + page_size;
+            const first_value = page_size * page_index - page_size;
+            const second_value = page_size * page_index;
+            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
+                user_id +
+                " ORDER BY w.id DESC LIMIT " +
+                first_value +
+                ", " +
+                page_size;
             console.log(query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
@@ -423,8 +502,8 @@ class WaterDevicesController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -433,16 +512,16 @@ class WaterDevicesController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         //console.log(results)
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            water_devices: results
+                            status: "Success",
+                            water_devices: results,
                         });
                     });
                 });
@@ -461,17 +540,42 @@ class WaterDevicesController {
      */
     getWaterDevicesListingSorted(user_id, page_index, page_size, sortByCol, direction) {
         return __awaiter(this, void 0, void 0, function* () {
-            const first_value = (page_size * page_index) - page_size;
-            const second_value = (page_size * page_index);
-            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id;
+            const first_value = page_size * page_index - page_size;
+            const second_value = page_size * page_index;
+            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
+                user_id;
             if (sortByCol == "device_EUI") {
-                query += " ORDER BY s.device_e_u_i " + direction + " LIMIT " + first_value + ', ' + page_size;
+                query +=
+                    " ORDER BY s.device_e_u_i " +
+                        direction +
+                        " LIMIT " +
+                        first_value +
+                        ", " +
+                        page_size;
             }
             else if (sortByCol == "sensor_name") {
-                query += " ORDER BY s." + sortByCol + " " + direction + " LIMIT " + first_value + ', ' + page_size;
+                query +=
+                    " ORDER BY s." +
+                        sortByCol +
+                        " " +
+                        direction +
+                        " LIMIT " +
+                        first_value +
+                        ", " +
+                        page_size;
             }
             else {
-                query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) WHERE w.user_id = " + user_id + " ORDER BY w." + sortByCol + " " + direction + " LIMIT " + first_value + ', ' + page_size;
+                query =
+                    "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
+                        user_id +
+                        " ORDER BY w." +
+                        sortByCol +
+                        " " +
+                        direction +
+                        " LIMIT " +
+                        first_value +
+                        ", " +
+                        page_size;
             }
             console.log(query);
             return new Promise((resolve, reject) => {
@@ -480,8 +584,8 @@ class WaterDevicesController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -490,16 +594,16 @@ class WaterDevicesController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         //console.log(results)
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            water_devices: results
+                            status: "Success",
+                            water_devices: results,
                         });
                     });
                 });
@@ -519,17 +623,22 @@ class WaterDevicesController {
     getAdminWaterDevicesListing(user_id, page_index, page_size) {
         return __awaiter(this, void 0, void 0, function* () {
             // Pagination limit values
-            const first_value = (page_size * page_index) - page_size;
-            const second_value = (page_size * page_index);
-            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN (SELECT * FROM users WHERE under_admin = " + user_id + ") u ON (w.user_id = u.id) ORDER BY w.id DESC LIMIT " + first_value + ', ' + second_value;
+            const first_value = page_size * page_index - page_size;
+            const second_value = page_size * page_index;
+            var query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN (SELECT * FROM users WHERE under_admin = " +
+                user_id +
+                ") u ON (w.user_id = u.id) ORDER BY w.id DESC LIMIT " +
+                first_value +
+                ", " +
+                second_value;
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -538,15 +647,15 @@ class WaterDevicesController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            water_devices: results
+                            status: "Success",
+                            water_devices: results,
                         });
                     });
                 });
@@ -570,8 +679,8 @@ class WaterDevicesController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -580,8 +689,8 @@ class WaterDevicesController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         console.log(results);
@@ -589,17 +698,219 @@ class WaterDevicesController {
                             // Response
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                water_device: results[0]
+                                status: "Success",
+                                water_device: results[0],
                             });
                         }
                         else {
                             reject({
                                 http: 204,
-                                status: 'Empty result',
-                                error: err
+                                status: "Empty result",
+                                error: err,
                             });
                         }
+                    });
+                });
+            });
+        });
+    }
+    /**
+   * GET ('/userByNif/:nif')
+   * Getting the information about the user by a given nif
+   *
+   * @async
+   * @param nif - The user nif
+   *
+   * @return
+   */
+    getWaterDeviceSewerRateIdByNameAndMunicipalityId(name, municipalityId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT * FROM municipality_sewer_rate WHERE usefor = '" + name + "' and municipality_id=" + municipalityId + ";";
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: "Failed",
+                                error: error,
+                            });
+                        }
+                        if (results.length && results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: "Success",
+                                result: "There are no water_module_users with this nif",
+                                sewer_rate_data: {},
+                            });
+                        }
+                        console.log("SEWERRATEDBHANDLER", results[0]);
+                        resolve({
+                            http: 200,
+                            status: "Success",
+                            sewer_rate_data: results[0],
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+    * GET ('/userByNif/:nif')
+    * Getting the information about the user by a given nif
+    *
+    * @async
+    * @param nif - The user nif
+    *
+    * @return
+    */
+    getWaterDeviceMunicipalityIdByName(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT * FROM water_municipality_info WHERE name = '" + name + "'";
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: "Failed",
+                                error: error,
+                            });
+                        }
+                        if (results.length && results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: "Success",
+                                result: "There is no municipality with the given name",
+                                municipality_data: {},
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: "Success",
+                            municipality_data: results[0],
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+   * GET ('/userByNif/:nif')
+   * Getting the information about the user by a given nif
+   *
+   * @async
+   * @param nif - The user nif
+   *
+   * @return
+   */
+    getWaterDeviceByFilterTypeValue(type, value, user_id, page_index, page_size) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const first_value = page_size * page_index - page_size;
+            const second_value = page_size * page_index;
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "";
+                    switch (type) {
+                        case 'contractNumber':
+                            query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
+                                user_id +
+                                " AND  `contract_number` ='" +
+                                value + "'  ORDER BY w.id DESC LIMIT " +
+                                first_value +
+                                ", " +
+                                page_size;
+                            break;
+                        case 'user':
+                            query = "SELECT water_module_users.*, w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
+                                user_id +
+                                " AND  `first_name` like'%" +
+                                value + "%' ORDER BY w.id DESC LIMIT " +
+                                first_value +
+                                ", " +
+                                page_size;
+                            break;
+                        case 'sewer':
+                            query = "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
+                                user_id +
+                                " AND  `contract_number` ='" +
+                                value + "'  ORDER BY w.id DESC LIMIT " +
+                                first_value +
+                                ", " +
+                                page_size;
+                            break;
+                    }
+                    /*let query =
+                      "SELECT * FROM `water_devices` WHERE `contract_number`='" + contractNumber + "'";*/
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: "Failed",
+                                error: error,
+                            });
+                        }
+                        if (results.length && results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: "Success",
+                                result: "There is no device with this contract number",
+                                water_devices: {},
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: "Success",
+                            water_devices: results,
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/userByNif/:nif')
+     * Getting the information about the user by a given nif
+     *
+     * @async
+     * @param nif - The user nif
+     *
+     * @return
+     */
+    getWaterDeviceDiameterIdByName(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "SELECT * FROM municipality_diameters WHERE name = '" + name + "'";
+                    console.log(query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: "Failed",
+                                error: error,
+                            });
+                        }
+                        if (results.length && results.length == 0) {
+                            resolve({
+                                http: 204,
+                                status: "Success",
+                                result: "There is no diameter with this name",
+                                diameter_data: {},
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: "Success",
+                            diameter_data: results[0],
+                        });
                     });
                 });
             });
@@ -613,26 +924,88 @@ class WaterDevicesController {
      *
      * @returns
      */
-    updateWaterDeviceByName(name, variable_name, description, units, contractNumber, deviceDiameter, installAddress, numContador, numModuleLora, provider, authToken, nif) {
+    updateWaterDeviceByName(name, variable_name, description, units, contractNumber, deviceDiameter, installAddress, numContador, numModuleLora, provider, authToken, nif, groupId, municipality_name, sewerRateName) {
         return __awaiter(this, void 0, void 0, function* () {
+            /*
+            domestico -> 3
+            comercial -> 4
+            industrial -> 5
+            */
             let water_user_id = 0;
+            let municipalityId;
+            let sewerRateId;
+            let deviceDiameterId;
             if (nif) {
                 let res = yield waterUsersController_1.default.getUserByNif(nif);
-                console.log("res", res.user_module_data.id);
+                console.log("resNif", res.user_module_data);
                 if (res.http == 200) {
                     water_user_id = res.user_module_data.id;
                 }
             }
+            if (municipality_name) {
+                let res = yield this.getWaterDeviceMunicipalityIdByName(municipality_name);
+                console.log("resMunicipality", res.municipality_data);
+                if (res.http == 200) {
+                    municipalityId = res.municipality_data.id;
+                    if (sewerRateName) {
+                        let resSewer = yield this.getWaterDeviceSewerRateIdByNameAndMunicipalityId(sewerRateName, municipalityId);
+                        console.log("resSewer", resSewer.sewer_rate_data);
+                        if (resSewer.http == 200) {
+                            sewerRateId = resSewer.sewer_rate_data.id;
+                        }
+                    }
+                }
+            }
+            if (deviceDiameter) {
+                let res = yield this.getWaterDeviceDiameterIdByName(deviceDiameter);
+                console.log("resDiameter", res.diameter_data);
+                if (res.http == 200) {
+                    deviceDiameterId = res.diameter_data.id;
+                }
+            }
             if (description) {
-                description = description.replace(/'/g, '');
+                description = description.replace(/'/g, "");
             }
             if (installAddress) {
-                installAddress = installAddress.replace(/'/g, '');
+                installAddress = installAddress.replace(/'/g, "");
             }
-            var query = "UPDATE water_devices SET variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
-                contractNumber + "',device_diameter='" + deviceDiameter + "',installation_address='" + installAddress + "',numContador='" + numContador +
-                "',numModuleLora='" + numModuleLora + "',provider='" + provider + "',authToken='" + authToken + "', water_user_id=" + water_user_id + " WHERE name='" +
-                name + "'";
+            if (!groupId) {
+                groupId = 'NULL';
+            }
+            var query = "UPDATE water_devices SET variable_name='" +
+                variable_name +
+                "', description='" +
+                description +
+                "',units='" +
+                units +
+                "',contract_number='" +
+                contractNumber +
+                "',installation_address='" +
+                installAddress +
+                "',numContador='" +
+                numContador +
+                "',numModuleLora='" +
+                numModuleLora +
+                "',provider='" +
+                provider +
+                "',authToken='" +
+                authToken +
+                "', water_user_id=" +
+                water_user_id +
+                ", water_group_id=" +
+                groupId;
+            if (municipalityId) {
+                query += ", municipality_id=" + municipalityId;
+            }
+            if (deviceDiameterId) {
+                query += ", device_diameter=" + deviceDiameterId;
+            }
+            if (sewerRateId) {
+                query += ", sewer_rate_id=" + sewerRateId;
+            }
+            query += " WHERE name='" +
+                name +
+                "'";
             console.log(query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
@@ -640,8 +1013,8 @@ class WaterDevicesController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -650,15 +1023,15 @@ class WaterDevicesController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            result: results
+                            status: "Success",
+                            result: results,
                         });
                     });
                 });
@@ -673,13 +1046,13 @@ class WaterDevicesController {
      *
      * @returns
      */
-    updateWaterDeviceById(id, name, variable_name, description, units, contractNumber, deviceDiameter, installAddress, numContador, numModuleLora, sensorId, water_user_id) {
+    updateWaterDeviceById(id, name, variable_name, description, units, contractNumber, deviceDiameter, installAddress, numContador, numModuleLora, sensorId, water_user_id, municipality_id, sewer_rate_id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (description) {
-                description = description.replace(/'/g, '');
+                description = description.replace(/'/g, "");
             }
             if (installAddress) {
-                installAddress = installAddress.replace(/'/g, '');
+                installAddress = installAddress.replace(/'/g, "");
             }
             let devDiam;
             if (!deviceDiameter) {
@@ -688,10 +1061,35 @@ class WaterDevicesController {
             else {
                 devDiam = deviceDiameter;
             }
-            var query = "UPDATE water_devices SET name='" + name + "',variable_name='" + variable_name + "', description='" + description + "',units='" + units + "',contract_number='" +
-                contractNumber + "',device_diameter='" + devDiam + "',installation_address='" + installAddress + "',numContador='" + numContador +
-                "',numModuleLora='" + numModuleLora + "',sensor_id='" + sensorId + "', water_user_id=" + water_user_id + " WHERE id='" +
-                id + "'";
+            var query = "UPDATE water_devices SET name='" +
+                name +
+                "',variable_name='" +
+                variable_name +
+                "', description='" +
+                description +
+                "',units='" +
+                units +
+                "',contract_number='" +
+                contractNumber +
+                "',device_diameter='" +
+                devDiam +
+                "',installation_address='" +
+                installAddress +
+                "',numContador='" +
+                numContador +
+                "',numModuleLora='" +
+                numModuleLora +
+                "',sensor_id='" +
+                sensorId +
+                "', water_user_id=" +
+                water_user_id +
+                ", municipality_id=" +
+                municipality_id +
+                ", sewer_rate_id=" +
+                sewer_rate_id +
+                " WHERE id='" +
+                id +
+                "'";
             console.log("query", query);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
@@ -699,8 +1097,8 @@ class WaterDevicesController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -709,15 +1107,15 @@ class WaterDevicesController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            result: results
+                            status: "Success",
+                            result: results,
                         });
                     });
                 });

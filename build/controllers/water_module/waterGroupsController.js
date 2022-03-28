@@ -31,8 +31,8 @@ class WaterGroupsController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -41,24 +41,24 @@ class WaterGroupsController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         if (results && results.length == 0) {
                             resolve({
                                 http: 204,
-                                status: 'Success',
+                                status: "Success",
                                 result: "Error no water groups found for the given user",
                             });
                         }
                         else {
-                            console.log('Probando Grupos: ', results);
+                            console.log("Probando Grupos: ", results);
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: results
+                                status: "Success",
+                                result: results,
                             });
                         }
                     });
@@ -83,8 +83,8 @@ class WaterGroupsController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -93,24 +93,24 @@ class WaterGroupsController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         if (results && results.length == 0) {
                             resolve({
                                 http: 204,
-                                status: 'Success',
+                                status: "Success",
                                 result: "Error no water groups found for the given user",
                             });
                         }
                         else {
-                            console.log('Probando Grupos: ', results);
+                            console.log("Probando Grupos: ", results);
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: results
+                                status: "Success",
+                                result: results,
                             });
                         }
                     });
@@ -135,8 +135,8 @@ class WaterGroupsController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -145,24 +145,24 @@ class WaterGroupsController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         if (results && results.length == 0) {
                             resolve({
                                 http: 204,
-                                status: 'Success',
+                                status: "Success",
                                 result: "Error no water groups found for the given user",
                             });
                         }
                         else {
-                            console.log('Probando Grupos: ', results);
+                            console.log("Probando Grupos: ", results);
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: results
+                                status: "Success",
+                                result: results,
                             });
                         }
                     });

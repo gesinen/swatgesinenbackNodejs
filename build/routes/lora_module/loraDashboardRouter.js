@@ -13,140 +13,154 @@ class LoraDashboardRouter {
         // Controller
         this.loraDashboardController = new loraDashboardController_1.default();
         // Methods
-        this.getNetworkServerGeneralInformation = () => this.router.get('/information/:userId', (req, res) => {
+        this.getNetworkServerGeneralInformation = () => this.router.get("/information/:userId", (req, res) => {
             const userId = parseInt(req.params.userId);
-            this.loraDashboardController.getNetworkServerGeneralInformation(userId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerGeneralInformation(userId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerSensorStatus = () => this.router.get('/sensor/:userId', (req, res) => {
+        this.getNetworkServerSensorStatus = () => this.router.get("/sensor/:userId", (req, res) => {
             const userId = parseInt(req.params.userId);
-            this.loraDashboardController.getNetworkServerSensorStatus(userId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerSensorStatus(userId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerSensorSignal = () => this.router.get('/signal/:userId', (req, res) => {
+        this.getNetworkServerSensorSignal = () => this.router.get("/signal/:userId", (req, res) => {
             const userId = parseInt(req.params.userId);
-            this.loraDashboardController.getNetworkServerSensorSignal(userId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerSensorSignal(userId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerPackages = () => this.router.get('/packages/:userId', (req, res) => {
+        this.getNetworkServerPackages = () => this.router.get("/packages/:userId", (req, res) => {
             const userId = parseInt(req.params.userId);
-            this.loraDashboardController.getNetworkServerPackages(userId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerPackages(userId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerGeneralInformationRoot = () => this.router.get('/root/information', (req, res) => {
-            this.loraDashboardController.getNetworkServerGeneralInformationRoot()
-                .then(response => {
+        this.getNetworkServerGeneralInformationRoot = () => this.router.get("/root/information", (req, res) => {
+            this.loraDashboardController
+                .getNetworkServerGeneralInformationRoot()
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerSensorStatusRoot = () => this.router.get('/root/sensor', (req, res) => {
-            this.loraDashboardController.getNetworkServerSensorStatusRoot()
-                .then(response => {
+        this.getNetworkServerSensorStatusRoot = () => this.router.get("/root/sensor", (req, res) => {
+            this.loraDashboardController
+                .getNetworkServerSensorStatusRoot()
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerSensorSignalRoot = () => this.router.get('/root/signal', (req, res) => {
+        this.getNetworkServerSensorSignalRoot = () => this.router.get("/root/signal", (req, res) => {
             const userId = parseInt(req.params.userId);
-            this.loraDashboardController.getNetworkServerSensorSignalRoot()
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerSensorSignalRoot()
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerPackagesRoot = () => this.router.get('/root/packages', (req, res) => {
+        this.getNetworkServerPackagesRoot = () => this.router.get("/root/packages", (req, res) => {
             const userId = parseInt(req.params.userId);
-            this.loraDashboardController.getNetworkServerPackagesRoot()
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerPackagesRoot()
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerGeneralInformationSelected = () => this.router.get('/information/gateway/:gatewayId', (req, res) => {
+        this.getNetworkServerGeneralInformationSelected = () => this.router.get("/information/gateway/:gatewayId", (req, res) => {
             const gatewayId = parseInt(req.params.gatewayId);
-            this.loraDashboardController.getNetworkServerGeneralInformationSelected(gatewayId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerGeneralInformationSelected(gatewayId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServers = () => this.router.get('/network_servers/:userId', (req, res) => {
+        this.getNetworkServers = () => this.router.get("/network_servers/:userId", (req, res) => {
             const userId = parseInt(req.params.userId);
-            this.loraDashboardController.getNetworkServers(userId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServers(userId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getAllNetworkServers = () => this.router.get('/network_servers', (req, res) => {
-            this.loraDashboardController.getAllNetworkServers()
-                .then(response => {
+        this.getAllNetworkServers = () => this.router.get("/network_servers", (req, res) => {
+            this.loraDashboardController
+                .getAllNetworkServers()
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerSensorStatusSelected = () => this.router.get('/sensor/gateway/:gatewayId', (req, res) => {
+        this.getNetworkServerSensorStatusSelected = () => this.router.get("/sensor/gateway/:gatewayId", (req, res) => {
             const userId = parseInt(req.params.gatewayId);
-            this.loraDashboardController.getNetworkServerSensorStatusSelected(userId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerSensorStatusSelected(userId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerSensorSignalSelected = () => this.router.get('/signal/gateway/:gatewayId', (req, res) => {
+        this.getNetworkServerSensorSignalSelected = () => this.router.get("/signal/gateway/:gatewayId", (req, res) => {
             const userId = parseInt(req.params.gatewayId);
-            this.loraDashboardController.getNetworkServerSensorSignalSelected(userId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerSensorSignalSelected(userId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });
-        this.getNetworkServerPackagesSelected = () => this.router.get('/packages/gateway/:gatewayId', (req, res) => {
+        this.getNetworkServerPackagesSelected = () => this.router.get("/packages/gateway/:gatewayId", (req, res) => {
             const userId = parseInt(req.params.gatewayId);
-            this.loraDashboardController.getNetworkServerPackagesSelected(userId)
-                .then(response => {
+            this.loraDashboardController
+                .getNetworkServerPackagesSelected(userId)
+                .then((response) => {
                 res.status(200).send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.status(401).send(err);
             });
         });

@@ -12,9 +12,10 @@ class IrrigationDeviceLinkRouter {
          * Get the user data
          * GET ('/information/:id')
          */
-        this.getIrrigationDeviceLinkById = () => this.router.get('/:id', (req, res) => {
+        this.getIrrigationDeviceLinkById = () => this.router.get("/:id", (req, res) => {
             const id = parseInt(req.params.id);
-            irrigationDeviceLinkController_1.default.getIrrigationDeviceLinkById(id)
+            irrigationDeviceLinkController_1.default
+                .getIrrigationDeviceLinkById(id)
                 .then((response) => {
                 res.send(response);
             })
@@ -27,11 +28,12 @@ class IrrigationDeviceLinkRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.storeIrrigationDeviceLink = () => this.router.post('/', (req, res) => {
+        this.storeIrrigationDeviceLink = () => this.router.post("/", (req, res) => {
             const params = req.body;
             console.log("router store params");
             console.log(params);
-            irrigationDeviceLinkController_1.default.storeIrrigationDeviceLink(params.irrigationDeviceInputId, params.irrigationDeviceOutputId, params.irrigationDeviceId)
+            irrigationDeviceLinkController_1.default
+                .storeIrrigationDeviceLink(params.irrigationDeviceInputId, params.irrigationDeviceOutputId, params.irrigationDeviceId)
                 .then((response) => {
                 res.send(response);
             })
@@ -44,9 +46,10 @@ class IrrigationDeviceLinkRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.deleteIrrigationDeviceLink = () => this.router.delete('/:id', (req, res) => {
+        this.deleteIrrigationDeviceLink = () => this.router.delete("/:id", (req, res) => {
             const id = parseInt(req.params.id);
-            irrigationDeviceLinkController_1.default.deleteIrrigationLinkDevice(id)
+            irrigationDeviceLinkController_1.default
+                .deleteIrrigationLinkDevice(id)
                 .then((response) => {
                 res.send(response);
             })
@@ -59,11 +62,12 @@ class IrrigationDeviceLinkRouter {
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
          */
-        this.updateIrrigationDeviceLink = () => this.router.put('/', (req, res) => {
+        this.updateIrrigationDeviceLink = () => this.router.put("/", (req, res) => {
             console.log("update");
             const params = req.body;
             console.log(params);
-            irrigationDeviceLinkController_1.default.updateIrrigationDeviceLink(params.linkDeviceId, params.irrigationDeviceInputId, params.irrigationDeviceOutputId)
+            irrigationDeviceLinkController_1.default
+                .updateIrrigationDeviceLink(params.linkDeviceId, params.irrigationDeviceInputId, params.irrigationDeviceOutputId)
                 .then((response) => {
                 res.send(response);
             })

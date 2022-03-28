@@ -12,13 +12,14 @@ class CapacityTypeRibbonRouter {
          * Create capacity device
          * POST ('/')
          */
-        this.createCapacityRibbonDevice = () => this.router.post('/', (req, res) => {
+        this.createCapacityRibbonDevice = () => this.router.post("/", (req, res) => {
             const params = req.body;
-            capacityTypeRibbon_1.default.createCapacityRibbonDevice(parseInt(params.capacityDeviceId), parseInt(params.parkingId))
-                .then(response => {
+            capacityTypeRibbon_1.default
+                .createCapacityRibbonDevice(parseInt(params.capacityDeviceId), parseInt(params.parkingId))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -26,12 +27,13 @@ class CapacityTypeRibbonRouter {
          * Get a capacity device with an ID
          * GET ('/:id')
          */
-        this.getCapacityRibbonDeviceById = () => this.router.get('/:id', (req, res) => {
-            capacityTypeRibbon_1.default.getCapacityRibbonDeviceById(parseInt(req.params.id))
-                .then(response => {
+        this.getCapacityRibbonDeviceById = () => this.router.get("/:id", (req, res) => {
+            capacityTypeRibbon_1.default
+                .getCapacityRibbonDeviceById(parseInt(req.params.id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -39,21 +41,23 @@ class CapacityTypeRibbonRouter {
          * Get a capacity device with an ID
          * GET ('/:id')
          */
-        this.getAllCapacityRibbonDevicesInner = () => this.router.get('/all', (req, res) => {
-            capacityTypeRibbon_1.default.getAllCapacityRibbonDevicesInner()
-                .then(response => {
+        this.getAllCapacityRibbonDevicesInner = () => this.router.get("/all", (req, res) => {
+            capacityTypeRibbon_1.default
+                .getAllCapacityRibbonDevicesInner()
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.removeCapacityRibbonDevice = () => this.router.delete('/:id', (req, res) => {
-            capacityTypeRibbon_1.default.deleteCapacityRibbonDevice(parseInt(req.params.id))
-                .then(response => {
+        this.removeCapacityRibbonDevice = () => this.router.delete("/:id", (req, res) => {
+            capacityTypeRibbon_1.default
+                .deleteCapacityRibbonDevice(parseInt(req.params.id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -61,14 +65,15 @@ class CapacityTypeRibbonRouter {
          * Update a capacity device
          * PUT ('/:id')
          */
-        this.updateCapacityRibbonDevice = () => this.router.put('/:id', (req, res) => {
+        this.updateCapacityRibbonDevice = () => this.router.put("/:id", (req, res) => {
             const id = parseInt(req.params.id);
             const params = req.body;
-            capacityTypeRibbon_1.default.updateCapacityRibbonDevice(id, params.parkingId)
-                .then(response => {
+            capacityTypeRibbon_1.default
+                .updateCapacityRibbonDevice(id, params.parkingId)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });

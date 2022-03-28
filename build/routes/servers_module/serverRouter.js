@@ -8,53 +8,58 @@ const serverController_1 = __importDefault(require("../../controllers/servers_mo
 class ServerRouter {
     constructor() {
         this.router = (0, express_1.Router)();
-        this.getUserServerListAction = () => this.router.get('/list/:user_id', (req, res) => {
+        this.getUserServerListAction = () => this.router.get("/list/:user_id", (req, res) => {
             const user_id = req.params.user_id;
-            serverController_1.default.getUserServerList(user_id)
-                .then(response => {
+            serverController_1.default
+                .getUserServerList(user_id)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.getServerTokenAndProviderIdAction = () => this.router.get('/providerIdAndToken/:server_id', (req, res) => {
+        this.getServerTokenAndProviderIdAction = () => this.router.get("/providerIdAndToken/:server_id", (req, res) => {
             const server_id = req.params.server_id;
-            serverController_1.default.getServerTokenAndProviderId(parseInt(server_id))
-                .then(response => {
+            serverController_1.default
+                .getServerTokenAndProviderId(parseInt(server_id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.getGatewaysServerInfo = () => this.router.get('/gatewayServers/:gateway_mac', (req, res) => {
+        this.getGatewaysServerInfo = () => this.router.get("/gatewayServers/:gateway_mac", (req, res) => {
             const gatewayMac = req.params.gateway_mac;
-            serverController_1.default.getGatewaysServerInfo(gatewayMac)
-                .then(response => {
+            serverController_1.default
+                .getGatewaysServerInfo(gatewayMac)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.createServerAndGatewayLinkAction = () => this.router.post('/createServerAndGatewayLink/', (req, res) => {
+        this.createServerAndGatewayLinkAction = () => this.router.post("/createServerAndGatewayLink/", (req, res) => {
             const params = req.body;
-            serverController_1.default.createServerAndGatewayLink(params.gateway_mac, params.server_id, params.pk_id)
-                .then(response => {
+            serverController_1.default
+                .createServerAndGatewayLink(params.gateway_mac, params.server_id, params.pk_id)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
-        this.getSensorServerDetailAction = () => this.router.get('/sensor_server_detail/:sensorId', (req, res) => {
+        this.getSensorServerDetailAction = () => this.router.get("/sensor_server_detail/:sensorId", (req, res) => {
             const sensorId = req.params.sensorId;
-            serverController_1.default.getSensorServerDetail(sensorId)
-                .then(response => {
+            serverController_1.default
+                .getSensorServerDetail(sensorId)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });

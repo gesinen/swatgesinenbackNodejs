@@ -25,15 +25,17 @@ class WaterUsersController {
      */
     getWaterUserMunicipalityId(user_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query = "SELECT id FROM `water_municipality_info` WHERE user_id = " + user_id + ";";
+            var query = "SELECT id FROM `water_municipality_info` WHERE user_id = " +
+                user_id +
+                ";";
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
                     // If the connection with the database fails
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed',
-                            error: error
+                            status: "Failed",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -42,23 +44,23 @@ class WaterUsersController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         if (results && results.length == 0) {
                             resolve({
                                 http: 204,
-                                status: 'Success',
+                                status: "Success",
                                 result: "Error no water municipality found for the given user",
                             });
                         }
                         else {
                             resolve({
                                 http: 200,
-                                status: 'Success',
-                                result: results[0]
+                                status: "Success",
+                                result: results[0],
                             });
                         }
                     });
@@ -86,22 +88,22 @@ class WaterUsersController {
                         if (error) {
                             reject({
                                 http: 406,
-                                status: 'Failed',
-                                error: error
+                                status: "Failed",
+                                error: error,
                             });
                         }
                         if (results.length && results.length == 0) {
                             resolve({
                                 http: 204,
-                                status: 'Success',
-                                result: 'There are no water_module_users with this nif',
-                                user_module_data: {}
+                                status: "Success",
+                                result: "There are no water_module_users with this nif",
+                                user_module_data: {},
                             });
                         }
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            user_module_data: results[0]
+                            status: "Success",
+                            user_module_data: results[0],
                         });
                     });
                 });
@@ -125,8 +127,8 @@ class WaterUsersController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed to connect to database',
-                            error: error
+                            status: "Failed to connect to database",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -135,15 +137,15 @@ class WaterUsersController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            water_users: results
+                            status: "Success",
+                            water_users: results,
                         });
                     });
                 });
@@ -167,8 +169,8 @@ class WaterUsersController {
                     if (error) {
                         reject({
                             http: 401,
-                            status: 'Failed to connect to database',
-                            error: error
+                            status: "Failed to connect to database",
+                            error: error,
                         });
                     }
                     conn.query(query, (err, results) => {
@@ -177,15 +179,15 @@ class WaterUsersController {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         // Response
                         resolve({
                             http: 200,
-                            status: 'Success',
-                            water_devices: results
+                            status: "Success",
+                            water_devices: results,
                         });
                     });
                 });
@@ -208,39 +210,95 @@ class WaterUsersController {
                     //console.log("file on controller")
                     console.log(json_file_data);
                     json_file_data.forEach((element, index) => {
-                        values_to_insert += "('" + Utils_1.Utils.checkUndefined(element.first_name) + "','" + Utils_1.Utils.checkUndefined(element.last_name) + "','" + Utils_1.Utils.checkUndefined(element.email) + "','" + Utils_1.Utils.checkUndefined(element.user_nif) + "','" + Utils_1.Utils.checkUndefined(element.mobile) + "','" +
-                            Utils_1.Utils.checkUndefined(user_id) + "','" + Utils_1.Utils.checkUndefined(municipality_id) + "','" + Utils_1.Utils.checkUndefined(element.house_no) + "','" +
-                            Utils_1.Utils.checkUndefined(element.street) + "','" + Utils_1.Utils.checkUndefined(element.address) + "','" + Utils_1.Utils.checkUndefined(element.city) + "','" + Utils_1.Utils.checkUndefined(element.state) + "','" + Utils_1.Utils.checkUndefined(element.country) + "','" + Utils_1.Utils.checkUndefined(element.zip_code) + "','" +
-                            Utils_1.Utils.checkUndefined(element.bill_house_no) + "','" + Utils_1.Utils.checkUndefined(element.bill_street) + "','" + Utils_1.Utils.checkUndefined(element.bill_address) + "','" + Utils_1.Utils.checkUndefined(element.bill_city) + "','" + Utils_1.Utils.checkUndefined(element.bill_state) + "','" + Utils_1.Utils.checkUndefined(element.bill_country) + "','" + Utils_1.Utils.checkUndefined(element.bank_name) + "','" + Utils_1.Utils.checkUndefined(element.bank_address) + "','" + Utils_1.Utils.checkUndefined(element.IBAN) + "','" + Utils_1.Utils.checkUndefined(element.profile_pic) + "','" + Utils_1.Utils.checkUndefined(element.account_certificate) + "','" +
-                            Utils_1.Utils.checkUndefined(element.idproof) + "','" + Utils_1.Utils.checkUndefined(element.sepa) + "','" + Utils_1.Utils.checkUndefined(element.dni) + "'),";
+                        values_to_insert +=
+                            "('" +
+                                Utils_1.Utils.checkUndefined(element.first_name) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.last_name) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.email) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.user_nif) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.mobile) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(user_id) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(municipality_id) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.house_no) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.street) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.address) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.city) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.state) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.country) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.zip_code) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.bill_house_no) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.bill_street) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.bill_address) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.bill_city) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.bill_state) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.bill_country) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.bank_name) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.bank_address) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.IBAN) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.profile_pic) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.account_certificate) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.idproof) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.sepa) +
+                                "','" +
+                                Utils_1.Utils.checkUndefined(element.dni) +
+                                "'),";
                     });
                     var insert_query = "INSERT INTO `water_module_users` (`first_name`, `last_name`, `email`, `user_nif`, `mobile`, `user_id`," +
                         " `municipality_id`, `house_no`, `street`, `address`, `city`," +
                         " `state`, `country`, `bill_house_no`, `bill_street`, `bill_address`, `bill_city`," +
                         " `bill_state`, `bill_country`, `bill_zip_code`, `bank_name`, `bank_address`, `IBAN`, `profile_pic`," +
-                        " `account_certificate`, `idproof`, `sepa`, `dni`) " + " VALUES " + values_to_insert.slice(0, -1) + ";";
+                        " `account_certificate`, `idproof`, `sepa`, `dni`) " +
+                        " VALUES " +
+                        values_to_insert.slice(0, -1) +
+                        ";";
                     //console.log(insert_query)
                     conn.query(insert_query, (err, results) => {
                         if (err) {
                             reject({
                                 http: 401,
-                                status: 'Failed',
-                                error: err
+                                status: "Failed",
+                                error: err,
                             });
                         }
                         else {
                             if (results && results.length == 0) {
                                 resolve({
                                     http: 204,
-                                    status: 'Success',
+                                    status: "Success",
                                     result: "Error importing water_module_observations",
                                 });
                             }
                             else {
                                 resolve({
                                     http: 200,
-                                    status: 'Success',
-                                    result: results
+                                    status: "Success",
+                                    result: results,
                                 });
                             }
                         }

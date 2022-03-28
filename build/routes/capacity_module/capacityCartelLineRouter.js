@@ -12,13 +12,14 @@ class CapacityCartelLineRouter {
          * Create capacity device
          * POST ('/')
          */
-        this.createCartelLine = () => this.router.post('/', (req, res) => {
+        this.createCartelLine = () => this.router.post("/", (req, res) => {
             const params = req.body;
-            capacityCartelLine_1.default.createCartelLine(parseInt(params.sensor_id), parseInt(params.user_id), parseInt(params.max_capacity))
-                .then(response => {
+            capacityCartelLine_1.default
+                .createCartelLine(parseInt(params.sensor_id), parseInt(params.user_id), parseInt(params.max_capacity))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -26,39 +27,41 @@ class CapacityCartelLineRouter {
          * Get a capacity device with an ID
          * GET ('/:id')
          */
-        this.getCartelLines = () => this.router.get('/:cartelId', (req, res) => {
-            capacityCartelLine_1.default.getCartelLines(parseInt(req.params.cartelId))
-                .then(response => {
+        this.getCartelLines = () => this.router.get("/:cartelId", (req, res) => {
+            capacityCartelLine_1.default
+                .getCartelLines(parseInt(req.params.cartelId))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
         /**
-         * Get a capacity device with an ID
-         * GET ('/:id')
-         *
-        public getFreeCartelLines = () => this.router.get('/:id', (req: Request, res: Response) => {
-            capacityCartelLineController.getFreeCartelLines(parseInt(req.params.id))
-                .then(response => {
-                    res.send(response)
-                })
-                .catch(err => {
-                    res.send({
-                        http: 401,
-                        status: 'Failed',
-                        error: err
-                    })
-                    res.send(err)
-                })
-        })*/
-        this.deleteCartelLine = () => this.router.delete('/:id', (req, res) => {
-            capacityCartelLine_1.default.deleteCapacityCartelLine(parseInt(req.params.id))
-                .then(response => {
+           * Get a capacity device with an ID
+           * GET ('/:id')
+           *
+          public getFreeCartelLines = () => this.router.get('/:id', (req: Request, res: Response) => {
+              capacityCartelLineController.getFreeCartelLines(parseInt(req.params.id))
+                  .then(response => {
+                      res.send(response)
+                  })
+                  .catch(err => {
+                      res.send({
+                          http: 401,
+                          status: 'Failed',
+                          error: err
+                      })
+                      res.send(err)
+                  })
+          })*/
+        this.deleteCartelLine = () => this.router.delete("/:id", (req, res) => {
+            capacityCartelLine_1.default
+                .deleteCapacityCartelLine(parseInt(req.params.id))
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });
@@ -66,14 +69,15 @@ class CapacityCartelLineRouter {
          * Update a capacity device
          * PUT ('/:id')
          */
-        this.updateCapacityDeviceAction = () => this.router.put('/:id', (req, res) => {
+        this.updateCapacityDeviceAction = () => this.router.put("/:id", (req, res) => {
             const id = parseInt(req.params.id);
             const params = req.body;
-            capacityCartelLine_1.default.updateCartelLine(params.cartelId, params.parkingId, params.lineNum)
-                .then(response => {
+            capacityCartelLine_1.default
+                .updateCartelLine(params.cartelId, params.parkingId, params.lineNum)
+                .then((response) => {
                 res.send(response);
             })
-                .catch(err => {
+                .catch((err) => {
                 res.send(err);
             });
         });

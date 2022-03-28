@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-nocheck
 const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
-const insure_express_1 = __importDefault(require("insure-express"));
 const cors_1 = __importDefault(require("cors"));
 const usersRouter_1 = __importDefault(require("./routes/usersRouter"));
 const waterDevicesRouter_1 = __importDefault(require("./routes/water_module/waterDevicesRouter"));
@@ -32,14 +31,11 @@ class Server {
         this.routes();
     }
     config() {
-        this.app.set('port', process.env.PORT || 8080);
+        this.app.set('port', process.env.PORT || 3000);
         this.app.use((0, morgan_1.default)('dev'));
         this.app.use((0, cors_1.default)());
         this.app.use(express_1.default.json());
         this.app.use(express_1.default.urlencoded({ extended: false }));
-        this.app.listen(this.app.get('port'), () => {
-            console.log('Server on port', this.app.get('port'));
-        });
     }
     routes() {
         this.app.use('/v2/users', usersRouter_1.default);
@@ -61,7 +57,9 @@ class Server {
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter_1.default);
     }
     start() {
-        insure_express_1.default.start();
+        this.app.listen(this.app.get('port'), () => {
+            console.log('Server on port', this.app.get('port'));
+        });
     }
 }
 const server = new Server();
