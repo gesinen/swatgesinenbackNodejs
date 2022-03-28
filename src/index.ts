@@ -16,6 +16,7 @@ import loraDashboardRouter from './routes/lora_module/loraDashboardRouter';
 import irrigationDeviceRouter from './routes/irrigation_module/irrigationDeviceRouter';
 import irrigationDeviceOutputRouter from './routes/irrigation_module/irrigationDeviceOutputRouter';
 import irrigationDeviceInputRouter from './routes/irrigation_module/irrigationDeviceInputRouter';
+import irrigationDeviceInputHistoryRouter from './routes/irrigation_module/irrigationDeviceInputHistoryRouter';
 import capacityCartelRouter from './routes/capacity_module/capacityCartelRouter';
 import capacityCartelLineRouter from './routes/capacity_module/capacityCartelLineRouter';
 import capacityParking from './controllers/capacity_module/capacityParking';
@@ -59,6 +60,7 @@ class Server {
         this.app.use('/v2/irrigation/devices', irrigationDeviceRouter);
         this.app.use('/v2/irrigation/devices/output', irrigationDeviceOutputRouter);
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter);
+        this.app.use('/v2/irrigation/devices/input/history', irrigationDeviceInputHistoryRouter);
 
     }
 
