@@ -202,7 +202,8 @@ class WaterDevicesRouter {
           params.sensor_id,
           params.user,
           params.municipality,
-          params.sewerRateId
+          params.sewerRateId,
+          params.coeficientecorrector,
         )
         .then((response) => {
           console.log(response);

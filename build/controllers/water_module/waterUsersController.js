@@ -118,6 +118,48 @@ class WaterUsersController {
      *
      * @returns
      */
+    getAllWaterUsersByDeviceAndsewerInfo(user_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var query = "SELECT water_module_users.*,water_devices.contract_number, water_devices.id as deviceId, water_devices.sewer_rate_id,msr.id as msrId, msr.usefor  FROM water_module_users LEFT JOIN water_devices ON water_devices.water_user_id = water_module_users.id LEFT JOIN municipality_sewer_rate msr ON msr.id = water_devices.sewer_rate_id WHERE water_module_users.user_id = " + user_id;
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((error, conn) => {
+                    // If the connection with the database fails
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: "Failed to connect to database",
+                            error: error,
+                        });
+                    }
+                    conn.query(query, (err, results) => {
+                        conn.release();
+                        // If the query fails
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: "Failed",
+                                error: err,
+                            });
+                        }
+                        // Response
+                        resolve({
+                            http: 200,
+                            status: "Success",
+                            water_users: results,
+                        });
+                    });
+                });
+            });
+        });
+    }
+    /**
+     * GET ('/all/:user_id')
+     *
+     * @async
+     * @param user_id
+     *
+     * @returns
+     */
     getAllWaterUsers(user_id) {
         return __awaiter(this, void 0, void 0, function* () {
             var query = "SELECT * FROM water_module_users WHERE user_id = " + user_id;

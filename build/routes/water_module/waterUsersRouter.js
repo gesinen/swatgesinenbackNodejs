@@ -14,6 +14,22 @@ class WaterUsersRouter {
          * GET ('/all/:user_id')
          * params user_id -> id of the user we want to get users from
          */
+        this.getAllWaterUsersByDevicesBySewerUseAction = () => this.router.get("/alluserwithdeviceandsewerinfo/:user_id", (req, res) => {
+            const params = req.params;
+            waterUsersController_1.default
+                .getAllWaterUsersByDeviceAndsewerInfo(parseInt(params.user_id))
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
+        /**
+         * Get user related water_users
+         * GET ('/all/:user_id')
+         * params user_id -> id of the user we want to get users from
+         */
         this.getAllWaterUsersAction = () => this.router.get("/all/:user_id", (req, res) => {
             const params = req.params;
             waterUsersController_1.default
@@ -92,6 +108,7 @@ class WaterUsersRouter {
                 res.send(err);
             });
         });
+        this.getAllWaterUsersByDevicesBySewerUseAction(); // shesh created this method
         this.getAllWaterUsersAction();
         this.getWaterUserDeviceAction();
         this.importFileAction();

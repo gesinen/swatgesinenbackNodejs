@@ -8,12 +8,32 @@ class WaterUsersRouter {
   public router: Router = Router();
 
   constructor() {
+    this.getAllWaterUsersByDevicesBySewerUseAction();// shesh created this method
     this.getAllWaterUsersAction();
     this.getWaterUserDeviceAction();
     this.importFileAction();
     this.getWaterUserMunicipalityIdAction();
     this.getUserByNif();
   }
+
+  /**
+   * Get user related water_users
+   * GET ('/all/:user_id')
+   * params user_id -> id of the user we want to get users from
+   */
+   public getAllWaterUsersByDevicesBySewerUseAction = () =>
+   this.router.get("/alluserwithdeviceandsewerinfo/:user_id", (req: Request, res: Response) => {
+     const params = req.params;
+
+     waterDevicesController
+       .getAllWaterUsersByDeviceAndsewerInfo(parseInt(params.user_id))
+       .then((response) => {
+         res.send(response);
+       })
+       .catch((err) => {
+         res.send(err);
+       });
+   });
 
   /**
    * Get user related water_users

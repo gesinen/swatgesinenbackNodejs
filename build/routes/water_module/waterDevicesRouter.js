@@ -111,7 +111,7 @@ class WaterDevicesRouter {
             const params = req.body;
             console.log(params);
             waterDevicesController_1.default
-                .updateWaterDeviceById(params.id, params.name, params.variable_id, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installationAddress, params.counterNumber, params.loraModuleNumber, params.sensor_id, params.user, params.municipality, params.sewerRateId)
+                .updateWaterDeviceById(params.id, params.name, params.variable_id, params.description, params.units, params.contractNumber, params.deviceDiameter, params.installationAddress, params.counterNumber, params.loraModuleNumber, params.sensor_id, params.user, params.municipality, params.sewerRateId, params.coeficientecorrector)
                 .then((response) => {
                 console.log(response);
                 res.send(response);
