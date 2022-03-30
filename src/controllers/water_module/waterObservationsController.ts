@@ -251,13 +251,13 @@ class WaterObservationsController {
               // Si no tengo las dos ultimas medidas busco la de dias anteriores y saco la diferencia para luego obtener la media
               let divideBy: number = 2
               for (let index = observationsArray.length - 3; index >= 0; index--) {
-                console.log("observationsArray[index]",observationsArray[index])
+                console.log("observationsArray[index]", observationsArray[index])
                 if (observationsArray[index]) {
                   console.log("DENTRO DEL IF");
-                  
+
                   resultCalc = (observationsArray[observationsArray.length - 1] - observationsArray[index]) / divideBy
-                  console.log("resultCalc",resultCalc);
-                  
+                  console.log("resultCalc", resultCalc);
+
                   // Response
                   resolve({
                     http: 200,
@@ -376,6 +376,20 @@ class WaterObservationsController {
             fromDateFormated +
             "' GROUP BY water_module_observation.device_id)" +
             " water_max_date WHERE water_module_observation.device_id = water_max_date.device_id AND " +
+            "water_module_observation.message_timestamp = water_max_date.last_message_timestamp GROUP BY water_module_observation.device_id;";
+        } else if (userColumnSelection == "*") {
+          select_query =
+            "SELECT sensor_info.device_EUI, water_module_users.user_nif as water_user_nif,water_module_users.last_name as water_user_apellidos,water_module_users.first_name as water_user_name,water_devices.*, water_module_observation.observation_value, " +
+            "water_module_observation.message_timestamp " +
+            "FROM `water_module_observation`, (SELECT water_module_observation.device_id, " +
+            "MAX(water_module_observation.message_timestamp) as last_message_timestamp FROM " +
+            "water_module_observation WHERE water_module_observation.device_id IN (" +
+            devicesIdPreparedSql.slice(0, -1) +
+            ") " +
+            " AND water_module_observation.message_timestamp <= '" +
+            fromDateFormated +
+            "' GROUP BY water_module_observation.device_id)" +
+            " water_max_date INNER JOIN water_devices ON water_devices.id=water_max_date.device_id LEFT JOIN water_module_users ON water_module_users.id=water_devices.water_user_id LEFT JOIN sensor_info ON water_devices.sensor_id=sensor_info.id WHERE water_module_observation.device_id = water_max_date.device_id AND " +
             "water_module_observation.message_timestamp = water_max_date.last_message_timestamp GROUP BY water_module_observation.device_id;";
         } else {
           resolve({
