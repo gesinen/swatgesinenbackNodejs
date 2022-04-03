@@ -1043,9 +1043,9 @@ class WaterDevicesController {
     }
     if (municipality_name) {
       let res: any = await this.getWaterDeviceMunicipalityIdByName(municipality_name);
-      console.log("resMunicipality", res.municipality_data);
+      console.log("resMunicipality", res.id);
       if (res.http == 200) {
-        municipalityId = res.municipality_data;
+        municipalityId = res.municipality_data.id;
         if (sewerRateName) {
           let resSewer: any = await this.getWaterDeviceSewerRateIdByNameAndMunicipalityId(sewerRateName, municipalityId);
           console.log("resSewer", resSewer.sewer_rate_data);
