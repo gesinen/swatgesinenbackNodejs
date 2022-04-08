@@ -75,7 +75,7 @@ class WaterUsersController {
         console.log(query);
         conn.query(query, (error: any, results: any) => {
           conn.release();
-
+          console.log("getUserByNif",results.length)
           if (error) {
             reject({
               http: 406,
@@ -84,7 +84,7 @@ class WaterUsersController {
             });
           }
 
-          if (results.length && results.length == 0) {
+          if (results.length == 0) {
             resolve({
               http: 204,
               status: "Success",

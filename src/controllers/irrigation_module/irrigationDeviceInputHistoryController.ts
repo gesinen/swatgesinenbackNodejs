@@ -71,7 +71,7 @@ class IrrigationDeviceInputHistoryController {
             db.getConnection((err: any, conn: any) => {
                 
                 let query = "SELECT * FROM irrigation_device_input_history WHERE irrigationDeviceInputId=" + irrigationDeviceInputId + " AND "+
-                "timestamp >= '" + fromDate + "' and timestamp <= '" + toDate + "' ORDER BY timestamp"+ ";";
+                "timestamp >= '" + fromDate + "' and timestamp <= '" + toDate + " 23:59' ORDER BY timestamp"+ ";";
                 console.log("query", query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
