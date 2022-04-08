@@ -19,6 +19,7 @@ const loraDashboardRouter_1 = __importDefault(require("./routes/lora_module/lora
 const irrigationDeviceRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceRouter"));
 const irrigationDeviceOutputRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceOutputRouter"));
 const irrigationDeviceInputRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceInputRouter"));
+const irrigationDeviceInputHistoryRouter_1 = __importDefault(require("./routes/irrigation_module/irrigationDeviceInputHistoryRouter"));
 const capacityCartelRouter_1 = __importDefault(require("./routes/capacity_module/capacityCartelRouter"));
 const capacityCartelLineRouter_1 = __importDefault(require("./routes/capacity_module/capacityCartelLineRouter"));
 const capacityParkingRouter_1 = __importDefault(require("./routes/capacity_module/capacityParkingRouter"));
@@ -55,6 +56,7 @@ class Server {
         this.app.use('/v2/irrigation/devices', irrigationDeviceRouter_1.default);
         this.app.use('/v2/irrigation/devices/output', irrigationDeviceOutputRouter_1.default);
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter_1.default);
+        this.app.use('/v2/irrigation/devices/input/history', irrigationDeviceInputHistoryRouter_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {

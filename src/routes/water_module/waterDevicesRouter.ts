@@ -8,6 +8,7 @@ class WaterDevicesRouter {
   constructor() {
     this.createWaterDeviceAction();
     this.getWaterDeviceListingAction();
+    this.getWaterDeviceListingNewAction();// shesh 
     this.importFileAction();
     this.getWaterDeviceByIdAction();
     this.updateWaterDeviceByNameAction();
@@ -56,6 +57,29 @@ class WaterDevicesRouter {
             parseInt(params.user_id),
             parseInt(params.page_index),
             parseInt(params.page_size)
+          )
+          .then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      }
+    );
+      // New listing method shesh
+    public getWaterDeviceListingNewAction = () =>
+    this.router.get(
+      "/page/:user_id/:page_index/:page_size/:type/:value",
+      (req: Request, res: Response) => {
+        const params = req.params;
+
+        waterDevicesController
+          .getWaterDevicesListingNew(
+            parseInt(params.user_id),
+            parseInt(params.page_index),
+            parseInt(params.page_size),
+            params.type,
+            params.value
           )
           .then((response) => {
             res.send(response);

@@ -40,6 +40,18 @@ class WaterDevicesRouter {
                 res.send(err);
             });
         });
+        // New listing method shesh
+        this.getWaterDeviceListingNewAction = () => this.router.get("/page/:user_id/:page_index/:page_size/:type/:value", (req, res) => {
+            const params = req.params;
+            waterDevicesController_1.default
+                .getWaterDevicesListingNew(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size), params.type, params.value)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
         this.getWaterDeviceListingSortedAction = () => this.router.get("/page/:user_id/:page_index/:page_size/:sort_by_col/:direction", (req, res) => {
             const params = req.params;
             waterDevicesController_1.default
@@ -151,6 +163,7 @@ class WaterDevicesRouter {
         });
         this.createWaterDeviceAction();
         this.getWaterDeviceListingAction();
+        this.getWaterDeviceListingNewAction(); // shesh 
         this.importFileAction();
         this.getWaterDeviceByIdAction();
         this.updateWaterDeviceByNameAction();
