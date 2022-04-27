@@ -14,14 +14,15 @@ class IrrigationDeviceInputHistoryRouter {
    * GET ('/information/:id')
    */
   public getValuesOnDateRange = () =>
-    this.router.get("/:irrigationInputDeviceId/:fromDate/:toDate", (req: Request, res: Response) => {
+    this.router.get("/:irrigationInputDeviceId/:irrigationInputDeviceIndex/:fromDate/:toDate", (req: Request, res: Response) => {
       console.log("params",req.params)
       const irrigationInputDeviceId = parseInt(req.params.irrigationInputDeviceId);
+      const irrigationInputDeviceIndex = parseInt(req.params.irrigationInputDeviceIndex);
       const fromDate = req.params.fromDate;
       const toDate = req.params.toDate;
 
       irrigationDeviceInputHistoryController
-        .getIrrigationInputDeviceHistoryOnRange(irrigationInputDeviceId,fromDate,toDate)
+        .getIrrigationInputDeviceHistoryOnRange(irrigationInputDeviceId,irrigationInputDeviceIndex,fromDate,toDate)
         .then((response: any) => {
           res.send(response);
         })

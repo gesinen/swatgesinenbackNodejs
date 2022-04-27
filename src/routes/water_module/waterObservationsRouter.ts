@@ -9,6 +9,8 @@ class WaterObservationsRouter {
     this.importFileAction();
     this.getObservationsByDeviceId();
     this.getWaterDeviceObservationsMediumValueInRange();
+    this.getGroupsHydricBalance()
+    this.getGroupsHydricBalanceOnRange()
   }
 
   /**
@@ -42,13 +44,56 @@ class WaterObservationsRouter {
       "/observationsByDeviceId/",
       (req: Request, res: Response) => {
         const params = req.body;
-        //console.log(req.body)
+        console.log("PARAMS", params)
         waterObservationsController
           .getObservationValuesByDeviceId(
             params.devicesIdArray,
             params.fromDate,
             params.userColSelection
           )
+          .then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      }
+    );
+
+  /**
+* Get observations by device id in date range
+* POST ('/observationsByDeviceId')
+*/
+  public getGroupsHydricBalance = () =>
+    this.router.post(
+      "/getGroupsHydricBalance/",
+      (req: Request, res: Response) => {
+        const params = req.params;
+        console.log("PARAMS", params)
+        waterObservationsController
+          .getGroupHydricBalance()
+          .then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      }
+    );
+
+
+  /**
+* Get observations by device id in date range
+* POST ('/observationsByDeviceId')
+*/
+  public getGroupsHydricBalanceOnRange = () =>
+    this.router.get(
+      "/getGroupsHydricBalance/:groupId/:dateFrom/:dateTo",
+      (req: Request, res: Response) => {
+        const params = req.params;
+        console.log("PARAMS", params)
+        waterObservationsController
+          .getGroupBalanceOnRange(params.groupId,params.dateFrom,params.dateTo)
           .then((response) => {
             res.send(response);
           })

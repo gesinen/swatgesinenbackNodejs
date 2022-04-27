@@ -115,10 +115,10 @@ class WaterObservationsController {
     const date2: any = new Date(date2str);
     const diffTime = Math.abs(date2 - date1);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    console.log("date1str <-> date2str", date1str, date2str)
+    /*console.log("date1str <-> date2str", date1str, date2str)
     console.log("date1 <-> date2", date1, date2)
     console.log(diffDays + " days");
-    return diffDays
+    */return diffDays
   }
 
   public substractDaysToDate(dateStr: string, daysToSubstract: number) {
@@ -145,6 +145,193 @@ class WaterObservationsController {
     const offset = date.getTimezoneOffset()
     date = new Date(date.getTime() - (offset * 60 * 1000))
     return date.toISOString().split('T')[0]
+  }
+
+  // ESTO DEBERIA DE IR EN EL MODULO DE GROUP BALANCE
+  public async getGroupBalanceOnRange(groupId: any, dateFrom: any, dateTo: any) {
+    return new Promise((resolve, reject) => {
+      console.log("** CONTROLLER **")
+      
+      db.getConnection((err: any, conn: any) => {
+        console.log("** CONTROLLER **")
+        if (err) {
+          console.log("connErr -> ",err)
+          reject({
+            http: 401,
+            status: "Failed",
+            error: err,
+          });
+        }
+        var selQuery = "SELECT * FROM `water_module_group_balance` WHERE group_id=" + groupId + " AND date >= '" + dateFrom + "' AND date <= '" + dateTo + " 23:59:00' ORDER BY date ASC"
+        //console.log("selQuery",selQuery)
+        conn.query(selQuery, (err: any, results: any) => {
+          conn.release();
+
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          } else {
+              //console.log("\n results \n",results)
+              if (results && results.length == 0) {
+                resolve({
+                  http: 204,
+                  status: "Success",
+                  result: "There is no balance data on this range",
+                });
+              } else {
+                resolve({
+                  http: 200,
+                  status: "Success",
+                  result: results,
+                });
+              }
+          }
+        });
+      });
+    });
+  }
+
+  public async getGroupHydricBalance() {
+    let dateNow: Date = new Date(Date.now())
+    let dateNowFormated = dateNow.toISOString().split("T")[0]
+    dateNow.setDate(dateNow.getDate() - 103);
+    let date3before = dateNow.toISOString().split("T")[0]
+    let dateNow2: Date = new Date(Date.now())
+    dateNow2.setDate(dateNow2.getDate() - 1);
+    let insertObservationDate = dateNow2.toISOString().split("T")[0]
+    // Obtengo las observaciones de hoy y los ultimos dos días -> obtengo el consumo diario de cada dispositivo
+    return new Promise((resolve, reject) => {
+      var selectSQL = `
+      SELECT water_group.id as water_group_id, water_devices.id as water_device_id, water_module_observation.observation_value, water_module_observation.message_timestamp 
+      as observation_timestamp FROM water_group INNER JOIN water_devices ON water_devices.water_group_id=water_group.id INNER JOIN water_module_observation ON 
+      water_module_observation.device_id=water_devices.id WHERE water_module_observation.message_timestamp >= '`+ date3before + `' and water_module_observation.message_timestamp <= '`
+        + dateNowFormated + ` 23:59:00' ORDER BY water_group_id ASC, water_device_id ASC, observation_timestamp DESC;
+      `
+      console.log("*** SelectGroupBalance ***", selectSQL)
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(selectSQL, async (err: any, results: any) => {
+          conn.release();
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          if (results) {
+            // Valores iniciales
+            var groupsBalanceRes: any = {}
+            let selectedDeviceId: any = results[0].water_device_id
+            let selectedDeviceObservationValue: number = results[0].observation_value
+            let selectedObservationDate: any = results[0].observation_timestamp
+            let previousObservations: any[] = []
+            let selectedGroupId: number = results[0].water_group_id
+            let groupBalanceSum: number = 0
+            if (results && results.length != 0) {
+              results.forEach((observation: any, index: number) => {
+                if (index == results.length - 1) {
+                  groupBalanceSum += this.getDeviceHydricBalance(selectedDeviceObservationValue, selectedObservationDate, previousObservations)
+                  groupsBalanceRes[selectedGroupId] = groupBalanceSum
+                }// En la primera iteracion no se hace nada ya que los valores iniciales se han guardado antes
+                else if (index != 0) {
+                  //console.log("observation",observation)
+                  // Si cambia el dispositivo seleccionado
+                  if (selectedDeviceId != observation.water_device_id) {
+                    // Añado al sumatorio el balance del dispositivo (con el que estaba trabajando antes de cambiar)
+                    groupBalanceSum += this.getDeviceHydricBalance(selectedDeviceObservationValue, selectedObservationDate, previousObservations)
+                    // Si el dispositivo es de otro grupo
+                    if (selectedGroupId != observation.water_group_id) {
+                      console.log("******* selectedGroupId ********", selectedGroupId)
+                      console.log("******* GROUP CHANGED ********", observation.water_group_id)
+                      // Guardo el valor del sumatorio junto con su id
+                      groupsBalanceRes[selectedGroupId] = groupBalanceSum
+                      //reseteo el valor del sumatorio de balance de grupo
+                      groupBalanceSum = 0
+                    }
+                    // Guardo los datos de la primera observacion del dispositivo (ahora trabajaré con este)
+                    selectedDeviceId = observation.water_device_id
+                    selectedDeviceObservationValue = observation.observation_value
+                    selectedObservationDate = observation.observation_timestamp
+                    selectedGroupId = observation.water_group_id
+                    // Reseteo el valor de las observaciones previas que empezaré a rellenar en la siguiente iteración
+                    previousObservations = []
+                  } else {
+                    previousObservations.push(observation)
+                  }
+                }
+              });
+              console.log("groupsBalanceRes", groupsBalanceRes)
+
+              for await (const key of Object.keys(groupsBalanceRes)) {
+                console.log(`${key}: ${groupsBalanceRes[key]}`);
+                this.storeHidridBalance(key, groupsBalanceRes[key], insertObservationDate)
+              }
+            }
+          }
+        })
+      })
+    })
+  }
+  public async storeHidridBalance(group_id: any, balance: any, date: any) {
+    return new Promise((resolve, reject) => {
+      var selectSQL = `
+      INSERT INTO water_module_group_balance (group_id, balance, date) VALUES (`+ group_id + `, ` + balance + `, '` + date + `');
+      `
+      console.log("selectSQL", selectSQL)
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(selectSQL, (err: any, results: any) => {
+          conn.release();
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          if (results) {
+            console.log("INSERT RESULT: " + results)
+          }
+        })
+      })
+    })
+  }
+  public getDeviceHydricBalance(lastObservation: any, selectedObservationDate: any, previousObservations: any[]): number {
+    let formatedDate: any = this.formatDate(selectedObservationDate)
+    let res = 0
+    console.log("previousObservations", previousObservations)
+    for (let i = 0; i < previousObservations.length; i++) {
+      let observation = previousObservations[i];
+      let daysDifference = this.getDistanceBetweenDates(formatedDate, observation.observation_timestamp)
+      if (daysDifference > 1) {
+        return (lastObservation - ((lastObservation + observation.observation_value) / daysDifference))
+      } else {
+        return lastObservation - observation.observation_value
+      }
+    }
+    return res
   }
 
   public async getObservationsByRangeDateAndDeviceId(deviceId: any, fromDate: any, toDate: any
