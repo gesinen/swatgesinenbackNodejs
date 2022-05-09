@@ -97,20 +97,29 @@ class WaterGroupsController {
                                 error: err,
                             });
                         }
-                        // Response
-                        if (results && results.length == 0) {
-                            resolve({
-                                http: 204,
-                                status: "Success",
-                                result: "Error no water groups found for the given user",
-                            });
+                        try {
+                            // Response
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: "Success",
+                                    result: "Error no water groups found for the given user",
+                                });
+                            }
+                            else {
+                                console.log("Probando Grupos: ", results);
+                                resolve({
+                                    http: 200,
+                                    status: "Success",
+                                    result: results,
+                                });
+                            }
                         }
-                        else {
-                            console.log("Probando Grupos: ", results);
+                        catch (error) {
                             resolve({
-                                http: 200,
-                                status: "Success",
-                                result: results,
+                                http: 403,
+                                status: "Error",
+                                result: error,
                             });
                         }
                     });

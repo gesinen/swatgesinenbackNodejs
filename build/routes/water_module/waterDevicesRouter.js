@@ -41,10 +41,10 @@ class WaterDevicesRouter {
             });
         });
         // New listing method shesh
-        this.getWaterDeviceListingNewAction = () => this.router.get("/page/:user_id/:page_index/:page_size/:type/:value", (req, res) => {
+        this.getWaterDeviceListingNewAction = () => this.router.get("/page/:user_id/:page_index/:page_size/:type/:value/:sort_by_col/:direction", (req, res) => {
             const params = req.params;
             waterDevicesController_1.default
-                .getWaterDevicesListingNew(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size), params.type, params.value)
+                .getWaterDevicesListingNew(parseInt(params.user_id), parseInt(params.page_index), parseInt(params.page_size), params.type, params.value, params.sort_by_col, params.direction)
                 .then((response) => {
                 res.send(response);
             })

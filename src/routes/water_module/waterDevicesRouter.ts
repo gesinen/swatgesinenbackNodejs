@@ -69,7 +69,7 @@ class WaterDevicesRouter {
       // New listing method shesh
     public getWaterDeviceListingNewAction = () =>
     this.router.get(
-      "/page/:user_id/:page_index/:page_size/:type/:value",
+      "/page/:user_id/:page_index/:page_size/:type/:value/:sort_by_col/:direction",
       (req: Request, res: Response) => {
         const params = req.params;
 
@@ -79,7 +79,9 @@ class WaterDevicesRouter {
             parseInt(params.page_index),
             parseInt(params.page_size),
             params.type,
-            params.value
+            params.value,
+            params.sort_by_col,
+            params.direction
           )
           .then((response) => {
             res.send(response);
@@ -95,7 +97,7 @@ class WaterDevicesRouter {
       "/page/:user_id/:page_index/:page_size/:sort_by_col/:direction",
       (req: Request, res: Response) => {
         const params = req.params;
-
+        
         waterDevicesController
           .getWaterDevicesListingSorted(
             parseInt(params.user_id),
