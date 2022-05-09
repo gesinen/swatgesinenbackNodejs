@@ -19,7 +19,7 @@ class IrrigationDeviceInputHistoryRouter {
             const fromDate = req.params.fromDate;
             const toDate = req.params.toDate;
             irrigationDeviceInputHistoryController_1.default
-                .getIrrigationInputDeviceHistoryOnRange(irrigationInputDeviceId, irrigationInputDeviceIndex, fromDate, toDate)
+                .getIrrigationInputDeviceHistoryOnRange(irrigationInputDeviceId, fromDate, toDate)
                 .then((response) => {
                 res.send(response);
             })

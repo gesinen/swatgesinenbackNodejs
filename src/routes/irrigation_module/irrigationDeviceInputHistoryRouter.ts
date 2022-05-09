@@ -22,7 +22,7 @@ class IrrigationDeviceInputHistoryRouter {
       const toDate = req.params.toDate;
 
       irrigationDeviceInputHistoryController
-        .getIrrigationInputDeviceHistoryOnRange(irrigationInputDeviceId,irrigationInputDeviceIndex,fromDate,toDate)
+        .getIrrigationInputDeviceHistoryOnRange(irrigationInputDeviceId,fromDate,toDate)
         .then((response: any) => {
           res.send(response);
         })
