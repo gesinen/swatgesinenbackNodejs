@@ -51,7 +51,7 @@ class CapacityDevicesController {
                                 console.log(results)
                                 let lastInsertCapacityDeviceId: any = results.insertId
                                 if (type == "parking_individual") {
-                                    let capacitySpotCreateRes: any = await capacityTypeSpotController.createCapacitySpotDevice(lastInsertCapacityDeviceId, false)
+                                    let capacitySpotCreateRes: any = await capacityTypeSpotController.createCapacitySpotDevice(lastInsertCapacityDeviceId, parkingId)
                                         .catch(err => {
                                             console.log(err)
                                             resolve({

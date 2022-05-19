@@ -60,12 +60,12 @@ class CapacityDevicesController {
      *
      * @return
      */
-    public async createCapacitySpotDevice(capacityDeviceId: number, status: boolean): Promise<object> {
+    public async createCapacitySpotDevice(capacityDeviceId: number, parkingId: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
-                conn.query("INSERT INTO `capacity_type_spot` (`capacityDeviceId`, `status`) VALUES (" + capacityDeviceId + ", " + status + ")                    ",
+                conn.query("INSERT INTO `capacity_type_spot` (`capacityDeviceId`, `status`, `parkingId`) VALUES (" + capacityDeviceId + ", false, " + parkingId + ")                    ",
                     (error: any, results: any, fields: any) => {
                         conn.release()
 

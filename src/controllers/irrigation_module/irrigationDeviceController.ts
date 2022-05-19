@@ -325,7 +325,52 @@ class IrrigationDeviceController {
             })
         })
     }
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
+    public async updateIrrigationDeviceRelatedSensor(irrigationDeviceId: number, relatedSensorDevEui: string): Promise<object> {
 
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "UPDATE `irrigation_device` SET `parametersSensorDevEui` = '" + relatedSensorDevEui + 
+                "' WHERE `irrigation_device`.`id` = " + irrigationDeviceId + ";";
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log("results", results)
+                    if (results.affectedRows) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            message: 'Irrigation device related sensor updated succesfully'
+                        })
+                    } else {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            message: "Irrigation device related sensor could not be updated",
+                            result: results
+                        })
+                    }
+                })
+            })
+        })
+    }
     /**
          * GET ('/information/:id')
          * Getting the information about the user
@@ -355,7 +400,7 @@ class IrrigationDeviceController {
                     let query = "INSERT INTO irrigation_device (name,nameSentilo,latitude,longitude,description,status," +
                         "userId,deviceTypeId, sensorId) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
                         lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + "," + sensorId + ")"
-
+                    console.log("INSERT IRRIG DEV", query)
                     conn.query(query, async (error: any, results: any) => {
                         conn.release()
 
@@ -391,13 +436,13 @@ class IrrigationDeviceController {
                             if (valves.length != 0) {
                                 for (const irrigationDeviceOutput of valves) {
                                     let indexRes: any = await irrigationDeviceOutputController.getOutputIndexINSERT(irrigationDeviceInsertId)
-                                    let index:any = indexRes.result.sensorIndex
-                                    if (index == undefined){
+                                    let index: any = indexRes.result.sensorIndex
+                                    if (index == undefined) {
                                         index = 1
                                     } else {
                                         index++
                                     }
-                                    console.log("insertIndex",index)
+                                    console.log("insertIndex", index)
                                     console.log("input valves", irrigationDeviceOutput)
                                     console.log(" ***** 1 *****")
                                     let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
@@ -586,9 +631,9 @@ class IrrigationDeviceController {
 
                                     for (const irrigationDeviceOutput of valvesUpdate) {
                                         let indexRes: any = await irrigationDeviceOutputController.getOutputIndexUPDATE(irrigationDeviceOutput._id)
-                                        let index:any = indexRes.result.sensorIndex
+                                        let index: any = indexRes.result.sensorIndex
 
-                                        console.log("updateIndex",index)
+                                        console.log("updateIndex", index)
                                         let deviceOutputRes: any = await irrigationDeviceOutputController.updateIrrigationOutputDevice(id,
                                             irrigationDeviceOutput.id, index, irrigationDeviceOutput.name, sensorId, irrigationDeviceOutput.description)
                                         console.log("updateIrrigationDeviceOutputRes", deviceOutputRes)
@@ -609,7 +654,7 @@ class IrrigationDeviceController {
                                         }
                                     }
                                 }
-                                
+
                                 // VALVES ( INSERT )
                                 let valvesInserted: number = 0
                                 console.log("valvesInsert", valvesInsert)
@@ -618,13 +663,13 @@ class IrrigationDeviceController {
 
                                     for (const irrigationDeviceOutput of valvesInsert) {
                                         let indexRes: any = await irrigationDeviceOutputController.getOutputIndexINSERT(id)
-                                        let index:any = indexRes.result.sensorIndex
-                                        if (index == undefined){
+                                        let index: any = indexRes.result.sensorIndex
+                                        if (index == undefined) {
                                             index = 1
                                         } else {
                                             index++
                                         }
-                                        console.log("insertIndex",index)
+                                        console.log("insertIndex", index)
                                         console.log("input valves", irrigationDeviceOutput)
                                         console.log(" ***** 1 *****")
                                         let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(

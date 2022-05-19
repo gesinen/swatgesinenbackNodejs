@@ -22,7 +22,7 @@ class CapacityDevicesController {
                         error: err
                     })
                 }
-
+                console.log("query",query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
