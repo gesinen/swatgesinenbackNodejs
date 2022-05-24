@@ -215,16 +215,6 @@ async function saveMessageLog(messageHex, capacityDeviceEUI, parkingId, currentC
     })
 }
 
-function getRandomNumberStr(length) {
-    var result = '';
-    var characters = '0123456789';
-    var charactersLength = characters.length;
-    for (var i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() *
-            charactersLength));
-    }
-    return result;
-}
 async function filterMqttMessage(deviceEUI) {
     return new Promise(async(resolve, reject) => {
         let currentCapacity
@@ -242,15 +232,26 @@ async function filterMqttMessage(deviceEUI) {
     })
 }
 
+function getRandomNumberStr(length) {
+    var result = '';
+    var characters = '0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() *
+            charactersLength));
+    }
+    return result;
+}
 let querySql = "SELECT capacity_parking.id as parkingId, capacity_parking.currentCapacity, capacity_parking.maxCapacity," +
     " capacity_devices.id, sensor_info.device_EUI, sensor_gateway_pkid.mac_number FROM capacity_devices " +
     " INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId INNER JOIN sensor_gateway_pkid" +
     " ON sensor_gateway_pkid.sensor_id=sensor_info.id INNER JOIN capacity_type_ribbon ON capacity_type_ribbon.capacityDeviceId" +
     "=capacity_devices.id INNER JOIN capacity_parking ON capacity_type_ribbon.parkingId=capacity_parking.id WHERE capacity_devices.type='" +
-    "parking_area_config'"
-    /* capacity_devices - INNER -> sensor_info - INNER -> sensor_gateway_pkid - INNER -> capacity_type_ribbon - INNER -> capacity_parking
-       obtengo (parkingId), (currentCapacity), (maxCapacity), (capacityDeviceId), (sensor_device_EUI), (gateway_mac_number)
-    */
+    "parking_individual'"
+
+/* capacity_devices - INNER -> sensor_info - INNER -> sensor_gateway_pkid - INNER -> capacity_type_ribbon - INNER -> capacity_parking
+   obtengo (parkingId), (currentCapacity), (maxCapacity), (capacityDeviceId), (sensor_device_EUI), (gateway_mac_number)
+*/
 
 function sendToSentilo(parkingSensorName, provider, authToken, value) {
     let date = new Date(Date.now())
@@ -323,6 +324,33 @@ query(querySql).then(rows => {
         console.log("error", err);
     })
 
+    // FREE / OCCUPIED
+    function getSpotDeviceStatus(messageHex) {
+        // AA== decodes to 0x00 ( OCCUPIED )
+        if (messageHex == "0x00") {
+            return false
+        }
+        // AQ== decodes to 0x01 ( FREE )
+        else if (messageHex == "0x01") {
+            return true
+        }
+    }
+    //
+    function increaseCurrentParkingPlaces(spotDeviceEUI) {
+        let getParkingId = "SELECT * FROM `sensor_info` INNER JOIN capacity_devices ON capacity_devices.sensorId=sensor_info.id " +
+            "INNER JOIN capacity_type_spot ON capacity_type_spot.capacityDeviceId=capacity_devices.id WHERE " +
+            "sensor_info.device_EUI='" + spotDeviceEUI + "' AND capacity_devices.type='parking_individual';"
+        query(getParkingId).then(res => {
+            console.log(res)
+                /*let parking = res
+                let updateParkingCapacity = "UPDATE capacity_parking SET currentCapacity = currentCapacity + 1 WHERE id = " + parkingId
+                query(updateParkingCapacity).then(putRes => {
+                    console.log(putRes)
+                })*/
+        })
+    }
+
+    // Falta saber que topic y mensaje utilizan los dispositivos de parking spot
     client.on('message', async function(topic, message) {
         if (topic != undefined) {
             console.log(topic, "topic")

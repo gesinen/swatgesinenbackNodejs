@@ -573,7 +573,7 @@ class WaterObservationsController {
             "water_module_observation WHERE water_module_observation.device_id IN (" +
             devicesIdPreparedSql.slice(0, -1) +
             ") " +
-            " AND water_module_observation.message_timestamp >= '" + fromDateFormated + "' AND water_module_observation.message_timestamp <= '" +
+            " AND water_module_observation.message_timestamp <= '" +
             fromDateFormated +
             " 23:59' GROUP BY water_module_observation.device_id)" +
             " water_max_date INNER JOIN water_devices ON water_devices.id=water_max_date.device_id LEFT JOIN water_module_users ON water_module_users.id=water_devices.water_user_id LEFT JOIN sensor_info ON water_devices.sensor_id=sensor_info.id WHERE water_module_observation.device_id = water_max_date.device_id AND " +

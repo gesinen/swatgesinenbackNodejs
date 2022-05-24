@@ -81,14 +81,15 @@ class IrrigationDeviceRouter {
 * params user_id -> id of the user we want to get the municipality_id from
 */
   public updateIrrigationDeviceRelatedSensorId = () =>
-    this.router.put("/relatedSensor/:irrigationDeviceId/:relatedSensorDevEui", (req: Request, res: Response) => {
+    this.router.put("/relatedSensor/:irrigationDeviceId/:relatedSensorDevEui/:humidityLimit", (req: Request, res: Response) => {
       const params: any = req.params;
       console.log("router store params");
       console.log(params);
       irrigationController
         .updateIrrigationDeviceRelatedSensor(
           params.irrigationDeviceId,
-          params.relatedSensorDevEui
+          params.relatedSensorDevEui,
+          parseInt(params.humidityLimit)
         )
         .then((response) => {
           res.send(response);
