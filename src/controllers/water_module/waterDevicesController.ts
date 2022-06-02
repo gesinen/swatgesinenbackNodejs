@@ -576,7 +576,7 @@ class WaterDevicesController {
       });
     });
   }
-// shesh 
+  // shesh 
   /**
    * GET ('/page')
    *
@@ -589,7 +589,7 @@ class WaterDevicesController {
    *
    * @returns
    */
-   public async getWaterDevicesListingNew(
+  public async getWaterDevicesListingNew(
     user_id: number,
     page_index: number,
     page_size: number,
@@ -601,84 +601,84 @@ class WaterDevicesController {
     const first_value = page_size * page_index - page_size;
     const second_value = page_size * page_index;
 
-    let query ="";
-    
-    switch(type){
-      
+    let query = "";
+
+    switch (type) {
+
       case 'contractNumber':
-          query =  "SELECT w.*,msr.usefor, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id LEFT JOIN municipality_sewer_rate msr on msr.id = w.sewer_rate_id WHERE w.user_id = " +
+        query = "SELECT w.*,msr.usefor, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id LEFT JOIN municipality_sewer_rate msr on msr.id = w.sewer_rate_id WHERE w.user_id = " +
           user_id +
           " AND  `contract_number` like'%" +
-          value +"%'";
-          break;
+          value + "%'";
+        break;
       case 'user':
-          query =  "SELECT  w.*,msr.usefor,water_module_users.first_name,water_module_users.last_name, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id LEFT JOIN municipality_sewer_rate msr on msr.id = w.sewer_rate_id WHERE w.user_id = " +
+        query = "SELECT  w.*,msr.usefor,water_module_users.first_name,water_module_users.last_name, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id LEFT JOIN municipality_sewer_rate msr on msr.id = w.sewer_rate_id WHERE w.user_id = " +
           user_id +
           " AND  `first_name` like'%" +
-          value +"%'";
-          break;
+          value + "%'";
+        break;
       case 'sewer':
-          query =  "SELECT w.*, msr.usefor,o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id Left JOIN municipality_sewer_rate msr ON msr.id = w.sewer_rate_id WHERE w.user_id = " +
+        query = "SELECT w.*, msr.usefor,o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id Left JOIN municipality_sewer_rate msr ON msr.id = w.sewer_rate_id WHERE w.user_id = " +
           user_id +
           " AND  `usefor` ='" +
           value;
-          break;
+        break;
       case 'counterNumber':
-          query =  "SELECT w.*, msr.usefor,o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id Left JOIN municipality_sewer_rate msr ON msr.id = w.sewer_rate_id WHERE w.user_id = " +
+        query = "SELECT w.*, msr.usefor,o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id Left JOIN municipality_sewer_rate msr ON msr.id = w.sewer_rate_id WHERE w.user_id = " +
           user_id +
           " AND  `numContador` like'%" +
-          value +"%'";
-          break;
+          value + "%'";
+        break;
       case 'description':
-        query =  "SELECT w.*, msr.usefor,o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id Left JOIN municipality_sewer_rate msr ON msr.id = w.sewer_rate_id WHERE w.user_id = " +
-        user_id +
-        " AND  `description`like'%" +
-        value +"%'";
+        query = "SELECT w.*, msr.usefor,o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id Left JOIN municipality_sewer_rate msr ON msr.id = w.sewer_rate_id WHERE w.user_id = " +
+          user_id +
+          " AND  `description`like'%" +
+          value + "%'";
         break;
       default:
-          query =  "SELECT w.*, msr.usefor,o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id Left JOIN municipality_sewer_rate msr ON msr.id = w.sewer_rate_id WHERE w.user_id = " +
+        query = "SELECT w.*, msr.usefor,o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id Left JOIN municipality_sewer_rate msr ON msr.id = w.sewer_rate_id WHERE w.user_id = " +
           user_id;
-          break;    
+        break;
     }
-    switch(sortByCol){
+    switch (sortByCol) {
 
       case 'contract_number':
         query +=
-        " ORDER BY w." +
-        sortByCol +
-        " " +
-        direction;
-          break;
+          " ORDER BY w." +
+          sortByCol +
+          " " +
+          direction;
+        break;
       case 'device_EUI':
         query +=
-        " ORDER BY s.device_e_u_i " +
-        direction;
-          break;
+          " ORDER BY s.device_e_u_i " +
+          direction;
+        break;
       case 'sensor_name':
-          query +=
+        query +=
           " ORDER BY s." +
           sortByCol +
           " " +
           direction;
-          break
-          case 'User':
-            query +=
-            " ORDER BY water_module_users.first_name" +
-            
-            " " +
-            direction;
-            break
+        break
+      case 'User':
+        query +=
+          " ORDER BY water_module_users.first_name" +
+
+          " " +
+          direction;
+        break
       default:
         query +=
-        " ORDER BY w.id DESC";
-          break;
-        
+          " ORDER BY w.id DESC";
+        break;
+
 
     }
     query += " LIMIT " +
-    first_value +
-    ", " +
-    page_size;
+      first_value +
+      ", " +
+      page_size;
     return new Promise((resolve: any, reject: any) => {
       db.getConnection((error: any, conn: any) => {
         // If the connection with the database fails
@@ -734,7 +734,7 @@ class WaterDevicesController {
   ) {
     const first_value = page_size * page_index - page_size;
     const second_value = page_size * page_index;
-    console.log('sortByCol--',sortByCol);
+    console.log('sortByCol--', sortByCol);
     var query =
       "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
       user_id;
@@ -768,7 +768,7 @@ class WaterDevicesController {
         ", " +
         page_size;
     }
-     else {
+    else {
       query =
         "SELECT w.*, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id WHERE w.user_id = " +
         user_id +
@@ -1179,7 +1179,7 @@ class WaterDevicesController {
     comercial -> 4
     industrial -> 5
     */
-    let water_user_id = 0;
+    let water_user_id;
     let municipalityId;
     let sewerRateId;
     let deviceDiameterId;
@@ -1246,10 +1246,13 @@ class WaterDevicesController {
       provider +
       "',authToken='" +
       authToken +
-      "', water_user_id=" +
-      water_user_id +
-      ", water_group_id=" +
+      "', water_group_id=" +
       groupId
+
+    if (water_user_id != null && parseInt(water_user_id) != 0) {
+      console.log("*WATER USER ID*", water_user_id)
+      query += ", water_user_id=" + water_user_id
+    }
     if (municipalityId) {
       query += ", municipality_id=" + municipalityId
     }
