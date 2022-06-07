@@ -21,6 +21,21 @@ npm run build
 npm run dev
 ```
 
+## Download and import latest database version (for use in local)
+
+Export
+-------
+```shell
+mysqldump --add-drop-table -u root -p{password} swat_gesinen > fileName.sql
+```
+
+Import
+-------
+```shell
+mysql -u root -p{password} swat_gesinen < fileName.sql
+```
+
+
 # Routes
 
 // WIP //
