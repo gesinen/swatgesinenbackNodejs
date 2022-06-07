@@ -4,7 +4,7 @@ This is a REST API for Gesinen Platform made in TypeScript using Node.js and Exp
 
 The developement application is inside the `\src` folder. The production application is in the `\build` folder.
 
-We use jsdoc to make the documentation, that is stored in `\doc` folder.aaa
+We use jsdoc to make the documentation, that is stored in `\doc` folder.
 
 ## Install
     
