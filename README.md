@@ -1,4 +1,4 @@
-# Gesinen platform Node.js API
+﻿# Gesinen platform Node.js API
 
 This is a REST API for Gesinen Platform made in TypeScript using Node.js and Express.js.
 
@@ -21,13 +21,21 @@ npm run build
 npm run dev
 ```
 
-## Download and import latest database version (for use in local)
+## How to build a local version of the Database
+
+ 1. Instal [XAMPP](https://www.apachefriends.org/index.html) or [WAMP](https://www.wampserver.com/en/)
+ 2. Create a local MySQL repository using any of the applications console.
+ 3. Access the GESINEN server, which contains the actual Database.
+ 4. Create an exported .sql file using the following instructions.
 
 Export
 -------
 ```shell
 mysqldump --add-drop-table -u root -p{password} swat_gesinen > fileName.sql
 ```
+
+ 5. Get into the [XAMPP](https://www.apachefriends.org/index.html) or [WAMP](https://www.wampserver.com/en/) installation folder.
+ 6. Import the previously created .sql file using the following instructions.
 
 Import
 -------
