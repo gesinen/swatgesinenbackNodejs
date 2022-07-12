@@ -60,6 +60,18 @@ function decodeBoilerPingScheduleV1(decodeDataHexRaw) {
     }
 }
 
+// Decodificacion de datos V1 (horario) 
+// ** SOLO COJO EL ESTADO DEL RELE **
+function decodeBoilerPingScheduleV1rele(decodeDataHexRaw) {
+    var decodeDataHex = decodeDataHexRaw.match(/.{1,2}/g);
+    console.log("decodeDataHex SPLIT", decodeDataHex)
+    var byteEstadoReles = decodeDataHex[1]
+    return {
+        releStatus: parseStateHex(byteEstadoReles),
+    }
+
+}
+
 // Decodificacion de datos V1 (temperatura y distancia)
 function decodeBoilerPingTemperatureDistanceV1(decodeDataHexRaw) {
     var decodeDataHex = decodeDataHexRaw.match(/.{1,2}/g);
@@ -247,8 +259,12 @@ sensor_info ON sensor_info.id=boiler_device.sensorId INNER JOIN sensor_gateway_p
                     if (messageJSON.object.DecodeDataHex.substring(0, 2) == "0a") {
                         let boilerId = idRelatedToBoilerDeveui[topic.split("/")[4]]
                         console.log("message", messageJSON)
-                        let pingData = decodeBoilerPingScheduleV1(messageJSON.object.DecodeDataHex)
-                        updateBoilerOnDatabaseScheduleV1(boilerId, pingData)
+                            // FULL PING DATA
+                            // let pingData = decodeBoilerPingScheduleV1(messageJSON.object.DecodeDataHex)
+
+                        // ONLY RELE
+                        let pingData = decodeBoilerPingScheduleV1rele(messageJSON.object.DecodeDataHex)
+                        updateBoilerOnDatabaseStatusV1(boilerId, pingData)
                     } else {
                         let boilerId = idRelatedToBoilerDeveui[topic.split("/")[4]]
                         console.log("message", messageJSON)
@@ -267,6 +283,27 @@ async function updateBoilerOnDatabaseScheduleV1(boilerId, pingData) {
     var options = {
         'method': 'PUT',
         'url': 'http://localhost:8080/v2/boiler/devices/pingScheduleV1',
+        'headers': {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(pingData)
+    };
+
+    request(options, function(error, response) {
+        if (error) throw new Error(error);
+        console.log("updateRes", response.body);
+        let jsonRes = JSON.parse(response.body)
+        console.log("jsonRes", jsonRes)
+    });
+
+}
+
+async function updateBoilerOnDatabaseStatusV1(boilerId, pingData) {
+    pingData.id = boilerId
+    console.log("pingData", pingData)
+    var options = {
+        'method': 'PUT',
+        'url': 'http://localhost:8080/v2/boiler/devices/status',
         'headers': {
             'Content-Type': 'application/json'
         },
