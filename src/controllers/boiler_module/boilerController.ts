@@ -9,11 +9,11 @@ class BoilerController {
 
 
   public async createBoilerDevice(userId: number, name: string, description: string, sensorId: string, mode: string,
-    schedule: string = undefined, model: string, height: number, length: number, width: number): Promise<object> {
+    schedule: string = undefined, scheduleWeekend: string = undefined, model: string, height: number, length: number, width: number): Promise<object> {
     schedule = Utils.checkUndefined(schedule)
-    let insertSql = "INSERT INTO `boiler_device` (`userId`, `name`, `description`, `mode`, `schedule`, `sensorId`, `releStatus`," +
+    let insertSql = "INSERT INTO `boiler_device` (`userId`, `name`, `description`, `mode`, `schedule`,`scheduleWeekend`, `sensorId`, `releStatus`," +
       " `lastLongitude`, `lastTemperature`, `lastUpdateTime`,`boilerModel`,`height`,`length`,`width`) VALUES ('" + userId + "', '" + name + "', '" + description + "', '" + mode +
-      "', '" + schedule + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "');"
+      "', '" + schedule + "', '" + scheduleWeekend + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "');"
     console.log(insertSql)
 
     return new Promise((resolve: any, reject: any) => {
@@ -89,10 +89,10 @@ class BoilerController {
   }
 
   public async updateBoilerDevice(id: number, userId: number, name: string, description: string, sensorId: string, mode: string,
-    schedule: string = undefined, model: string, height: number, length: number, width: number): Promise<object> {
+    schedule: string = undefined, scheduleWeekend: string = undefined, model: string, height: number, length: number, width: number): Promise<object> {
     schedule = Utils.checkUndefined(schedule)
     let insertSql = "UPDATE `boiler_device` SET userId='" + userId + "', name='" + name + "', description='" + description +
-      "', sensorId='" + sensorId + "' , mode='" + mode + "', schedule='" + schedule + "', boilerModel='" + model + "', height='" +
+      "', sensorId='" + sensorId + "' , mode='" + mode + "', schedule='" + schedule + "', scheduleWeekend='" + scheduleWeekend + "', boilerModel='" + model + "', height='" +
       height + "', length='" + length + "', width='" + width + "', lastUpdateTime=now() WHERE id=" + id + ";"
     console.log(insertSql)
 
@@ -130,6 +130,7 @@ class BoilerController {
     });
   }
 
+  // Falta scheduleWeekend
   public async updateBoilerDevicePingData(id: number, lastLongitude: string, lastTemperature: string, releStatus: boolean,
     hourOn: any, minuteOn: any, hourOff: any, minuteOff: any, scheduleMode: boolean): Promise<object> {
     let mode = "manual"
@@ -219,6 +220,7 @@ class BoilerController {
     });
   }
 
+  // Falta scheduleWeekend
   public async updateBoilerDevicePingDataScheduleV1(id: number, releStatus: boolean,
     hourOn: any, minuteOn: any, hourOff: any, minuteOff: any, scheduleMode: boolean): Promise<object> {
     let mode = "manual"
