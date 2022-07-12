@@ -89,7 +89,8 @@ class IrrigationDeviceRouter {
         .updateIrrigationDeviceRelatedSensor(
           params.irrigationDeviceId,
           params.relatedSensorDevEui,
-          parseInt(params.humidityLimit)
+          parseInt(params.humidityLimit),
+          parseInt(params.humidityLimitInferior)
         )
         .then((response) => {
           res.send(response);
