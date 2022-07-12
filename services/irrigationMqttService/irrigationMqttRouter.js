@@ -239,7 +239,6 @@ sensor_info ON sensor_info.id=irrigation_device.sensorId INNER JOIN sensor_gatew
                         }
                         // MODELO SENSOR TEMPERATURA LORA
                     } else if (messageJSON.object.DecodeDataHex.substring(0, 4).toLowerCase() == "0xc0") {
-
                         let topicSplit = topic.split("/")
                         let gatewayMac = topicSplit[0]
                         let relatedSensorDeviceEui = topicSplit[4]
@@ -276,7 +275,6 @@ sensor_info ON sensor_info.id=irrigation_device.sensorId INNER JOIN sensor_gatew
         })
     })
 }
-
 
 async function insertLoraHistoryRecord(irrigationDeviceId, humedad, temperatura) {
     return new Promise((resolve, reject) => {

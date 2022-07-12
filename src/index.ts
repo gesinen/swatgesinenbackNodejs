@@ -23,6 +23,7 @@ import capacityParking from './controllers/capacity_module/capacityParking';
 import capacityParkingRouter from './routes/capacity_module/capacityParkingRouter';
 import capacityTypeRibbonRouter from './routes/capacity_module/capacityTypeRibbonRouter';
 import capacityTypeSpotRouter from './routes/capacity_module/capacityTypeSpotRouter';
+import boilerRouter from './routes/boiler_module/boilerRouter';
 
 class Server {
 
@@ -61,7 +62,7 @@ class Server {
         this.app.use('/v2/irrigation/devices/output', irrigationDeviceOutputRouter);
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter);
         this.app.use('/v2/irrigation/devices/input/history', irrigationDeviceInputHistoryRouter);
-
+        this.app.use('/v2/boiler/devices', boilerRouter);
     }
 
     start(): void {

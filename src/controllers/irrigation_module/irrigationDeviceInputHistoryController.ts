@@ -71,7 +71,7 @@ class IrrigationDeviceInputHistoryController {
     
                 db.getConnection((err: any, conn: any) => {
     
-                    let query = "INSERT INTO irrigation_device_input_history (`irrigationDeviceId`, `humidity`, `temperature`)" +
+                    let query = "INSERT INTO irrigation_device_input_history_lora (`irrigationDeviceId`, `humidity`, `temperature`)" +
                         " VALUES (" + irrigationDeviceId + "," + humidity + "," + temperature + ");"
                     console.log("query", query)
                     conn.query(query, (error: any, results: any) => {

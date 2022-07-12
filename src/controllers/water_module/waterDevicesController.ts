@@ -44,8 +44,8 @@ class WaterDevicesController {
             json_file_data
           );
           let json_data = DeviceEUIcheckResponse.addedSensors;
-          //console.log("***** json_data *****")
-          //console.log(json_data)
+          console.log("***** json_data *****")
+          console.log(json_data)
           let contador = 0;
           try {
             for (const addedSensorRow of json_data) {
@@ -62,7 +62,7 @@ class WaterDevicesController {
                     provider,
                     authToken
                   );
-                //console.log("*** usando token y auth por parametro ***")
+                console.log("*** usando token y auth por parametro ***")
               } else {
                 lastObservation =
                   await sensorController.addSensorObservationsFromSentilo(
@@ -71,20 +71,24 @@ class WaterDevicesController {
                     addedSensorRow.provider_id,
                     addedSensorRow.authorization_token
                   );
-                //console.log("*** usando token y auth desde sensor_info ***")
+                console.log("*** usando token y auth desde sensor_info ***")
               }
-
-              if (lastObservation != undefined && lastObservation.code != 401) {
-                if (selectedUnitValue == "liter") {
-                  json_data[contador].lastObservation =
-                    lastObservation.observations[0].value / 1000;
-                } else {
-                  json_data[contador].lastObservation =
-                    lastObservation.observations[0].value;
+              try {
+                if (lastObservation != undefined && lastObservation.code != 401) {
+                  if (selectedUnitValue == "liter") {
+                    json_data[contador].lastObservation =
+                      lastObservation.observations[0].value / 1000;
+                  } else {
+                    json_data[contador].lastObservation =
+                      lastObservation.observations[0].value;
+                  }
+                  //console.log(lastObservation.observations[0])
+                  json_data[contador].lastObservationDate =
+                    lastObservation.observations[0].time;
                 }
-                //console.log(lastObservation.observations[0])
-                json_data[contador].lastObservationDate =
-                  lastObservation.observations[0].time;
+              } catch (error) {
+                console.log("*** error ***")
+                console.log(error)
               }
               contador++;
             }

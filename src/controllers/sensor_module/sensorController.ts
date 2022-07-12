@@ -147,6 +147,8 @@ class SensorController {
     sensorProvider: any,
     identityKey: any
   ) {
+    console.log("IdentityKey",identityKey)
+    console.log("Provider",sensorProvider)
     return new Promise((resolve, reject) => {
       var request = require("request");
       /*var options = {
@@ -177,14 +179,14 @@ class SensorController {
           "Content-Type": "application/json",
         },
       };
-      //console.log("***** request (options) ******")
-      //console.log(options)
+      console.log("***** request (options) ******")
+      console.log(options)
       request(options, function (error: string, response: { body: any }) {
         if (error) {
           reject(error);
         }
-        //console.log("***** response ******")
-        //console.log(response)
+        console.log("***** response ******")
+        console.log(response.body)
         let observations: any;
         try {
           observations = JSON.parse(response.body);
@@ -271,6 +273,47 @@ class SensorController {
           sensorId +
           ";";
 
+        conn.query(select_query, (err: any, results: any) => {
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          } else {
+            if (results && results.length == 0) {
+              resolve({
+                http: 204,
+                status: "Success",
+                result: "There are no related gateway to this sensor",
+              });
+            } else {
+              resolve({
+                http: 200,
+                status: "Success",
+                result: results[0],
+              });
+            }
+          }
+        });
+      });
+    });
+  }
+
+    /**
+   * GET ('/sensorGatewayId/:sensorId')
+   * Gets sensor relater gateway id
+   *
+   * @param json_file_data xls file info formated on json
+   *
+   * @return
+   */
+  // create water devices from the recently created sensors
+  public async getSensorGatewayMac(sensorId: any) {
+    return new Promise((resolve, reject) => {
+      db.getConnection((err: any, conn: any) => {
+        var select_query =
+          "SELECT `sensor_gateway_pkid`.mac_number FROM `sensor_gateway_pkid` WHERE `sensor_gateway_pkid`.`sensor_id`=" +sensorId+";";
         conn.query(select_query, (err: any, results: any) => {
           if (err) {
             reject({

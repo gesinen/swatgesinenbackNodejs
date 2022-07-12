@@ -340,8 +340,8 @@ class IrrigationDeviceController {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "UPDATE `irrigation_device` SET `parametersSensorDevEui` = '" + relatedSensorDevEui + "' `humidityLimit` = '" + humidityLimit +
-                 "' WHERE `irrigation_device`.`id` = " + irrigationDeviceId + ";";
+                let query = "UPDATE `irrigation_device` SET `parametersSensorDevEui` = '" + relatedSensorDevEui +
+                    "', `humidityLimit` = '" + humidityLimit + "' WHERE `irrigation_device`.`id` = " + irrigationDeviceId + ";";
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
@@ -353,7 +353,7 @@ class IrrigationDeviceController {
                         })
                     }
                     console.log("results", results)
-                    if (results.affectedRows) {
+                    if (results && results.affectedRows) {
                         resolve({
                             http: 200,
                             status: 'Success',
@@ -398,8 +398,8 @@ class IrrigationDeviceController {
                     }
 
                     let query = "INSERT INTO irrigation_device (name,nameSentilo,latitude,longitude,description,status," +
-                        "userId,deviceTypeId, sensorId) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
-                        lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + "," + sensorId + ")"
+                        "userId,deviceTypeId, sensorId, humidityLimit) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
+                        lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + "," + sensorId + ", 100)"
                     console.log("INSERT IRRIG DEV", query)
                     conn.query(query, async (error: any, results: any) => {
                         conn.release()

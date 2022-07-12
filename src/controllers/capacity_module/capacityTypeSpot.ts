@@ -65,10 +65,12 @@ class CapacityDevicesController {
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
-                conn.query("INSERT INTO `capacity_type_spot` (`capacityDeviceId`, `status`, `parkingId`) VALUES (" + capacityDeviceId + ", false, " + parkingId + ")                    ",
+                let query = "INSERT INTO `capacity_type_spot` (`capacityDeviceId`, `status`, `parkingId`) VALUES (" + capacityDeviceId + ", false, " + parkingId + ")";
+                console.log("insertSpotQuery",query)
+                conn.query(query,
                     (error: any, results: any, fields: any) => {
                         conn.release()
-
+                        console.log("insertSpotQueryRes",results)
                         if (error) {
                             reject({ error: error })
                         } else {

@@ -8,6 +8,7 @@ class SensorRouter {
     this.createSensorAction();
     this.getSensorGatewayIdAction();
     this.getSensorSentiloObservationsAction();
+    this.getSensorGatewayMacAction();
   }
 
   public createSensorAction = () =>
@@ -28,6 +29,20 @@ class SensorRouter {
       (req: Request, res: Response) => {
         sensorController
           .getSensorGatewayId(req.params.sensorId)
+          .then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      }
+    );
+    public getSensorGatewayMacAction = () =>
+    this.router.get(
+      "/sensorGatewayMac/:sensorId",
+      (req: Request, res: Response) => {
+        sensorController
+          .getSensorGatewayMac(req.params.sensorId)
           .then((response) => {
             res.send(response);
           })

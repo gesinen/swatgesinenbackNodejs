@@ -50,7 +50,9 @@ class CapacityDevicesController {
                             } else {
                                 console.log(results)
                                 let lastInsertCapacityDeviceId: any = results.insertId
+                                console.log("type",type)
                                 if (type == "parking_individual") {
+                                    console.log("type",type)
                                     let capacitySpotCreateRes: any = await capacityTypeSpotController.createCapacitySpotDevice(lastInsertCapacityDeviceId, parkingId)
                                         .catch(err => {
                                             console.log(err)
@@ -61,6 +63,8 @@ class CapacityDevicesController {
                                                 response: "Capacity spot device could not be created"
                                             })
                                         })
+                                        console.log("capacitySpotCreateRes",capacitySpotCreateRes)
+
                                     if (capacitySpotCreateRes.http != 200) {
                                         this.deleteCapacityDevice(lastInsertCapacityDeviceId).catch(err => {
                                             console.log(err)
