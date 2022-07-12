@@ -56,6 +56,24 @@ class IrrigationDeviceRouter {
             });
         });
         /**
+      * Get user related municipality_id
+      * GET ('/municipality/{user_id}')
+      * params user_id -> id of the user we want to get the municipality_id from
+      */
+        this.updateIrrigationDeviceRelatedSensorId = () => this.router.put("/relatedSensor/:irrigationDeviceId/:relatedSensorDevEui/:humidityLimit/:humidityLimitInferior", (req, res) => {
+            const params = req.params;
+            console.log("router store params");
+            console.log(params);
+            irrigationDeviceController_1.default
+                .updateIrrigationDeviceRelatedSensor(params.irrigationDeviceId, params.relatedSensorDevEui, parseInt(params.humidityLimit), parseInt(params.humidityLimitInferior))
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
+        /**
          * Get user related municipality_id
          * GET ('/municipality/{user_id}')
          * params user_id -> id of the user we want to get the municipality_id from
@@ -112,6 +130,7 @@ class IrrigationDeviceRouter {
         this.storeIrrigationDevice();
         this.updateIrrigationDevice();
         this.deleteIrrigationDevice();
+        this.updateIrrigationDeviceRelatedSensorId();
     }
 }
 const irrigationDeviceRouter = new IrrigationDeviceRouter();

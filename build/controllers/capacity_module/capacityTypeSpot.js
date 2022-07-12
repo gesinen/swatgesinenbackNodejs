@@ -66,12 +66,15 @@ class CapacityDevicesController {
      *
      * @return
      */
-    createCapacitySpotDevice(capacityDeviceId, status) {
+    createCapacitySpotDevice(capacityDeviceId, parkingId) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
-                    conn.query("INSERT INTO `capacity_type_spot` (`capacityDeviceId`, `status`) VALUES (" + capacityDeviceId + ", " + status + ")                    ", (error, results, fields) => {
+                    let query = "INSERT INTO `capacity_type_spot` (`capacityDeviceId`, `status`, `parkingId`) VALUES (" + capacityDeviceId + ", false, " + parkingId + ")";
+                    console.log("insertSpotQuery", query);
+                    conn.query(query, (error, results, fields) => {
                         conn.release();
+                        console.log("insertSpotQueryRes", results);
                         if (error) {
                             reject({ error: error });
                         }

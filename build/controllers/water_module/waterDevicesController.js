@@ -48,8 +48,8 @@ class WaterDevicesController {
                     //console.log(response.result)
                     let DeviceEUIcheckResponse = yield this.addSensorWaterInfo(response.result, json_file_data);
                     let json_data = DeviceEUIcheckResponse.addedSensors;
-                    //console.log("***** json_data *****")
-                    //console.log(json_data)
+                    console.log("***** json_data *****");
+                    console.log(json_data);
                     let contador = 0;
                     try {
                         for (const addedSensorRow of json_data) {
@@ -60,25 +60,31 @@ class WaterDevicesController {
                                 //console.log(addedSensorRow.name)
                                 lastObservation =
                                     yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, provider, authToken);
-                                //console.log("*** usando token y auth por parametro ***")
+                                console.log("*** usando token y auth por parametro ***");
                             }
                             else {
                                 lastObservation =
                                     yield sensorController_1.default.addSensorObservationsFromSentilo(addedSensorRow.name, addedSensorRow.server_url, addedSensorRow.provider_id, addedSensorRow.authorization_token);
-                                //console.log("*** usando token y auth desde sensor_info ***")
+                                console.log("*** usando token y auth desde sensor_info ***");
                             }
-                            if (lastObservation != undefined && lastObservation.code != 401) {
-                                if (selectedUnitValue == "liter") {
-                                    json_data[contador].lastObservation =
-                                        lastObservation.observations[0].value / 1000;
+                            try {
+                                if (lastObservation != undefined && lastObservation.code != 401) {
+                                    if (selectedUnitValue == "liter") {
+                                        json_data[contador].lastObservation =
+                                            lastObservation.observations[0].value / 1000;
+                                    }
+                                    else {
+                                        json_data[contador].lastObservation =
+                                            lastObservation.observations[0].value;
+                                    }
+                                    //console.log(lastObservation.observations[0])
+                                    json_data[contador].lastObservationDate =
+                                        lastObservation.observations[0].time;
                                 }
-                                else {
-                                    json_data[contador].lastObservation =
-                                        lastObservation.observations[0].value;
-                                }
-                                //console.log(lastObservation.observations[0])
-                                json_data[contador].lastObservationDate =
-                                    lastObservation.observations[0].time;
+                            }
+                            catch (error) {
+                                console.log("*** error ***");
+                                console.log(error);
                             }
                             contador++;
                         }
@@ -1070,7 +1076,7 @@ class WaterDevicesController {
             comercial -> 4
             industrial -> 5
             */
-            let water_user_id = 0;
+            let water_user_id;
             let municipalityId;
             let sewerRateId;
             let deviceDiameterId;
@@ -1138,10 +1144,12 @@ class WaterDevicesController {
                 provider +
                 "',authToken='" +
                 authToken +
-                "', water_user_id=" +
-                water_user_id +
-                ", water_group_id=" +
+                "', water_group_id=" +
                 groupId;
+            if (water_user_id != null && parseInt(water_user_id) != 0) {
+                console.log("*WATER USER ID*", water_user_id);
+                query += ", water_user_id=" + water_user_id;
+            }
             if (municipalityId) {
                 query += ", municipality_id=" + municipalityId;
             }

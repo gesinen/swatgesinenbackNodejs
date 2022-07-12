@@ -29,6 +29,16 @@ class SensorRouter {
                 res.send(err);
             });
         });
+        this.getSensorGatewayMacAction = () => this.router.get("/sensorGatewayMac/:sensorId", (req, res) => {
+            sensorController_1.default
+                .getSensorGatewayMac(req.params.sensorId)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
         this.getSensorSentiloObservationsAction = () => this.router.get("/observations/:sensorId", (req, res) => {
             console.log(" *** ON ROUTER *** ");
             sensorController_1.default
@@ -43,6 +53,7 @@ class SensorRouter {
         this.createSensorAction();
         this.getSensorGatewayIdAction();
         this.getSensorSentiloObservationsAction();
+        this.getSensorGatewayMacAction();
     }
 }
 const sensorRoutes = new SensorRouter();

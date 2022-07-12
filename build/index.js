@@ -25,6 +25,7 @@ const capacityCartelLineRouter_1 = __importDefault(require("./routes/capacity_mo
 const capacityParkingRouter_1 = __importDefault(require("./routes/capacity_module/capacityParkingRouter"));
 const capacityTypeRibbonRouter_1 = __importDefault(require("./routes/capacity_module/capacityTypeRibbonRouter"));
 const capacityTypeSpotRouter_1 = __importDefault(require("./routes/capacity_module/capacityTypeSpotRouter"));
+const boilerRouter_1 = __importDefault(require("./routes/boiler_module/boilerRouter"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -57,6 +58,7 @@ class Server {
         this.app.use('/v2/irrigation/devices/output', irrigationDeviceOutputRouter_1.default);
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter_1.default);
         this.app.use('/v2/irrigation/devices/input/history', irrigationDeviceInputHistoryRouter_1.default);
+        this.app.use('/v2/boiler/devices', boilerRouter_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {

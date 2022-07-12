@@ -316,6 +316,51 @@ class IrrigationDeviceController {
         });
     }
     /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
+    updateIrrigationDeviceRelatedSensor(irrigationDeviceId, relatedSensorDevEui, humidityLimit, humidityLimitInferior) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    let query = "UPDATE `irrigation_device` SET `parametersSensorDevEui` = '" + relatedSensorDevEui +
+                        "', `humidityLimit` = '" + humidityLimit +  "', `humidityLimitInferior` = '" + humidityLimitInferior + "' WHERE `irrigation_device`.`id` = " + irrigationDeviceId + ";";
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        console.log("results", results);
+                        if (results && results.affectedRows) {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                message: 'Irrigation device related sensor updated succesfully'
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                message: "Irrigation device related sensor could not be updated",
+                                result: results
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    }
+    /**
          * GET ('/information/:id')
          * Getting the information about the user
          *
@@ -338,8 +383,9 @@ class IrrigationDeviceController {
                             lng = null;
                         }
                         let query = "INSERT INTO irrigation_device (name,nameSentilo,latitude,longitude,description,status," +
-                            "userId,deviceTypeId, sensorId) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
-                            lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + "," + sensorId + ")";
+                            "userId,deviceTypeId, sensorId, humidityLimit) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
+                            lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + "," + sensorId + ", 100)";
+                        console.log("INSERT IRRIG DEV", query);
                         conn.query(query, (error, results) => __awaiter(this, void 0, void 0, function* () {
                             conn.release();
                             if (error) {

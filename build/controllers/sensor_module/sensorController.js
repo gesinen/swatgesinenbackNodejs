@@ -147,6 +147,8 @@ class SensorController {
     }
     addSensorObservationsFromSentilo(sensorName, sensorServerUrl, sensorProvider, identityKey) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("IdentityKey", identityKey);
+            console.log("Provider", sensorProvider);
             return new Promise((resolve, reject) => {
                 var request = require("request");
                 /*var options = {
@@ -175,14 +177,14 @@ class SensorController {
                         "Content-Type": "application/json",
                     },
                 };
-                //console.log("***** request (options) ******")
-                //console.log(options)
+                console.log("***** request (options) ******");
+                console.log(options);
                 request(options, function (error, response) {
                     if (error) {
                         reject(error);
                     }
-                    //console.log("***** response ******")
-                    //console.log(response)
+                    console.log("***** response ******");
+                    console.log(response.body);
                     let observations;
                     try {
                         observations = JSON.parse(response.body);
@@ -270,6 +272,49 @@ class SensorController {
                     var select_query = "SELECT `gateways`.`id` FROM `sensor_gateway_pkid` INNER JOIN `gateways` ON `sensor_gateway_pkid`.`mac_number`=`gateways`.`mac` WHERE `sensor_gateway_pkid`.`sensor_id`=" +
                         sensorId +
                         ";";
+                    conn.query(select_query, (err, results) => {
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: "Failed",
+                                error: err,
+                            });
+                        }
+                        else {
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: "Success",
+                                    result: "There are no related gateway to this sensor",
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 200,
+                                    status: "Success",
+                                    result: results[0],
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    }
+    /**
+   * GET ('/sensorGatewayId/:sensorId')
+   * Gets sensor relater gateway id
+   *
+   * @param json_file_data xls file info formated on json
+   *
+   * @return
+   */
+    // create water devices from the recently created sensors
+    getSensorGatewayMac(sensorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    var select_query = "SELECT `sensor_gateway_pkid`.mac_number FROM `sensor_gateway_pkid` WHERE `sensor_gateway_pkid`.`sensor_id`=" + sensorId + ";";
                     conn.query(select_query, (err, results) => {
                         if (err) {
                             reject({
