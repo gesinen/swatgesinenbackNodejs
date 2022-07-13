@@ -80,48 +80,148 @@ function hexToIntStr(hexString) {
     return parseInt(hexString, 16).toString();
 }
 
-function deactivateAllValves(deviceEUI, mac, mqttClient) {
+function deactivateAllValves(deviceEUI, mac, mqttClient, deviceTypeId) {
     for (let index = 1; index <= 8; index++) {
-        deactivateValve(index, deviceEUI, mac, mqttClient)
+        deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId)
     }
 }
 
-function deactivateValve(index, deviceEUI, mac, mqttClient) {
+function activateAllValves(deviceEUI, mac, mqttClient, deviceTypeId) {
+    for (let index = 1; index <= 8; index++) {
+        activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId)
+    }
+}
+
+function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
 
     const applicationId = 2;
-    const fPort = 10;
-
     const num = index - 1;
-    var send = "";
+    let send = '';
+    let fPort;
+    if (deviceTypeId !== 3) {
+        fPort = 10;
+        switch (num) {
+            case 0:
+                send = "Z2QAAQE=";
+                break;
+            case 1:
+                send = "Z2QBAQE=";
+                break;
+            case 2:
+                send = "Z2QEAQE=";
+                break;
+            case 3:
+                send = "Z2QFAQE=";
+                break;
+            case 4:
+                send = "Z2QGAQE=";
+                break;
+            case 5:
+                send = "Z2QHAQE=";
+                break;
+            case 6:
+                send = "Z2QIAQE=";
+                break;
+            case 7:
+                send = "Z2QJAQE=";
+                break;
+            default:
+                break;
+        }
+    } else {
+        fPort = 4;
+        switch (num) {
+            case 0:
+                send = "DRAADw8=";
+                break;
+            case 1:
+                send = "DRABDw8=";
+                break;
+            case 2:
+                send = "DRACDw8=";
+                break;
+            case 3:
+                send = "DRADDw8=";
+                break;
+            case 4:
+                send = "DRAEDw8=";
+                break;
+            default:
+                break;
+        }
+    }
 
-    // Valvula 1, 2 , 3 en base64
-    switch (num) {
-        case 0:
-            send = "Z2QAAQE=";
-            break;
-        case 1:
-            send = "Z2QBAQE=";
-            break;
-        case 2:
-            send = "Z2QEAQE=";
-            break;
-        case 3:
-            send = "Z2QFAQE=";
-            break;
-        case 4:
-            send = "Z2QGAQE=";
-            break;
-        case 5:
-            send = "Z2QHAQE=";
-            break;
-        case 6:
-            send = "Z2QIAQE=";
-            break;
-        case 7:
-            send = "Z2QJAQE=";
-            break;
-        default:
-            break;
+    //const topic = "dca632143f21/application/2/device/0079e129d52aa017/tx";
+    const topic = mac + "/application/" + applicationId + "/device/" + deviceEUI + "/tx";
+
+    let msg = JSON.stringify({
+        confirmed: true,
+        fPort: fPort,
+        data: send
+    });
+    console.log("topic", topic)
+    console.log("msg", msg)
+    mqttClient.publish(topic, JSON.stringify(msg))
+
+}
+
+function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
+
+    const applicationId = 2;
+    const num = index - 1;
+    let send = '';
+    let fPort;
+    if (deviceTypeId !== 3) {
+        fPort = 10;
+        switch (num) {
+            case 0:
+                send = "Z2QAAAA=";
+                break;
+            case 1:
+                send = "Z2QBAAA=";
+                break;
+            case 2:
+                send = "Z2QEAAA=";
+                break;
+            case 3:
+                send = "Z2QFAAA=";
+                break;
+            case 4:
+                send = "Z2QGAAA=";
+                break;
+            case 5:
+                send = "Z2QHAAA=";
+                break;
+            case 6:
+                send = "Z2QIAAA=";
+                break;
+            case 7:
+                send = "Z2QJAAA=";
+                break;
+            default:
+                break;
+        }
+    } else {
+        fPort = 4;
+        switch (num) {
+            case 0:
+                send = "DRAAAAA=";
+                break;
+            case 1:
+                send = "DRABAAA=";
+                break;
+            case 2:
+                send = "DRACAAA=";
+                break;
+            case 3:
+                send = "DRADAAA=";
+                break;
+            case 4:
+                send = "DRAEAAA=";
+                break;
+            default:
+                break;
+        }
     }
 
     //const topic = "dca632143f21/application/2/device/0079e129d52aa017/tx";
@@ -261,10 +361,13 @@ sensor_info ON sensor_info.id=irrigation_device.sensorId INNER JOIN sensor_gatew
                                     let irrigationDevice = await getDeviceBySensorId(row.sensorId)
                                     let irrigationDeviceId = row.id
                                     let irrigationDeviceDeviceEUI = irrigationDevice.device_EUI
+                                    let deviceTypeId = row.deviceTypeId;
                                     let storeRecordRes = await insertLoraHistoryRecord(irrigationDeviceId, humedad, temperatura)
                                     if (humedad >= parseInt(row.humidityLimit)) {
                                         console.log("HUMEDAD > 85")
-                                        deactivateAllValves(irrigationDeviceDeviceEUI, gatewayMac, client)
+                                        deactivateAllValves(irrigationDeviceDeviceEUI, gatewayMac, client, deviceTypeId)
+                                    } else if (humedad <= parseInt(row.humidityLimitInferior)){
+                                        activateAllValves(irrigationDeviceDeviceEUI, gatewayMac, client, deviceTypeId);
                                     }
                                 })
                             })

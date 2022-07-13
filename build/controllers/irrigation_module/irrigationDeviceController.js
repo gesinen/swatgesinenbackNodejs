@@ -329,7 +329,7 @@ class IrrigationDeviceController {
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((err, conn) => {
                     let query = "UPDATE `irrigation_device` SET `parametersSensorDevEui` = '" + relatedSensorDevEui +
-                        "', `humidityLimit` = '" + humidityLimit +  "', `humidityLimitInferior` = '" + humidityLimitInferior + "' WHERE `irrigation_device`.`id` = " + irrigationDeviceId + ";";
+                        "', `humidityLimit` = '" + humidityLimit + "', `humidityLimitInferior` = '" + humidityLimitInferior + "' WHERE `irrigation_device`.`id` = " + irrigationDeviceId + ";";
                     conn.query(query, (error, results) => {
                         conn.release();
                         if (error) {
