@@ -18,12 +18,12 @@ const Utils_1 = require("../../utils/Utils");
  * /water/
  */
 class BoilerController {
-    createBoilerDevice(userId, name, description, sensorId, mode, schedule = undefined, model, height, length, width) {
+    createBoilerDevice(userId, name, description, sensorId, mode, schedule = undefined, scheduleWeekend = undefined, model, height, length, width) {
         return __awaiter(this, void 0, void 0, function* () {
             schedule = Utils_1.Utils.checkUndefined(schedule);
-            let insertSql = "INSERT INTO `boiler_device` (`userId`, `name`, `description`, `mode`, `schedule`, `sensorId`, `releStatus`," +
+            let insertSql = "INSERT INTO `boiler_device` (`userId`, `name`, `description`, `mode`, `schedule`,`scheduleWeekend`, `sensorId`, `releStatus`," +
                 " `lastLongitude`, `lastTemperature`, `lastUpdateTime`,`boilerModel`,`height`,`length`,`width`) VALUES ('" + userId + "', '" + name + "', '" + description + "', '" + mode +
-                "', '" + schedule + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "');";
+                "', '" + schedule + "', '" + scheduleWeekend + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "');";
             console.log(insertSql);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
@@ -93,11 +93,11 @@ class BoilerController {
             });
         });
     }
-    updateBoilerDevice(id, userId, name, description, sensorId, mode, schedule = undefined, model, height, length, width) {
+    updateBoilerDevice(id, userId, name, description, sensorId, mode, schedule = undefined, scheduleWeekend = undefined, model, height, length, width) {
         return __awaiter(this, void 0, void 0, function* () {
             schedule = Utils_1.Utils.checkUndefined(schedule);
             let insertSql = "UPDATE `boiler_device` SET userId='" + userId + "', name='" + name + "', description='" + description +
-                "', sensorId='" + sensorId + "' , mode='" + mode + "', schedule='" + schedule + "', boilerModel='" + model + "', height='" +
+                "', sensorId='" + sensorId + "' , mode='" + mode + "', schedule='" + schedule + "', scheduleWeekend='" + scheduleWeekend + "', boilerModel='" + model + "', height='" +
                 height + "', length='" + length + "', width='" + width + "', lastUpdateTime=now() WHERE id=" + id + ";";
             console.log(insertSql);
             return new Promise((resolve, reject) => {
@@ -132,6 +132,7 @@ class BoilerController {
             });
         });
     }
+    // Falta scheduleWeekend
     updateBoilerDevicePingData(id, lastLongitude, lastTemperature, releStatus, hourOn, minuteOn, hourOff, minuteOff, scheduleMode) {
         return __awaiter(this, void 0, void 0, function* () {
             let mode = "manual";
@@ -215,6 +216,7 @@ class BoilerController {
             });
         });
     }
+    // Falta scheduleWeekend
     updateBoilerDevicePingDataScheduleV1(id, releStatus, hourOn, minuteOn, hourOff, minuteOff, scheduleMode) {
         return __awaiter(this, void 0, void 0, function* () {
             let mode = "manual";
