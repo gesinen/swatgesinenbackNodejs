@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import db from "../../database";
 import { Utils } from "../../utils/Utils";
+import sensorController from "../sensor_module/sensorController";
 
 /*
  * /water/
@@ -8,6 +9,71 @@ import { Utils } from "../../utils/Utils";
 class BoilerController {
 
 
+  // Get boiler => sensorId, sensor deviceEUI, related gateway mac
+  public async getBoilerServiceInfo() {
+    var boilers: any = await this.getAllBoilers()
+    console.log("boilers", boilers)
+    var boilersInfo = []
+    for await (let boiler of boilers.response) {
+      var sensorRequiredInfo: any = await sensorController.getSensorDevEuiGatewayMac(boiler.sensorId)
+      console.log("sensorRequiredInfo", sensorRequiredInfo)
+      var sensorId = sensorRequiredInfo.result.sensorId
+      var sensorDevEui = sensorRequiredInfo.result.devEui
+
+
+      var gateways = sensorRequiredInfo.result.gatewaysMac
+      for (let gateway of gateways) {
+        boilersInfo.push({
+          topic: gateway.mac + '/application/1/device/' + sensorDevEui + "/rx",
+          sensorId: sensorId,
+          sensorDevEui: sensorDevEui
+        })
+      }
+    }
+ 
+    return {
+      http: 200,
+      status: "Success",
+      response: boilersInfo
+    }
+  }
+
+  public async getAllBoilers(): Promise<any> {
+    let selectSql = "SELECT * FROM `boiler_device`;"
+
+    return new Promise<any>((resolve: any, reject: any) => {
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(selectSql, (err: any, results: any) => {
+          conn.release();
+
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          //console.log(results)
+          // Response
+          resolve({
+            http: 200,
+            status: "Success",
+            response: results,
+          });
+        });
+      });
+    });
+  }
   public async createBoilerDevice(userId: number, name: string, description: string, sensorId: string, mode: string,
     schedule: string = undefined, scheduleWeekend: string = undefined, model: string, height: number, length: number, width: number): Promise<object> {
     schedule = Utils.checkUndefined(schedule)
@@ -180,6 +246,58 @@ class BoilerController {
     });
   }
 
+  
+
+  // Falta scheduleWeekend
+  public async updateBoilerDevicePingDataBySensorId(sensorId: number, lastLongitude: string, lastTemperature: string, releStatus: boolean,
+    hourOn: any, minuteOn: any, hourOff: any, minuteOff: any, scheduleMode: boolean): Promise<object> {
+    let mode = "manual"
+    if (scheduleMode) {
+      mode = "schedule"
+    }
+    let schedule = hourOn + ":" + minuteOn + "-" + hourOff + ":" + minuteOff
+    let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature + "', releStatus=" +
+      releStatus
+    if (mode == "schedule") {
+      updateSql += ", schedule='" + schedule + "'"
+    }
+    updateSql += ", mode='" + mode + "', lastUpdateTime=now() WHERE sensorId=" + sensorId + ";"
+    console.log("updateSql", updateSql)
+
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(updateSql, (err: any, results: any) => {
+          conn.release();
+
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          console.log(results)
+          // Response
+          resolve({
+            http: 200,
+            status: "Success",
+            response: "The boiler device has been updated successfully.",
+          });
+        });
+      });
+    });
+  }
+
   public async updateBoilerDevicePingDataTempDistV1(id: number, lastLongitude: string, lastTemperature: string): Promise<object> {
 
     let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
@@ -220,8 +338,97 @@ class BoilerController {
     });
   }
 
+  public async updateBoilerDevicePingDataTempDistV1BySensorId(sensorId: number, lastLongitude: string, lastTemperature: string): Promise<object> {
+
+    let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
+      + "', lastUpdateTime=now() WHERE sensorId=" + sensorId + ";"
+    console.log("updateSql", updateSql)
+
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(updateSql, (err: any, results: any) => {
+          conn.release();
+
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          console.log(results)
+          // Response
+          resolve({
+            http: 200,
+            status: "Success",
+            response: "The boiler device has been updated successfully.",
+          });
+        });
+      });
+    });
+  }
+
   // Falta scheduleWeekend
   public async updateBoilerDevicePingDataScheduleV1(id: number, releStatus: boolean,
+    hourOn: any, minuteOn: any, hourOff: any, minuteOff: any, scheduleMode: boolean): Promise<object> {
+    let mode = "manual"
+    if (scheduleMode) {
+      mode = "schedule"
+    }
+    let schedule = hourOn + ":" + minuteOn + "-" + hourOff + ":" + minuteOff
+    let updateSql = "UPDATE `boiler_device` SET releStatus=" + releStatus
+    if (mode == "schedule") {
+      updateSql += ", schedule='" + schedule
+
+    }
+    updateSql += ", mode='" + mode + "', lastUpdateTime=now() WHERE id=" + id + ";"
+    console.log("updateSql", updateSql)
+
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(updateSql, (err: any, results: any) => {
+          conn.release();
+
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          console.log(results)
+          // Response
+          resolve({
+            http: 200,
+            status: "Success",
+            response: "The boiler device has been updated successfully.",
+          });
+        });
+      });
+    });
+  }
+
+  public async updateBoilerDevicePingDataScheduleV1BySensorId(id: number, releStatus: boolean,
     hourOn: any, minuteOn: any, hourOff: any, minuteOff: any, scheduleMode: boolean): Promise<object> {
     let mode = "manual"
     if (scheduleMode) {

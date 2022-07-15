@@ -9,6 +9,8 @@ class SensorRouter {
     this.getSensorGatewayIdAction();
     this.getSensorSentiloObservationsAction();
     this.getSensorGatewayMacAction();
+    this.getSensorDevEuiAndGatewayMacAction();
+    this.getSensorByDevEui();
   }
 
   public createSensorAction = () =>
@@ -37,7 +39,38 @@ class SensorRouter {
           });
       }
     );
-    public getSensorGatewayMacAction = () =>
+
+  public getSensorDevEuiAndGatewayMacAction = () =>
+    this.router.get(
+      "/mqttinfo/:sensorId",
+      (req: Request, res: Response) => {
+        sensorController
+          .getSensorDevEuiGatewayMac(req.params.sensorId)
+          .then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      }
+    );
+
+  public getSensorByDevEui = () =>
+    this.router.get(
+      "/deveui/:deveui",
+      (req: Request, res: Response) => {
+        sensorController
+          .getSensorByDeviceEUI(req.params.deveui)
+          .then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      }
+    );
+
+  public getSensorGatewayMacAction = () =>
     this.router.get(
       "/sensorGatewayMac/:sensorId",
       (req: Request, res: Response) => {

@@ -1,6 +1,8 @@
 import conn from "../../database";
 import db from "../../database";
 import { Utils } from "../../utils/Utils";
+import sensorController from "../sensor_module/sensorController";
+import capacityCartelController from "./capacityCartel";
 import capacityTypeRibbonController from "./capacityTypeRibbon";
 import capacityTypeSpotController from "./capacityTypeSpot";
 
@@ -50,9 +52,9 @@ class CapacityDevicesController {
                             } else {
                                 console.log(results)
                                 let lastInsertCapacityDeviceId: any = results.insertId
-                                console.log("type",type)
+                                console.log("type", type)
                                 if (type == "parking_individual") {
-                                    console.log("type",type)
+                                    console.log("type", type)
                                     let capacitySpotCreateRes: any = await capacityTypeSpotController.createCapacitySpotDevice(lastInsertCapacityDeviceId, parkingId)
                                         .catch(err => {
                                             console.log(err)
@@ -63,7 +65,7 @@ class CapacityDevicesController {
                                                 response: "Capacity spot device could not be created"
                                             })
                                         })
-                                        console.log("capacitySpotCreateRes",capacitySpotCreateRes)
+                                    console.log("capacitySpotCreateRes", capacitySpotCreateRes)
 
                                     if (capacitySpotCreateRes.http != 200) {
                                         this.deleteCapacityDevice(lastInsertCapacityDeviceId).catch(err => {
@@ -348,6 +350,84 @@ class CapacityDevicesController {
                 })
             })
         })
+    }
+
+    public async getAllCapacityDevices(): Promise<object> {
+        return new Promise((resolve, reject) => {
+            db.getConnection((err: any, conn: any) => {
+                conn.query("SELECT * FROM capacity_devices WHERE capacity_devices.type='parking_area_config'", (err: any, results: any) => {
+                    conn.release()
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    } else {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results
+                        })
+                    }
+                })
+            })
+        })
+    }
+
+    onlyUnique(value: any, index: any, self: any) {
+        return self.indexOf(value) === index;
+    }
+
+
+    public async getParkingRibbonServiceInfo() {
+        var gatewaysTopicInfo = []
+        try {
+            // Capacity devices
+            var capacityDevices: any = await this.getAllCapacityDevices()
+            console.log("capacityDevices", capacityDevices)
+            for await (let capacityDevice of capacityDevices.result) {
+                //console.log("capcityDevInfo", sensorRequiredInfo)
+                console.log("////////// asking for sensor info id = >" + capacityDevice.sensorId)
+                var sensorRequiredInfo: any = await sensorController.getSensorDevEuiGatewayMac(capacityDevice.sensorId)
+                console.log("sensorRequiredInfo", sensorRequiredInfo)
+                if (sensorRequiredInfo.http == 200) {
+                    var gateways = sensorRequiredInfo.result.gatewaysMac
+                    for (let gateway of gateways) {
+                        gatewaysTopicInfo.push(gateway.mac + '/#')
+                    }
+                }
+            }
+            console.log("*** GET CARTELS ***")
+            // Cartels
+            var cartelDevices: any = await capacityCartelController.getAllCartels()
+            console.log("cartelDevices", cartelDevices)
+            for await (let cartelDevice of cartelDevices.result) {
+                var sensorRequiredInfo: any = await sensorController.getSensorDevEuiGatewayMac(cartelDevice.sensorId)
+                console.log("cartelInfo", sensorRequiredInfo)
+                if (sensorRequiredInfo.http == 200) {
+                    var gateways = sensorRequiredInfo.result.gatewaysMac
+                    for (let gateway of gateways) {
+                        gatewaysTopicInfo.push(gateway.mac + '/#')
+                    }
+                }
+            }
+            console.log("gatewaysTopicInfo", gatewaysTopicInfo)
+            return {
+                http: 200,
+                status: "Success",
+                response: gatewaysTopicInfo.filter(this.onlyUnique)
+            }
+        } catch (error) {
+            console.log(error)
+            return {
+                http: 403,
+                status: "Error"
+            }
+        }
+
+
+
     }
 
     /**

@@ -12,6 +12,7 @@ class CapacityDevicesRouter {
     this.getMostCapacityDevicesAction();
     this.getLessCapacityDevicesAction();
     this.removeCapacityDevice();
+    this.getCapacityDeviceServiceInfo();
     //this.importCapacityDevicesAction();
     //this.importCapacityDevicesParkingAreaAction();
   }
@@ -37,6 +38,18 @@ class CapacityDevicesRouter {
           params.type,
           params.parkingId
         )
+        .then((response) => {
+          res.send(response);
+        })
+        .catch((err) => {
+          res.send(err);
+        });
+    });
+
+    public getCapacityDeviceServiceInfo = () =>
+    this.router.get("/service/info", (req: Request, res: Response) => {
+      capacityDevicesController
+        .getParkingRibbonServiceInfo()
         .then((response) => {
           res.send(response);
         })

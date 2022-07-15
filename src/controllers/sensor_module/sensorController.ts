@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import db from "../../database";
 import { Utils } from "../../utils/Utils";
 import WaterObservationsController from "../water_module/waterObservationsController";
+import mysql from 'mysql';
 
 /*
  * /water/
@@ -147,8 +148,8 @@ class SensorController {
     sensorProvider: any,
     identityKey: any
   ) {
-    console.log("IdentityKey",identityKey)
-    console.log("Provider",sensorProvider)
+    console.log("IdentityKey", identityKey)
+    console.log("Provider", sensorProvider)
     return new Promise((resolve, reject) => {
       var request = require("request");
       /*var options = {
@@ -300,20 +301,20 @@ class SensorController {
     });
   }
 
-    /**
-   * GET ('/sensorGatewayId/:sensorId')
-   * Gets sensor relater gateway id
-   *
-   * @param json_file_data xls file info formated on json
-   *
-   * @return
-   */
+  /**
+ * GET ('/sensorGatewayId/:sensorId')
+ * Gets sensor relater gateway id
+ *
+ * @param json_file_data xls file info formated on json
+ *
+ * @return
+ */
   // create water devices from the recently created sensors
   public async getSensorGatewayMac(sensorId: any) {
     return new Promise((resolve, reject) => {
       db.getConnection((err: any, conn: any) => {
         var select_query =
-          "SELECT `sensor_gateway_pkid`.mac_number FROM `sensor_gateway_pkid` WHERE `sensor_gateway_pkid`.`sensor_id`=" +sensorId+";";
+          "SELECT `sensor_gateway_pkid`.mac_number FROM `sensor_gateway_pkid` WHERE `sensor_gateway_pkid`.`sensor_id`=" + sensorId + ";";
         conn.query(select_query, (err: any, results: any) => {
           if (err) {
             reject({
@@ -340,6 +341,167 @@ class SensorController {
       });
     });
   }
+
+  // Get sensor device eui and gateway mac
+  public async getSensorDevEuiGatewayMac(sensorId: any) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log("sensorId", sensorId)
+        var gatewayMacRequest: any = await this.getSensorGatewayMacNew(sensorId);
+        if (gatewayMacRequest.http == 200) {
+          console.log("gatewayMacRequest", gatewayMacRequest)
+          var gatewayMac: any = gatewayMacRequest.result;
+          var devEuiRequest: any = await this.getSensorById(sensorId);
+          console.log("devEuiRequest", devEuiRequest)
+          if (devEuiRequest.http == 200) {
+            var devEui = devEuiRequest.result.device_EUI;
+            resolve({
+              http: 200,
+              status: "Success",
+              result: {
+                sensorId: sensorId,
+                devEui: devEui,
+                gatewaysMac: gatewayMac,
+              },
+            });
+          } else {
+            resolve({
+              http: 401,
+              status: "Failed",
+              error: devEuiRequest.error,
+            });
+          }
+        } else {
+          resolve({
+            http: 204,
+            status: "There is no related gateway to this sensor",
+          });
+        }
+      } catch (error) {
+        resolve({
+          http: 401,
+          status: "Failed",
+          error: error,
+        });
+      }
+    });
+  }
+
+  // Get sensor by device eui
+  public async getSensorByDeviceEUI(devEUI: any) {
+    return new Promise((resolve, reject) => {
+      db.getConnection((err: any, conn: any) => {
+        var select_query =
+          "SELECT * FROM `sensor_info` WHERE `device_EUI`='" + devEUI + "';";
+        conn.query(select_query, (err: any, results: any) => {
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          } else {
+            if (results && results.length == 0) {
+              resolve({
+                http: 204,
+                status: "Success",
+                result: "There is no sensor with this device eui",
+              });
+            } else {
+              resolve({
+                http: 200,
+                status: "Success",
+                result: results[0],
+              });
+            }
+          }
+        });
+      });
+    });
+  }
+
+  // Get sensor by id
+  public async getSensorById(sensorId: any) {
+    return new Promise((resolve, reject) => {
+      db.getConnection((err: any, conn: any) => {
+        var select_query = "SELECT * FROM `sensor_info` WHERE `id`=" + sensorId + ";";
+        conn.query(select_query, (err: any, results: any) => {
+          conn.release();
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          else {
+            if (results && results.length == 0) {
+              resolve({
+                http: 204,
+                status: "Success",
+                result: "There is no sensor with this id"
+              });
+            }
+            else {
+              resolve({
+                http: 200,
+                status: "Success",
+                result: results[0]
+              });
+            }
+          }
+        });
+      });
+    });
+  }
+
+
+
+  // Get sensor device eui and gateway mac
+  public async getSensorGatewayMacNew(sensorId: any) {
+    return new Promise(async (resolve, reject) => {
+      console.log("sensorId", sensorId)
+      var connection = mysql.createPool({
+        host: 'localhost',
+        user: 'root',
+        password: 'Al8987154St12',
+        //password: '',
+        database: 'swat_gesinen'
+      });
+      connection.getConnection((err: any, conn: any) => {
+        console.log("err", err)
+        var select_query = "SELECT mac FROM `gateways` WHERE `sensors_id` LIKE '%" + sensorId + "%'"
+        console.log("select_query", select_query)
+        conn.query(select_query, async (err: any, results: any) => {
+          conn.release();
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          } else {
+            console.log("results", results)
+            if (results && results.length == 0) {
+              resolve({
+                http: 204,
+                status: "Success",
+                result: "There are no related gateway to this sensor",
+              });
+            } else {
+              resolve({
+                http: 200,
+                status: "Success",
+                result: results,
+              });
+            }
+          }
+        });
+      });
+    });
+  }
+
 }
+
 
 export default new SensorController();

@@ -7,7 +7,7 @@ import capacityCartelLineController from './capacityCartelLine';
 /*
  * /capacity/devices
  */
-class CapacityDevicesController {
+class CapacityCartelDevicesController {
 
     public async getCapacityCartelList(userId: number, pageSize: number, pageIndex: number): Promise<any> {
         return new Promise((resolve, reject) => {
@@ -62,6 +62,48 @@ class CapacityDevicesController {
                     error: error
                 })
             }
+        })
+    }
+
+    public async getAllCartels(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            var query = "SELECT * FROM capacity_cartel";
+
+            db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    if (results) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results
+                        })
+                    } else {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                })
+            })
         })
     }
 
@@ -359,4 +401,4 @@ class CapacityDevicesController {
     }
 }
 
-export default new CapacityDevicesController();
+export default new CapacityCartelDevicesController();

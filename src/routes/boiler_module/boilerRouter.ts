@@ -14,6 +14,7 @@ class BoilerRouter {
     this.updateBoilerPingDataV2();
     this.updateBoilerPingDataActionTempDistV1();
     this.updateBoilerPingDataScheduleV1();
+    this.getBoilerModuleServiceInfoAction();
   }
 
   public createBoilerAction = () =>
@@ -21,7 +22,7 @@ class BoilerRouter {
       const params = req.body;
 
       boilerController.createBoilerDevice(params.userId, params.name, params.description,
-        params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.depth, params.length, params.width)
+        params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width)
         .then(response => {
           res.send(response)
         })
@@ -35,7 +36,7 @@ class BoilerRouter {
       const params = req.body;
 
       boilerController.updateBoilerDevice(params.id, params.userId, params.name, params.description, params.sensorId, params.mode,
-        params.schedule, params.scheduleWeekend, params.model, params.depth, params.length, params.width)
+        params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width)
         .then(response => {
           res.send(response)
         })
@@ -121,6 +122,20 @@ class BoilerRouter {
         let params: any = req.params
         boilerController
           .getBoilerById(params.id)
+          .then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      }
+    );
+
+  public getBoilerModuleServiceInfoAction = () =>
+    this.router.get("/service/info",
+      (req: Request, res: Response) => {
+        boilerController
+          .getBoilerServiceInfo()
           .then((response) => {
             res.send(response);
           })
