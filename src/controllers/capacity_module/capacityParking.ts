@@ -110,6 +110,14 @@ class CapacityDevicesController {
                             error: error
                         })
                     }
+                    //console.log('result',results);
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: "There are no parkings with this ID and authorization please check",
+                        })
+                    } else {
                     resolve({
                         http: 200,
                         status: 'Success',
@@ -120,6 +128,7 @@ class CapacityDevicesController {
                             "maxCapacity": results[0].maxCapacity
                         }]
                     })
+                }
                     /*if(results[0].authToken == authorization && results[0].provider ==  provider){
                         resolve({
                             http: 200,
