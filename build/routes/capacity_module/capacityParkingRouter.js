@@ -51,6 +51,36 @@ class CapacityParkingRouter {
                 res.send(err);
             });
         });
+        /**
+       * Get a capacity device with an ID Using Auth Token for Mobile Application
+       * GET ('/:id')
+       */
+        this.getParkingByIdUsingAuthToken = () => this.router.get("/byAuth/:id", (req, res) => {
+            capacityParking_1.default
+                .getParkingByAuthToken(parseInt(req.params.id), req.headers.authorization, req.headers.provider)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
+        /**
+         * Update a capacity device for mobile Application
+         * PUT ('/:id')
+         */
+        this.updateParkingCapacityByAuthToken = () => this.router.put("/byAuth/:id", (req, res) => {
+            const id = parseInt(req.params.id);
+            const params = req.body;
+            capacityParking_1.default
+                .updateParkingCapacityByAuthToken(id, req.headers.authorization, req.headers.provider, params.currentCapacity, params.maxCapacity)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
         this.deleteParking = () => this.router.delete("/:id", (req, res) => {
             capacityParking_1.default
                 .deleteCapacityParking(parseInt(req.params.id))
@@ -128,6 +158,9 @@ class CapacityParkingRouter {
         this.updateCapacityDeviceAction();
         this.updateParkingActualCapacity();
         this.getParkingSensors();
+        //for Mobile Application
+        this.getParkingByIdUsingAuthToken();
+        this.updateParkingCapacityByAuthToken();
     }
 }
 const capacityParkingRouter = new CapacityParkingRouter();

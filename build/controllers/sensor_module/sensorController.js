@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../../database"));
 const Utils_1 = require("../../utils/Utils");
+const mysql_1 = __importDefault(require("mysql"));
 /*
  * /water/
  */
@@ -342,6 +343,173 @@ class SensorController {
                     });
                 });
             });
+        });
+    }
+    // Get sensor device eui and gateway mac
+    getSensorDevEuiGatewayMac(sensorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    console.log("sensorId", sensorId);
+                    var gatewayMacRequest = yield this.getSensorGatewayMacNew(sensorId);
+                    if (gatewayMacRequest.http == 200) {
+                        console.log("gatewayMacRequest", gatewayMacRequest);
+                        var gatewayMac = gatewayMacRequest.result;
+                        var devEuiRequest = yield this.getSensorById(sensorId);
+                        console.log("devEuiRequest", devEuiRequest);
+                        if (devEuiRequest.http == 200) {
+                            var devEui = devEuiRequest.result.device_EUI;
+                            resolve({
+                                http: 200,
+                                status: "Success",
+                                result: {
+                                    sensorId: sensorId,
+                                    devEui: devEui,
+                                    gatewaysMac: gatewayMac,
+                                },
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 401,
+                                status: "Failed",
+                                error: devEuiRequest.error,
+                            });
+                        }
+                    }
+                    else {
+                        resolve({
+                            http: 204,
+                            status: "There is no related gateway to this sensor",
+                        });
+                    }
+                }
+                catch (error) {
+                    resolve({
+                        http: 401,
+                        status: "Failed",
+                        error: error,
+                    });
+                }
+            }));
+        });
+    }
+    // Get sensor by device eui
+    getSensorByDeviceEUI(devEUI) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    var select_query = "SELECT * FROM `sensor_info` WHERE `device_EUI`='" + devEUI + "';";
+                    conn.query(select_query, (err, results) => {
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: "Failed",
+                                error: err,
+                            });
+                        }
+                        else {
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: "Success",
+                                    result: "There is no sensor with this device eui",
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 200,
+                                    status: "Success",
+                                    result: results[0],
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    }
+    // Get sensor by id
+    getSensorById(sensorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    var select_query = "SELECT * FROM `sensor_info` WHERE `id`=" + sensorId + ";";
+                    conn.query(select_query, (err, results) => {
+                        conn.release();
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: "Failed",
+                                error: err,
+                            });
+                        }
+                        else {
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: "Success",
+                                    result: "There is no sensor with this id"
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 200,
+                                    status: "Success",
+                                    result: results[0]
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    }
+    // Get sensor device eui and gateway mac
+    getSensorGatewayMacNew(sensorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                console.log("sensorId", sensorId);
+                var connection = mysql_1.default.createPool({
+                    host: 'localhost',
+                    user: 'root',
+                    password: 'Al8987154St12',
+                    //password: '',
+                    database: 'swat_gesinen'
+                });
+                connection.getConnection((err, conn) => {
+                    console.log("err", err);
+                    var select_query = "SELECT mac FROM `gateways` WHERE `sensors_id` LIKE '%" + sensorId + "%'";
+                    console.log("select_query", select_query);
+                    conn.query(select_query, (err, results) => __awaiter(this, void 0, void 0, function* () {
+                        conn.release();
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: "Failed",
+                                error: err,
+                            });
+                        }
+                        else {
+                            console.log("results", results);
+                            if (results && results.length == 0) {
+                                resolve({
+                                    http: 204,
+                                    status: "Success",
+                                    result: "There are no related gateway to this sensor",
+                                });
+                            }
+                            else {
+                                resolve({
+                                    http: 200,
+                                    status: "Success",
+                                    result: results,
+                                });
+                            }
+                        }
+                    }));
+                });
+            }));
         });
     }
 }

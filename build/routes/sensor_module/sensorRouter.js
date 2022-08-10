@@ -29,6 +29,26 @@ class SensorRouter {
                 res.send(err);
             });
         });
+        this.getSensorDevEuiAndGatewayMacAction = () => this.router.get("/mqttinfo/:sensorId", (req, res) => {
+            sensorController_1.default
+                .getSensorDevEuiGatewayMac(req.params.sensorId)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
+        this.getSensorByDevEui = () => this.router.get("/deveui/:deveui", (req, res) => {
+            sensorController_1.default
+                .getSensorByDeviceEUI(req.params.deveui)
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
         this.getSensorGatewayMacAction = () => this.router.get("/sensorGatewayMac/:sensorId", (req, res) => {
             sensorController_1.default
                 .getSensorGatewayMac(req.params.sensorId)
@@ -54,6 +74,8 @@ class SensorRouter {
         this.getSensorGatewayIdAction();
         this.getSensorSentiloObservationsAction();
         this.getSensorGatewayMacAction();
+        this.getSensorDevEuiAndGatewayMacAction();
+        this.getSensorByDevEui();
     }
 }
 const sensorRoutes = new SensorRouter();

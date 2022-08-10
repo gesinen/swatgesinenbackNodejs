@@ -10,7 +10,7 @@ class BoilerRouter {
         this.router = (0, express_1.Router)();
         this.createBoilerAction = () => this.router.post("/", (req, res) => {
             const params = req.body;
-            boilerController_1.default.createBoilerDevice(params.userId, params.name, params.description, params.sensorId, params.mode, params.schedule, params.model, params.depth, params.length, params.width)
+            boilerController_1.default.createBoilerDevice(params.userId, params.name, params.description, params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width)
                 .then(response => {
                 res.send(response);
             })
@@ -20,7 +20,7 @@ class BoilerRouter {
         });
         this.updateBoilerAction = () => this.router.put("/", (req, res) => {
             const params = req.body;
-            boilerController_1.default.updateBoilerDevice(params.id, params.userId, params.name, params.description, params.sensorId, params.mode, params.schedule, params.model, params.depth, params.length, params.width)
+            boilerController_1.default.updateBoilerDevice(params.id, params.userId, params.name, params.description, params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width)
                 .then(response => {
                 res.send(response);
             })
@@ -93,6 +93,16 @@ class BoilerRouter {
                 res.send(err);
             });
         });
+        this.getBoilerModuleServiceInfoAction = () => this.router.get("/service/info", (req, res) => {
+            boilerController_1.default
+                .getBoilerServiceInfo()
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
         this.deleteBoilerAction = () => this.router.delete("/:id", (req, res) => {
             boilerController_1.default.deleteBoilerDevice(parseInt(req.params.id))
                 .then(response => {
@@ -111,6 +121,7 @@ class BoilerRouter {
         this.updateBoilerPingDataV2();
         this.updateBoilerPingDataActionTempDistV1();
         this.updateBoilerPingDataScheduleV1();
+        this.getBoilerModuleServiceInfoAction();
     }
 }
 const boilerRoutes = new BoilerRouter();

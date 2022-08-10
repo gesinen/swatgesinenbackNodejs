@@ -8,11 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../../database"));
+const sensorController_1 = __importDefault(require("../sensor_module/sensorController"));
+const capacityCartel_1 = __importDefault(require("./capacityCartel"));
 const capacityTypeRibbon_1 = __importDefault(require("./capacityTypeRibbon"));
 const capacityTypeSpot_1 = __importDefault(require("./capacityTypeSpot"));
 /*
@@ -348,6 +357,104 @@ class CapacityDevicesController {
                     });
                 });
             });
+        });
+    }
+    getAllCapacityDevices() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((err, conn) => {
+                    conn.query("SELECT * FROM capacity_devices WHERE capacity_devices.type='parking_area_config'", (err, results) => {
+                        conn.release();
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: results
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    }
+    onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+    getParkingRibbonServiceInfo() {
+        var e_1, _a, e_2, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            var gatewaysTopicInfo = [];
+            try {
+                // Capacity devices
+                var capacityDevices = yield this.getAllCapacityDevices();
+                console.log("capacityDevices", capacityDevices);
+                try {
+                    for (var _c = __asyncValues(capacityDevices.result), _d; _d = yield _c.next(), !_d.done;) {
+                        let capacityDevice = _d.value;
+                        //console.log("capcityDevInfo", sensorRequiredInfo)
+                        console.log("////////// asking for sensor info id = >" + capacityDevice.sensorId);
+                        var sensorRequiredInfo = yield sensorController_1.default.getSensorDevEuiGatewayMac(capacityDevice.sensorId);
+                        console.log("sensorRequiredInfo", sensorRequiredInfo);
+                        if (sensorRequiredInfo.http == 200) {
+                            var gateways = sensorRequiredInfo.result.gatewaysMac;
+                            for (let gateway of gateways) {
+                                gatewaysTopicInfo.push(gateway.mac + '/#');
+                            }
+                        }
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (_d && !_d.done && (_a = _c.return)) yield _a.call(_c);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+                console.log("*** GET CARTELS ***");
+                // Cartels
+                var cartelDevices = yield capacityCartel_1.default.getAllCartels();
+                console.log("cartelDevices", cartelDevices);
+                try {
+                    for (var _e = __asyncValues(cartelDevices.result), _f; _f = yield _e.next(), !_f.done;) {
+                        let cartelDevice = _f.value;
+                        var sensorRequiredInfo = yield sensorController_1.default.getSensorDevEuiGatewayMac(cartelDevice.sensorId);
+                        console.log("cartelInfo", sensorRequiredInfo);
+                        if (sensorRequiredInfo.http == 200) {
+                            var gateways = sensorRequiredInfo.result.gatewaysMac;
+                            for (let gateway of gateways) {
+                                gatewaysTopicInfo.push(gateway.mac + '/#');
+                            }
+                        }
+                    }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (_f && !_f.done && (_b = _e.return)) yield _b.call(_e);
+                    }
+                    finally { if (e_2) throw e_2.error; }
+                }
+                console.log("gatewaysTopicInfo", gatewaysTopicInfo);
+                return {
+                    http: 200,
+                    status: "Success",
+                    response: gatewaysTopicInfo.filter(this.onlyUnique)
+                };
+            }
+            catch (error) {
+                console.log(error);
+                return {
+                    http: 403,
+                    status: "Error"
+                };
+            }
         });
     }
     /**

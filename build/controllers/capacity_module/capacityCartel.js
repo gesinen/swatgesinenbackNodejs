@@ -17,7 +17,7 @@ const capacityCartelLine_1 = __importDefault(require("./capacityCartelLine"));
 /*
  * /capacity/devices
  */
-class CapacityDevicesController {
+class CapacityCartelDevicesController {
     getCapacityCartelList(userId, pageSize, pageIndex) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -68,6 +68,46 @@ class CapacityDevicesController {
                         error: error
                     });
                 }
+            });
+        });
+    }
+    getAllCartels() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                var query = "SELECT * FROM capacity_cartel";
+                database_1.default.getConnection((err, conn) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        if (results) {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: results
+                            });
+                        }
+                        else {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                    });
+                });
             });
         });
     }
@@ -354,4 +394,4 @@ class CapacityDevicesController {
         });
     }
 }
-exports.default = new CapacityDevicesController();
+exports.default = new CapacityCartelDevicesController();

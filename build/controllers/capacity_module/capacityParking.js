@@ -82,6 +82,70 @@ class CapacityDevicesController {
             });
         });
     }
+    getParkingByAuthToken(id, authorization, provider) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (authorization == '' && provider == '' || (authorization == undefined && provider == undefined)) {
+                return new Promise((resolve, reject) => {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: 'Authorization Failed'
+                    });
+                });
+            }
+            return new Promise((resolve, reject) => {
+                var query = "SELECT * FROM capacity_parking WHERE id = " + id + " and authToken = '" + authorization + "' and provider ='" + provider + "'";
+                database_1.default.getConnection((err, conn) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            capacity_devices: [{
+                                    "id": results[0].id,
+                                    "name": results[0].name,
+                                    "currentCapacity": results[0].currentCapacity,
+                                    "maxCapacity": results[0].maxCapacity
+                                }]
+                        });
+                        /*if(results[0].authToken == authorization && results[0].provider ==  provider){
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                capacity_devices: [{
+                                    "id": results[0].id,
+                                    "name": results[0].name,
+                                    "currentCapacity": results[0].currentCapacity,
+                                    "maxCapacity": results[0].maxCapacity
+                                }]
+                            })
+                        }
+                        else{
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: 'Unauthorized'
+                            })
+                        }*/
+                    });
+                });
+            });
+        });
+    }
     getCartelById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -225,6 +289,71 @@ class CapacityDevicesController {
                                 http: 204,
                                 status: 'Success',
                                 result: "There are no parkings with this ID",
+                            });
+                        }
+                        else {
+                            resolve({
+                                http: 200,
+                                status: 'Success',
+                                result: "The parking capacity has been updated successfully"
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    } // ()
+    // Update Paking current Capacity and max capacity for Mobile app
+    updateParkingCapacityByAuthToken(id, authorization, provider, currentCapacity, maxCapacity) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (authorization == '' && provider == '' || (authorization == undefined && provider == undefined)) {
+                return new Promise((resolve, reject) => {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: 'Authorization Failed'
+                    });
+                });
+            }
+            return new Promise((resolve, reject) => {
+                var query = "UPDATE capacity_parking SET";
+                // Checking if each param is not empty and adding it to the query
+                if (currentCapacity) {
+                    query += " currentCapacity = '" + currentCapacity + "',";
+                }
+                if (maxCapacity) {
+                    query += " maxCapacity = '" + maxCapacity + "',";
+                }
+                // Removing the last comma
+                query = query.slice(0, -1);
+                console.log(query);
+                // Adding the WHERE condition 
+                query += " WHERE id = " + id + " and  authToken = '" + authorization + "' and provider = '" + provider + "'";
+                console.log('complete query', query);
+                // Running the query
+                database_1.default.getConnection((err, conn) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: err
+                            });
+                        }
+                        console.log('results', results.affectedRows);
+                        if (results.affectedRows == 0) {
+                            resolve({
+                                http: 204,
+                                status: 'Success',
+                                result: "There are no parkings with this ID and authorization please check",
                             });
                         }
                         else {
