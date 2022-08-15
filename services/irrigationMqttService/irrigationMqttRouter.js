@@ -36,8 +36,8 @@ const mysql = require('mysql');
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'Al8987154St12',
-    //password: '',
+    //password: 'Al8987154St12',
+    password: '',
     database: 'swat_gesinen'
 });
 
@@ -238,8 +238,7 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
 
 }
 async function main() {
-    let querySql = `SELECT irrigation_device.id as irrigation_device_id, sensor_gateway_pkid.mac_number as device_gateway, sensor_info.device_EUI as irrigation_deviceEUI FROM irrigation_device INNER JOIN 
-sensor_info ON sensor_info.id=irrigation_device.sensorId INNER JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=irrigation_device.sensorId`
+    let querySql = `SELECT irrigation_device.id as irrigation_device_id, gateways.mac as device_gateway, sensor_info.device_EUI as irrigation_deviceEUI FROM irrigation_device INNER JOIN sensor_info ON sensor_info.id=irrigation_device.sensorId INNER JOIN gateways ON gateways.sensors_id LIKE CONCAT('%',irrigation_device.sensorId,'%');`
 
     let storedData = []
     let deviceEUI_fk_irrigationDevEUI = []

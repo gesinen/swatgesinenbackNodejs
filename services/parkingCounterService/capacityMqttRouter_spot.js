@@ -142,9 +142,7 @@ function hexToBase64(str) {
 const client = mqtt.connect('mqtts://gesinen.es:8882', options)
 
 async function subscribeGateways() {
-    let querySql = "SELECT sensor_gateway_pkid.mac_number, sensor_info.device_EUI FROM capacity_devices INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId INNER JOIN " +
-        "sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id INNER JOIN capacity_type_spot ON" +
-        " capacity_type_spot.capacityDeviceId=capacity_devices.id WHERE capacity_devices.type='parking_individual'"
+    let querySql = "SELECT gateways.mac, sensor_info.device_EUI FROM capacity_devices INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId INNER JOIN gateways ON gateways.sensors_id LIKE CONCAT('%', capacity_devices.sensorId, '%') INNER JOIN capacity_type_spot ON capacity_type_spot.capacityDeviceId=capacity_devices.id WHERE capacity_devices.type='parking_individual';";
     console.log("querySql", querySql)
 
     let storedData = []

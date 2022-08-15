@@ -397,4 +397,109 @@ async function getBoilerServiceInfo() {
     })
 }
 
+const cron = require('node-cron');
+
+cron.schedule('0 0 * * FRI', function() {
+    console.log('running friday task');
+    updateSchedules();
+});
+
+cron.schedule('0 0 * * SUN', function() {
+    console.log('running sunday task');
+    updateSchedules();
+});
+
+cron.schedule('0 0 * * MON', function() {
+    console.log('running monday task');
+    updateSchedules();
+});
+
+async function updateSchedules(){
+    const client = mqtt.connect('mqtts://gesinen.es:8882', options)
+    let idRelatedToBoilerDeveui = []
+
+    // Obtengo los topics de mqtt, deviceEUI y id de todos los sensores para subscribirme tras la conexion satisfactoria a mqtt
+    let boilerServiceInfo = await getBoilerServiceInfo()
+    //console.log("boilerServiceInfo", boilerServiceInfo)
+    boilerServiceInfo.forEach(boilerInfo => {
+
+        // Me subscribo a todos dispositivos del modulo de calderas
+        client.subscribe(boilerInfo.topic, function(err) {
+            if (!err) {
+                console.log("subscrito a " + boilerInfo.topic)
+            } else {
+                console.log(err)
+            }
+        })
+
+        // Relaciona cada device EUI del sensor asociado a la caldera con su sensor id
+        idRelatedToBoilerDeveui[boilerInfo.sensorDevEui] = boilerInfo.sensorId
+    })
+
+    client.on('connect', function() {
+        console.log('Connected')
+        console.log("idRelatedToBoilerDeveui", idRelatedToBoilerDeveui)
+
+        // Reset handler topic
+        client.subscribe('boiler/service/reset', function(err) {
+            if (!err) {
+                console.log("subscrito a Reset handler topic => boiler/service/reset")
+            } else {
+                console.log(err)
+            }
+        })
+    })
+
+    client.on('disconnect', function(err) {
+        console.log("disconnect", err);
+    })
+
+    client.on('error', function(err) {
+        console.log("error", err);
+    })
+
+    client.on('message', async function(topic, message) {
+        console.log("topic", topic)
+
+        if (topic != undefined && topic == "boiler/service/reset") {
+            console.log("// reseting boiler service... //")
+            client.end()
+            main()
+        } else {
+            // Este mensaje es el que hizo buchu que integra todo en un mensaje de ping
+            console.log("message", JSON.parse(message.toString()))
+            let messageJSON = JSON.parse(message.toString())
+            // MODELO SENSOR TEMPERATURA MODBUS
+            /*if (topic != undefined && messageJSON.object.DecodeDataHex != undefined) {
+                let boilerId = idRelatedToBoilerDeveui[topic.split("/")[4]]
+                console.log("message", messageJSON)
+                let pingData = updateBoilerOnDatabaseV2(messageJSON.object.DecodeDataHex)
+                updateBoilerOnDatabase(boilerId, pingData)
+            }*/
+
+            if (topic != undefined && messageJSON.object.DecodeDataHex != undefined) {
+                // SCHEDULE - PING
+                if (messageJSON.object.DecodeDataHex.substring(0, 2) == "0a") {
+                    /* MENSAJE V1 */
+                    // let boilerId = idRelatedToBoilerDeveui[topic.split("/")[4]]
+                    let boilerDevEui = topic.split("/")[4]
+                    console.log("message", messageJSON)
+                    // FULL PING DATA
+                    // let pingData = decodeBoilerPingScheduleV1(messageJSON.object.DecodeDataHex)
+
+                    // Solo cambio el estado del rele con este mensaje para evitar race condition
+                    let pingData = decodeBoilerPingScheduleV1rele(messageJSON.object.DecodeDataHex)
+                    updateBoilerOnDatabaseStatusV1(idRelatedToBoilerDeveui[boilerDevEui], pingData)
+                } else {
+                    /* MENSAJE V1 */
+                    let boilerDevEui = topic.split("/")[4]
+                    console.log("message", messageJSON)
+                    let pingData = decodeBoilerPingTemperatureDistanceV1(messageJSON.object.DecodeDataHex)
+                    updateBoilerOnDatabaseDistTempV1(idRelatedToBoilerDeveui[boilerDevEui], pingData)
+                }
+            }
+        }
+    })
+}
+
 main()
