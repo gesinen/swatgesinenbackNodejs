@@ -82,6 +82,49 @@ class CapacityDevicesController {
             });
         });
     }
+    getParkingListByAuthToken(pageSize, pageIndex, authorization, provider) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (authorization == '' && provider == '' || (authorization == undefined && provider == undefined)) {
+                return new Promise((resolve, reject) => {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: 'Authorization Failed'
+                    });
+                });
+            }
+            return new Promise((resolve, reject) => {
+                const first_value = (pageSize * pageIndex) - pageSize;
+                var query = "SELECT * FROM capacity_parking WHERE  authToken = '" + authorization + "' and provider ='" + provider + "'";
+                " ORDER BY capacity_parking.id DESC LIMIT " + first_value + ', ' + pageSize + ";";
+                database_1.default.getConnection((err, conn) => {
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        });
+                    }
+                    console.log("query", query);
+                    conn.query(query, (error, results) => {
+                        conn.release();
+                        if (error) {
+                            reject({
+                                http: 401,
+                                status: 'Failed',
+                                error: error
+                            });
+                        }
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            capacity_devices: results
+                        });
+                    });
+                });
+            });
+        });
+    }
     getParkingByAuthToken(id, authorization, provider) {
         return __awaiter(this, void 0, void 0, function* () {
             if (authorization == '' && provider == '' || (authorization == undefined && provider == undefined)) {
@@ -127,6 +170,7 @@ class CapacityDevicesController {
                                 capacity_devices: [{
                                         "id": results[0].id,
                                         "name": results[0].name,
+                                        "description": results[0].description,
                                         "currentCapacity": results[0].currentCapacity,
                                         "maxCapacity": results[0].maxCapacity
                                     }]

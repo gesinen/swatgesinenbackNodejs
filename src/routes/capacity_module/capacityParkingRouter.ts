@@ -16,6 +16,7 @@ class CapacityParkingRouter {
 
     //for Mobile Application
     this.getParkingByIdUsingAuthToken();
+    this.getParkingListUsingAuthToken();
     this.updateParkingCapacityByAuthToken();
   }
 
@@ -82,6 +83,30 @@ class CapacityParkingRouter {
           res.send(err);
         });
     });
+
+    /**
+   * Get a capacity device Parking List
+   * GET 
+   */
+  public getParkingListUsingAuthToken = () =>
+  this.router.get(
+    "/byAuth/list/:pageSize/:pageIndex",
+    (req: Request, res: Response) => {
+      capacityParkingController
+        .getParkingListByAuthToken(
+          parseInt(req.params.pageSize),
+          parseInt(req.params.pageIndex),
+          req.headers.authorization,
+          req.headers.provider
+        )
+        .then((response) => {
+          res.send(response);
+        })
+        .catch((err) => {
+          res.send(err);
+        });
+    }
+  );
 
     /**
    * Get a capacity device with an ID Using Auth Token for Mobile Application
