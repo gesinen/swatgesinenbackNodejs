@@ -24,6 +24,7 @@ import capacityParkingRouter from './routes/capacity_module/capacityParkingRoute
 import capacityTypeRibbonRouter from './routes/capacity_module/capacityTypeRibbonRouter';
 import capacityTypeSpotRouter from './routes/capacity_module/capacityTypeSpotRouter';
 import boilerRouter from './routes/boiler_module/boilerRouter';
+import waterDevicesColumnConfigRouter from './routes/water_module/waterDevicesColumnConfigRouter'
 
 class Server {
 
@@ -36,7 +37,7 @@ class Server {
     }
 
     config(): void {
-        this.app.set('port', process.env.PORT || 8080);
+        this.app.set('port', process.env.PORT || 8080);//8080
         this.app.use(morgan('dev'));
         this.app.use(cors());
         this.app.use(express.json());
@@ -51,7 +52,8 @@ class Server {
         this.app.use('/v2/capacity/parkings', capacityParkingRouter);
         this.app.use('/v2/capacity/devices/ribbon', capacityTypeRibbonRouter);
         this.app.use('/v2/capacity/devices/spot', capacityTypeSpotRouter);
-        this.app.use('/v2/water/devices', waterDevicesRouter);
+        this.app.use('/v2/water/columnConfig', waterDevicesColumnConfigRouter);
+        this.app.use('/v2/water/devices', waterDevicesRouter);        
         this.app.use('/v2/water/users', waterUsersRouter);
         this.app.use('/v2/water/observations', waterObservationsRouter);
         this.app.use('/v2/water/groups', waterGroupsRouter);

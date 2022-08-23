@@ -15,7 +15,8 @@ class WaterDevicesRouter {
     this.updateWaterDevicesFromExcel();
     this.getWaterDeviceListingSortedAction();
     this.getWaterDeviceByContractNumber();
-    this.updateWaterDeviceById();    
+    this.updateWaterDeviceById();
+       
   }
 
   public createWaterDeviceAction = () =>
@@ -280,6 +281,7 @@ class WaterDevicesRouter {
           res.send(err);
         });
     });
+
 }
 
 const waterDevicesRoutes = new WaterDevicesRouter();

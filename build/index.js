@@ -26,6 +26,7 @@ const capacityParkingRouter_1 = __importDefault(require("./routes/capacity_modul
 const capacityTypeRibbonRouter_1 = __importDefault(require("./routes/capacity_module/capacityTypeRibbonRouter"));
 const capacityTypeSpotRouter_1 = __importDefault(require("./routes/capacity_module/capacityTypeSpotRouter"));
 const boilerRouter_1 = __importDefault(require("./routes/boiler_module/boilerRouter"));
+const waterDevicesColumnConfigRouter_1 = __importDefault(require("./routes/water_module/waterDevicesColumnConfigRouter"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -33,7 +34,7 @@ class Server {
         this.routes();
     }
     config() {
-        this.app.set('port', process.env.PORT || 8080);
+        this.app.set('port', process.env.PORT || 8080); //8080
         this.app.use((0, morgan_1.default)('dev'));
         this.app.use((0, cors_1.default)());
         this.app.use(express_1.default.json());
@@ -47,6 +48,7 @@ class Server {
         this.app.use('/v2/capacity/parkings', capacityParkingRouter_1.default);
         this.app.use('/v2/capacity/devices/ribbon', capacityTypeRibbonRouter_1.default);
         this.app.use('/v2/capacity/devices/spot', capacityTypeSpotRouter_1.default);
+        this.app.use('/v2/water/columnConfig', waterDevicesColumnConfigRouter_1.default);
         this.app.use('/v2/water/devices', waterDevicesRouter_1.default);
         this.app.use('/v2/water/users', waterUsersRouter_1.default);
         this.app.use('/v2/water/observations', waterObservationsRouter_1.default);
