@@ -16,10 +16,17 @@ class WaterDevicesColumnConfigController {
    * @param user
    * @param user_id
    * @param units
-   * @param counter_number
+   * @param numContador
    * @param description
    * @param use_for
    * @param installation_address
+   * @param user_name
+   * @param device_eui
+   * @param sensor_name
+   * @param device_diameter
+   * @param numModuleLora
+   * @param provider
+   * @param authToken
    *
    * @returns
    */
@@ -30,15 +37,22 @@ class WaterDevicesColumnConfigController {
     user: boolean = false,
     user_id: number = null,
     units: boolean = false,
-    counter_number: boolean=false,
     description: boolean = false,
     use_for: boolean = false,
-    installation_address: boolean = false
+    installation_address: boolean = false,
+    user_name: boolean = false,
+    device_eui: boolean = false,
+    sensor_name: boolean = false,
+    device_diameter: boolean = false,
+    numContador: boolean = false,
+    numModuleLora: boolean = false,
+    provider: boolean = false,
+    authToken: boolean = false
     ): Promise<object> {
     
 
     var query =
-      "INSERT INTO water_module_device_column_config (name, user_id, description, units, contract_number, installation_address) VALUES (" +
+      "INSERT INTO water_module_device_column_config (name, user_id, description, units, contract_number, use_for,installation_address,device_diameter,device_eui,sensor_name,user_name,numContador,numModuleLora,provider,authToken) VALUES (" +
       name +
       "," +
       user_id +
@@ -49,7 +63,25 @@ class WaterDevicesColumnConfigController {
       "," +
       contract_number +
       "," +
+      use_for +
+      "," +
       installation_address +
+      "," +
+      device_diameter +
+      "," +
+      device_eui +
+      "," +
+      sensor_name +
+      "," +
+      user_name +
+      "," +
+      numContador +
+      "," +
+      numModuleLora +
+      "," +
+      provider +
+      "," +
+      authToken +
       ")";
     console.log(query)
     return new Promise((resolve: any, reject: any) => {
@@ -101,6 +133,13 @@ class WaterDevicesColumnConfigController {
    * @param description
    * @param use_for
    * @param installation_address
+   * @param user_name
+   * @param device_eui
+   * @param sensor_name
+   * @param device_diameter
+   * @param numModuleLora
+   * @param provider
+   * @param authToken
    *
    * @returns
    */
@@ -114,7 +153,15 @@ class WaterDevicesColumnConfigController {
     counter_number: boolean=false,
     description: boolean = false,
     use_for: boolean = false,
-    installation_address: boolean = false
+    installation_address: boolean = false,
+    user_name: boolean = false,
+    device_eui: boolean = false,
+    sensor_name: boolean = false,
+    device_diameter: boolean = false,
+    numContador: boolean = false,
+    numModuleLora: boolean = false,
+    provider: boolean = false,
+    authToken: boolean = false
     ): Promise<object> {
     
 
@@ -128,8 +175,26 @@ class WaterDevicesColumnConfigController {
       units +
       ", contract_number = " +
       contract_number +
+      ", use_for = " +
+      use_for +
       ", installation_address = " +
       installation_address +
+      ", user_name = " +
+      user_name +
+      ", device_eui = " +
+      device_eui +
+      ", sensor_name = " +
+      sensor_name +
+      ", device_diameter = " +
+      device_diameter +
+      ", numContador = " +
+      numContador +
+      ", numModuleLora = " +
+      numModuleLora +
+      ", provider = " +
+      provider +
+      ", authToken = " +
+      authToken +
       " where user_id ="+ user_id;
     console.log(query)
     return new Promise((resolve: any, reject: any) => {

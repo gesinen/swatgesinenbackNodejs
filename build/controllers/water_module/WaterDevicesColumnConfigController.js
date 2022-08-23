@@ -25,16 +25,23 @@ class WaterDevicesColumnConfigController {
      * @param user
      * @param user_id
      * @param units
-     * @param counter_number
+     * @param numContador
      * @param description
      * @param use_for
      * @param installation_address
+     * @param user_name
+     * @param device_eui
+     * @param sensor_name
+     * @param device_diameter
+     * @param numModuleLora
+     * @param provider
+     * @param authToken
      *
      * @returns
      */
-    createWaterDeviceColumnConfig(name = false, contract_number = false, user = false, user_id = null, units = false, counter_number = false, description = false, use_for = false, installation_address = false) {
+    createWaterDeviceColumnConfig(name = false, contract_number = false, user = false, user_id = null, units = false, description = false, use_for = false, installation_address = false, user_name = false, device_eui = false, sensor_name = false, device_diameter = false, numContador = false, numModuleLora = false, provider = false, authToken = false) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query = "INSERT INTO water_module_device_column_config (name, user_id, description, units, contract_number, installation_address) VALUES (" +
+            var query = "INSERT INTO water_module_device_column_config (name, user_id, description, units, contract_number, use_for,installation_address,device_diameter,device_eui,sensor_name,user_name,numContador,numModuleLora,provider,authToken) VALUES (" +
                 name +
                 "," +
                 user_id +
@@ -45,7 +52,25 @@ class WaterDevicesColumnConfigController {
                 "," +
                 contract_number +
                 "," +
+                use_for +
+                "," +
                 installation_address +
+                "," +
+                device_diameter +
+                "," +
+                device_eui +
+                "," +
+                sensor_name +
+                "," +
+                user_name +
+                "," +
+                numContador +
+                "," +
+                numModuleLora +
+                "," +
+                provider +
+                "," +
+                authToken +
                 ")";
             console.log(query);
             return new Promise((resolve, reject) => {
@@ -93,10 +118,17 @@ class WaterDevicesColumnConfigController {
      * @param description
      * @param use_for
      * @param installation_address
+     * @param user_name
+     * @param device_eui
+     * @param sensor_name
+     * @param device_diameter
+     * @param numModuleLora
+     * @param provider
+     * @param authToken
      *
      * @returns
      */
-    UpdateWaterDeviceColumnConfig(name = false, contract_number = false, user = false, user_id = null, units = false, counter_number = false, description = false, use_for = false, installation_address = false) {
+    UpdateWaterDeviceColumnConfig(name = false, contract_number = false, user = false, user_id = null, units = false, counter_number = false, description = false, use_for = false, installation_address = false, user_name = false, device_eui = false, sensor_name = false, device_diameter = false, numContador = false, numModuleLora = false, provider = false, authToken = false) {
         return __awaiter(this, void 0, void 0, function* () {
             var query = "UPDATE water_module_device_column_config set name=" +
                 name +
@@ -106,8 +138,26 @@ class WaterDevicesColumnConfigController {
                 units +
                 ", contract_number = " +
                 contract_number +
+                ", use_for = " +
+                use_for +
                 ", installation_address = " +
                 installation_address +
+                ", user_name = " +
+                user_name +
+                ", device_eui = " +
+                device_eui +
+                ", sensor_name = " +
+                sensor_name +
+                ", device_diameter = " +
+                device_diameter +
+                ", numContador = " +
+                numContador +
+                ", numModuleLora = " +
+                numModuleLora +
+                ", provider = " +
+                provider +
+                ", authToken = " +
+                authToken +
                 " where user_id =" + user_id;
             console.log(query);
             return new Promise((resolve, reject) => {

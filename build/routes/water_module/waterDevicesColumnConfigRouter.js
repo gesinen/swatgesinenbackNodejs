@@ -11,7 +11,7 @@ class WaterDevicesColumnConfigRouter {
         this.createWaterDeviceColumnConfig = () => this.router.post("/", (req, res) => {
             const params = req.body;
             waterDevicesColumnConfigController_1.default
-                .createWaterDeviceColumnConfig(params.name, params.contract_number, params.user, params.user_id, params.units, params.counter_number, params.description, params.use_for, params.installation_address)
+                .createWaterDeviceColumnConfig(params.name, params.contract_number, params.user, params.user_id, params.units, params.description, params.use_for, params.installation_address, params.user_name, params.device_eui, params.sensor_name, params.device_diameter, params.numContador, params.numModuleLora, params.provider, params.authToken)
                 .then((response) => {
                 res.send(response);
             })
@@ -22,7 +22,7 @@ class WaterDevicesColumnConfigRouter {
         this.EditWaterDeviceColumnConfig = () => this.router.put("/", (req, res) => {
             const params = req.body;
             waterDevicesColumnConfigController_1.default
-                .UpdateWaterDeviceColumnConfig(params.name, params.contract_number, params.user, params.user_id, params.units, params.counter_number, params.description, params.use_for, params.installation_address)
+                .UpdateWaterDeviceColumnConfig(params.name, params.contract_number, params.user, params.user_id, params.units, params.counter_number, params.description, params.use_for, params.installation_address, params.user_name, params.device_eui, params.sensor_name, params.device_diameter, params.numContador, params.numModuleLora, params.provider, params.authToken)
                 .then((response) => {
                 res.send(response);
             })
