@@ -1,4 +1,4 @@
-export class Utils{
+export class Utils {
 
     static checkUndefined(expression: string) {
         if (expression == undefined) {
