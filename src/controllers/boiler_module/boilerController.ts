@@ -75,11 +75,11 @@ class BoilerController {
     });
   }
   public async createBoilerDevice(userId: number, name: string, description: string, sensorId: string, mode: string,
-    schedule: string = undefined, scheduleWeekend: string = undefined, model: string, height: number, length: number, width: number, shape: string, unit: string, filling: string): Promise<object> {
+    schedule: string = undefined, scheduleWeekend: string = undefined, model: string, height: number, length: number, width: number, shape: string, unit: string): Promise<object> {
     schedule = Utils.checkUndefined(schedule)
     let insertSql = "INSERT INTO `boiler_device` (`userId`, `name`, `description`, `mode`, `schedule`,`scheduleWeekend`, `sensorId`, `releStatus`," +
       " `lastLongitude`, `lastTemperature`, `lastUpdateTime`,`boilerModel`,`height`,`length`,`width`,`shape`,`unit`,`filling`) VALUES ('" + userId + "', '" + name + "', '" + description + "', '" + mode +
-      "', '" + schedule + "', '" + scheduleWeekend + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "','" + shape + "','" + unit + "','" + filling + ");"
+      "', '" + schedule + "', '" + scheduleWeekend + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "','" + shape + "','" + unit + ");"
     console.log(insertSql)
 
     return new Promise((resolve: any, reject: any) => {
@@ -155,11 +155,11 @@ class BoilerController {
   }
 
   public async updateBoilerDevice(id: number, userId: number, name: string, description: string, sensorId: string, mode: string,
-    schedule: string = undefined, scheduleWeekend: string = undefined, model: string, height: number, length: number, width: number, shape: string, unit: string, filling: string): Promise<object> {
+    schedule: string = undefined, scheduleWeekend: string = undefined, model: string, height: number, length: number, width: number, shape: string, unit: string): Promise<object> {
     schedule = Utils.checkUndefined(schedule)
     let insertSql = "UPDATE `boiler_device` SET userId='" + userId + "', name='" + name + "', description='" + description +
       "', sensorId='" + sensorId + "' , mode='" + mode + "', schedule='" + schedule + "', scheduleWeekend='" + scheduleWeekend + "', boilerModel='" + model + "', height='" +
-      height + "', length='" + length + "', width='" + width + "', shape='" + shape + "', unit='" + unit + "', filling='" + filling + " ', lastUpdateTime=now() WHERE id=" + id + ";"
+      height + "', length='" + length + "', width='" + width + "', shape='" + shape + "', unit='" + unit + " ', lastUpdateTime=now() WHERE id=" + id + ";"
 
     /*let insertSql = 'UPDATE `boiler_device` SET userId = @userId, name = @name, description = @description, ' +
         'sensorId = @sensorId, mode = @mode, schedule = @schedule, scheduleWeekend = @scheduleWeekend, ' +

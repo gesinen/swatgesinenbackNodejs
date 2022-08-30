@@ -13,6 +13,7 @@ class CapacityParkingRouter {
     this.updateCapacityDeviceAction();
     this.updateParkingActualCapacity();
     this.getParkingSensors();
+    this.getParkingUserByGateway()
 
     //for Mobile Application
     this.getParkingByIdUsingAuthToken();
@@ -232,6 +233,20 @@ class CapacityParkingRouter {
           res.send(err);
         });
     });
+
+  public getParkingUserByGateway = () =>
+      this.router.get("/gateway/:mac", (req: Request, res: Response) => {
+          const mac = req.params.mac;
+
+          capacityParkingController
+              .getParkingUserByGateway(mac)
+              .then((response) => {
+                  res.send(response);
+              })
+              .catch((err) => {
+                  res.send(err);
+              })
+      })
 }
 
 const capacityParkingRouter = new CapacityParkingRouter();
