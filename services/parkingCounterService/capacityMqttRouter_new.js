@@ -387,7 +387,7 @@ async function main() {
                                 console.log("capacityFreeSpaces", capacityFreeSpaces)
                                 console.log("capacityFreeSpacesOther", capacityFreeSpacesOther)
 
-                                let setMessageHex = "1B 06 " + intToHex(capacityFreeSpaces) + " 0 " + intToHex(capacityFreeSpacesOther) + " 0"
+                                let setMessageHex = "1B 01 " + intToHex(capacityFreeSpaces) + " 0 " + intToHex(capacityFreeSpacesOther) + " 0"
                                 let setMessage = hexToBase64(setMessageHex)
                                 let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
                                     capacityCalculated + " WHERE id=" + cartelDeviceEUIandLinesArray[index][0].parkingId + ";"
@@ -444,7 +444,7 @@ async function main() {
                                 if (capacityFreeSpacesOther > parseInt(element[0].maxCapacity)) {
                                     capacityFreeSpacesOther = parseInt(element[0].maxCapacity)
                                 }
-                                let setMessageHex = "1B 06 " + intToHex(capacityFreeSpacesOther) + " 0 " + intToHex(capacityFreeSpaces) + " 0"
+                                let setMessageHex = "1B 01 " + intToHex(capacityFreeSpacesOther) + " 0 " + intToHex(capacityFreeSpaces) + " 0"
                                 let setMessage = hexToBase64(setMessageHex)
                                 let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
                                     capacityCalculated + " WHERE id=" + element[1].parkingId + ";"
@@ -491,7 +491,7 @@ async function main() {
                             console.log("capacityCalculated", capacityCalculated)
                             console.log("capacityFreeSpaces", capacityFreeSpaces)
 
-                            let setMessageHex = "1B 06 " + intToHex(capacityFreeSpaces) + " 0 0 0"
+                            let setMessageHex = "1B 01 " + intToHex(capacityFreeSpaces) + " 0 0 0"
                             let setMessage = hexToBase64(setMessageHex)
                             let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
                                 capacityCalculated + " WHERE id=" + cartelDeviceEUIandLinesArray[index][0].parkingId + ";"
