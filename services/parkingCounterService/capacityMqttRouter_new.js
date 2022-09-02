@@ -148,7 +148,7 @@ function setCurrentCounter(dev, num) {
     const getwayMAC = dev.mac_number;
     const applicationId = 2;
     const deviceEUI = dev.device_EUI;
-    const fPort = 1;
+    const fPort = 4;
 
     const pre = 'A0'
     const data = pre + ' ' + newMsgFormatter(num)
@@ -404,7 +404,7 @@ async function main() {
                                         console.log("CAPACITY UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
                                         let messageReadyToSend = {
                                             confirmed: true,
-                                            fPort: 1,
+                                            fPort: 4,
                                             data: setMessage
                                         }
                                         console.log("FINAL preparedMESSAGE", JSON.stringify(messageReadyToSend))
@@ -460,7 +460,7 @@ async function main() {
                                         console.log("CAPACITY UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
                                         let messageReadyToSend = {
                                             confirmed: true,
-                                            fPort: 1,
+                                            fPort: 4,
                                             data: setMessage
                                         }
                                         console.log("FINAL preparedMESSAGE", JSON.stringify(messageReadyToSend))
@@ -508,7 +508,7 @@ async function main() {
                                     console.log("CAPACITY UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
                                     let messageReadyToSend = {
                                         confirmed: true,
-                                        fPort: 1,
+                                        fPort: 4,
                                         data: setMessage
                                     }
                                     console.log("FINAL preparedMESSAGE", JSON.stringify(messageReadyToSend))
