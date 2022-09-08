@@ -50,6 +50,18 @@ class BoilerRouter {
                 res.send(err);
             });
         });
+        ////update Boiler Device temp and distance by sensor_id (shesh)
+        this.updateBoilerPingDataActionTempDistBySensorId = () => this.router.put("/pingDistTempBySensorId", (req, res) => {
+            const params = req.body;
+            console.log(params);
+            boilerController_1.default.updateBoilerDevicePingDataTempDistBySensorId(params.boilerDevEui, params.distance, params.temperature)
+                .then(response => {
+                res.send(response);
+            })
+                .catch(err => {
+                res.send(err);
+            });
+        });
         this.updateBoilerPingDataScheduleV1 = () => this.router.put("/pingScheduleV1", (req, res) => {
             const params = req.body;
             console.log(params);
@@ -103,6 +115,16 @@ class BoilerRouter {
                 res.send(err);
             });
         });
+        this.getBoilerModuleServiceInfoActionNewModified = () => this.router.get("/service/infonewModified", (req, res) => {
+            boilerController_1.default
+                .getBoilerServiceInfoModified()
+                .then((response) => {
+                res.send(response);
+            })
+                .catch((err) => {
+                res.send(err);
+            });
+        });
         this.deleteBoilerAction = () => this.router.delete("/:id", (req, res) => {
             boilerController_1.default.deleteBoilerDevice(parseInt(req.params.id))
                 .then(response => {
@@ -120,8 +142,10 @@ class BoilerRouter {
         this.updateBoilerStatusAction();
         this.updateBoilerPingDataV2();
         this.updateBoilerPingDataActionTempDistV1();
+        this.updateBoilerPingDataActionTempDistBySensorId();
         this.updateBoilerPingDataScheduleV1();
         this.getBoilerModuleServiceInfoAction();
+        this.getBoilerModuleServiceInfoActionNewModified();
     }
 }
 const boilerRoutes = new BoilerRouter();

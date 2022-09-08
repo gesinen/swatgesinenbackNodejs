@@ -64,6 +64,44 @@ class BoilerController {
             };
         });
     }
+    // This Is new Modified Method(shesh)
+    // Get boiler => sensorId, sensor deviceEUI, related gateway mac
+    getBoilerServiceInfoModified() {
+        var e_2, _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            var boilers = yield this.getAllBoilers();
+            console.log("boilers", boilers);
+            var boilersInfo = [];
+            try {
+                for (var _b = __asyncValues(boilers.response), _c; _c = yield _b.next(), !_c.done;) {
+                    let boiler = _c.value;
+                    var sensorRequiredInfo = yield sensorController_1.default.getSensorById(boiler.sensorId);
+                    console.log("sensorRequiredInfo", sensorRequiredInfo);
+                    var sensorId = sensorRequiredInfo.result.id;
+                    var sensorDevEui = sensorRequiredInfo.result.device_EUI;
+                    var gateway = sensorRequiredInfo.result.network_server_mac;
+                    //for (let gateway of gateways) {
+                    boilersInfo.push({
+                        topic: gateway + '/application/1/device/' + sensorDevEui + "/rx",
+                        sensorId: sensorId,
+                        sensorDevEui: sensorDevEui
+                    });
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+            return {
+                http: 200,
+                status: "Success",
+                response: boilersInfo
+            };
+        });
+    }
     getAllBoilers() {
         return __awaiter(this, void 0, void 0, function* () {
             let selectSql = "SELECT * FROM `boiler_device`;";
@@ -311,6 +349,44 @@ class BoilerController {
         return __awaiter(this, void 0, void 0, function* () {
             let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
                 + "', lastUpdateTime=now() WHERE id=" + id + ";";
+            console.log("updateSql", updateSql);
+            return new Promise((resolve, reject) => {
+                database_1.default.getConnection((error, conn) => {
+                    // If the connection with the database fails
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: "Failed",
+                            error: error,
+                        });
+                    }
+                    conn.query(updateSql, (err, results) => {
+                        conn.release();
+                        // If the query fails
+                        if (err) {
+                            reject({
+                                http: 401,
+                                status: "Failed",
+                                error: err,
+                            });
+                        }
+                        console.log(results);
+                        // Response
+                        resolve({
+                            http: 200,
+                            status: "Success",
+                            response: "The boiler device has been updated successfully.",
+                        });
+                    });
+                });
+            });
+        });
+    }
+    //update Boiler Device temp and distance by sensor_id (shesh)
+    updateBoilerDevicePingDataTempDistBySensorId(sesnorId, lastLongitude, lastTemperature) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
+                + "', lastUpdateTime=now() WHERE sensorId=" + sesnorId + ";";
             console.log("updateSql", updateSql);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {

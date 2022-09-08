@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import WaterDevicesColumnConfigController from "../../controllers/water_module/waterDevicesColumnConfigController"// "../../controllers/water_module/waterDevicesColumnConfigController";
+import WaterDevicesColumnConfigController from "../../controllers/water_module/waterDevicesColumnConfigController";// "../../controllers/water_module/waterDevicesColumnConfigController";
 
 class WaterDevicesColumnConfigRouter {
   public router: Router = Router();

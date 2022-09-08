@@ -38,6 +38,35 @@ class BoilerController {
     }
   }
 
+  // This Is new Modified Method(shesh)
+
+   // Get boiler => sensorId, sensor deviceEUI, related gateway mac
+   public async getBoilerServiceInfoModified() {
+    var boilers: any = await this.getAllBoilers()
+    console.log("boilers", boilers)
+    var boilersInfo = []
+    for await (let boiler of boilers.response) {
+      var sensorRequiredInfo: any = await sensorController.getSensorById(boiler.sensorId)
+      console.log("sensorRequiredInfo", sensorRequiredInfo)
+      var sensorId = sensorRequiredInfo.result.id
+      var sensorDevEui = sensorRequiredInfo.result.device_EUI
+      var gateway = sensorRequiredInfo.result.network_server_mac
+      //for (let gateway of gateways) {
+        boilersInfo.push({
+          topic: gateway + '/application/1/device/' + sensorDevEui + "/rx",
+          sensorId: sensorId,
+          sensorDevEui: sensorDevEui
+        })
+      //}
+    }
+ 
+    return {
+      http: 200,
+      status: "Success",
+      response: boilersInfo
+    }
+  }
+
   public async getAllBoilers(): Promise<any> {
     let selectSql = "SELECT * FROM `boiler_device`;"
 
@@ -302,6 +331,47 @@ class BoilerController {
 
     let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
       + "', lastUpdateTime=now() WHERE id=" + id + ";"
+    console.log("updateSql", updateSql)
+
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(updateSql, (err: any, results: any) => {
+          conn.release();
+
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          console.log(results)
+          // Response
+          resolve({
+            http: 200,
+            status: "Success",
+            response: "The boiler device has been updated successfully.",
+          });
+        });
+      });
+    });
+  }
+
+  //update Boiler Device temp and distance by sensor_id (shesh)
+  public async updateBoilerDevicePingDataTempDistBySensorId(sesnorId: number, lastLongitude: string, lastTemperature: string): Promise<object> {
+
+    let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
+      + "', lastUpdateTime=now() WHERE sensorId=" + sesnorId + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {
