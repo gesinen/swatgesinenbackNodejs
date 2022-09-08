@@ -669,6 +669,42 @@ class CapacityDevicesController {
             })
         })
     }
+
+    public getParkingUserByGateway(mac: string): Promise<object> {
+        return new Promise((resolve, reject) => {
+            db.getConnection((err: any, conn: any) => {
+
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                let query = "SELECT email FROM users INNER JOIN gateways ON gateways.user_id = users.id WHERE gateways.mac = '" + mac + "';";
+
+                conn.query(query, (err: any, results: any) => {
+                    conn.release()
+
+                    console.log(results)
+                    if (err) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    } else {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            user: results
+                        })
+                    }
+                })
+            })
+        })
+    }
 }
 
 export default new CapacityDevicesController();

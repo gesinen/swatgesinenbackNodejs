@@ -24,7 +24,7 @@ class BoilerRouter {
       const params = req.body;
 
       boilerController.createBoilerDevice(params.userId, params.name, params.description,
-        params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width)
+        params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width, params.shape, params.unit)
         .then(response => {
           res.send(response)
         })
@@ -38,7 +38,7 @@ class BoilerRouter {
       const params = req.body;
 
       boilerController.updateBoilerDevice(params.id, params.userId, params.name, params.description, params.sensorId, params.mode,
-        params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width)
+        params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width, params.shape, params.unit)
         .then(response => {
           res.send(response)
         })
