@@ -137,12 +137,12 @@ class BoilerController {
             });
         });
     }
-    createBoilerDevice(userId, name, description, sensorId, mode, schedule = undefined, scheduleWeekend = undefined, model, height, length, width) {
+    createBoilerDevice(userId, name, description, sensorId, mode, schedule = undefined, scheduleWeekend = undefined, model, height, length, width, shape, unit) {
         return __awaiter(this, void 0, void 0, function* () {
             schedule = Utils_1.Utils.checkUndefined(schedule);
             let insertSql = "INSERT INTO `boiler_device` (`userId`, `name`, `description`, `mode`, `schedule`,`scheduleWeekend`, `sensorId`, `releStatus`," +
-                " `lastLongitude`, `lastTemperature`, `lastUpdateTime`,`boilerModel`,`height`,`length`,`width`) VALUES ('" + userId + "', '" + name + "', '" + description + "', '" + mode +
-                "', '" + schedule + "', '" + scheduleWeekend + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "');";
+                " `lastLongitude`, `lastTemperature`, `lastUpdateTime`,`boilerModel`,`height`,`length`,`width`,`shape`,`unit`,`filling`) VALUES ('" + userId + "', '" + name + "', '" + description + "', '" + mode +
+                "', '" + schedule + "', '" + scheduleWeekend + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "','" + shape + "','" + unit + ");";
             console.log(insertSql);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {
@@ -212,12 +212,16 @@ class BoilerController {
             });
         });
     }
-    updateBoilerDevice(id, userId, name, description, sensorId, mode, schedule = undefined, scheduleWeekend = undefined, model, height, length, width) {
+    updateBoilerDevice(id, userId, name, description, sensorId, mode, schedule = undefined, scheduleWeekend = undefined, model, height, length, width, shape, unit) {
         return __awaiter(this, void 0, void 0, function* () {
             schedule = Utils_1.Utils.checkUndefined(schedule);
             let insertSql = "UPDATE `boiler_device` SET userId='" + userId + "', name='" + name + "', description='" + description +
                 "', sensorId='" + sensorId + "' , mode='" + mode + "', schedule='" + schedule + "', scheduleWeekend='" + scheduleWeekend + "', boilerModel='" + model + "', height='" +
-                height + "', length='" + length + "', width='" + width + "', lastUpdateTime=now() WHERE id=" + id + ";";
+                height + "', length='" + length + "', width='" + width + "', shape='" + shape + "', unit='" + unit + " ', lastUpdateTime=now() WHERE id=" + id + ";";
+            /*let insertSql = 'UPDATE `boiler_device` SET userId = @userId, name = @name, description = @description, ' +
+                'sensorId = @sensorId, mode = @mode, schedule = @schedule, scheduleWeekend = @scheduleWeekend, ' +
+                'boilerModel = @model, height = @height, length = @length, width = @width, ' +
+                'shape = @shape, lastUpdateTime=now() WHERE id= @id;'*/
             console.log(insertSql);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {

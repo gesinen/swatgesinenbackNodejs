@@ -10,7 +10,10 @@ class IrrigationDeviceRouter {
     this.storeIrrigationDevice();
     this.updateIrrigationDevice();
     this.deleteIrrigationDevice();
-    this.updateIrrigationDeviceRelatedSensorId()
+    this.updateIrrigationDeviceRelatedSensorId();
+    this.getSensorTypeBySensorId();
+    this.updateGeswatIrrigationIntervals();
+    this.getGeswatInterval();
   }
 
   /**
@@ -187,6 +190,46 @@ class IrrigationDeviceRouter {
           });
       }
     );
+
+    public getSensorTypeBySensorId = () =>
+        this.router.get("/relatedSensor/:irrigationDeviceId", (req: Request, res: Response) => {
+            const params: any = req.params;
+            console.log(params, "Que esta pasando aqui")
+            irrigationController
+                .getSensorTypeBySensorId(params.irrigationDeviceId)
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
+
+    public updateGeswatIrrigationIntervals = () =>
+        this.router.put("/updateGeswat/:irrigationDeviceId/:intervals", (req: Request, res: Response) => {
+            const intervals = req.params.intervals;
+            const irrigationDeviceId = req.params.irrigationDeviceId;
+            irrigationController
+                .updateGeswatIrrigationIntervals(irrigationDeviceId, intervals)
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
+    public getGeswatInterval = () =>
+        this.router.get("/geswatInterval/:id", (req: Request, res: Response) => {
+            const params: any = req.params;
+            irrigationController
+                .getGeswatInterval(params.id)
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
 }
 
 const irrigationDeviceRouter = new IrrigationDeviceRouter();

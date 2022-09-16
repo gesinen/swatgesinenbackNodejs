@@ -98,7 +98,7 @@ function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
     const num = index - 1;
     let send = '';
     let fPort;
-    if (deviceTypeId !== 3) {
+    if (deviceTypeId < 3) {
         fPort = 10;
         switch (num) {
             case 0:
@@ -128,7 +128,7 @@ function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
             default:
                 break;
         }
-    } else {
+    } else if (deviceTypeId === 3) {
         fPort = 4;
         switch (num) {
             case 0:
@@ -149,7 +149,25 @@ function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
             default:
                 break;
         }
-    }
+    } else {
+            fPort = 4;
+            switch (num) {
+                case 0:
+                    send = "0QAA";
+                    break;
+                case 1:
+                    send = "0QEA";
+                    break;
+                case 2:
+                    send = "0QIA";
+                    break;
+                case 3:
+                    send = "0QQA";
+                    break;
+                default:
+                    break;
+            }
+        }
 
     //const topic = "dca632143f21/application/2/device/0079e129d52aa017/tx";
     const topic = mac + "/application/" + applicationId + "/device/" + deviceEUI + "/tx";
@@ -171,7 +189,7 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
     const num = index - 1;
     let send = '';
     let fPort;
-    if (deviceTypeId !== 3) {
+    if (deviceTypeId < 3) {
         fPort = 10;
         switch (num) {
             case 0:
@@ -201,7 +219,7 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
             default:
                 break;
         }
-    } else {
+    } else if (deviceTypeId === 3) {
         fPort = 4;
         switch (num) {
             case 0:
@@ -218,6 +236,25 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
                 break;
             case 4:
                 send = "DRAEAAA=";
+                break;
+            default:
+                break;
+        }
+
+    } else {
+        fPort = 4;
+        switch (num) {
+            case 0:
+                send = "0QD/";
+                break;
+            case 1:
+                send = "0QH/";
+                break;
+            case 2:
+                send = "0QL/";
+                break;
+            case 3:
+                send = "0QT/";
                 break;
             default:
                 break;

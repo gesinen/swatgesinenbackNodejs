@@ -10,11 +10,11 @@ class IrrigationDeviceController {
     /**
      * GET ('/information/:id')
      * Getting the information about the user
-     * 
+     *
      * @async
      * @param id - The user Id
-     * 
-     * @return 
+     *
+     * @return
      */
     public async getIrrigationDeviceByIdInner(id: number): Promise<object> {
 
@@ -45,10 +45,8 @@ class IrrigationDeviceController {
                         })
                     } else {
                         let irrigationDevice = results[0]
-                        let irrigationInputRes: any = await irrigationDeviceInputController.
-                            getInputByIrrigationDeviceId(irrigationDevice.id)
-                        let irrigationOutputRes: any = await irrigationDeviceOutputController.
-                            getOutputByIrrigationDeviceId(irrigationDevice.id)
+                        let irrigationInputRes: any = await irrigationDeviceInputController.getInputByIrrigationDeviceId(irrigationDevice.id)
+                        let irrigationOutputRes: any = await irrigationDeviceOutputController.getOutputByIrrigationDeviceId(irrigationDevice.id)
 
 
                         if (irrigationOutputRes.http == 200) {
@@ -70,14 +68,14 @@ class IrrigationDeviceController {
     }
 
     /**
-    * GET ('/information/:id')
-    * Getting the information about the user
-    * 
-    * @async
-    * @param id - The user Id
-    * 
-    * @return 
-    */
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
     public async getIrrigationDeviceById(id: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
@@ -117,11 +115,11 @@ class IrrigationDeviceController {
     /**
      * GET ('/information/:id')
      * Getting the information about the user
-     * 
+     *
      * @async
      * @param id - The user Id
-     * 
-     * @return 
+     *
+     * @return
      */
     public async getIrrigationDeviceOutputCount(irrigationDeviceId: number): Promise<object> {
 
@@ -162,11 +160,11 @@ class IrrigationDeviceController {
     /**
      * GET ('/information/:id')
      * Getting the information about the user
-     * 
+     *
      * @async
      * @param id - The user Id
-     * 
-     * @return 
+     *
+     * @return
      */
     public async getIrrigationDeviceOutputTotalCount(irrigationDeviceId: number): Promise<object> {
 
@@ -208,11 +206,11 @@ class IrrigationDeviceController {
     /**
      * GET ('/information/:id')
      * Getting the information about the user
-     * 
+     *
      * @async
      * @param id - The user Id
-     * 
-     * @return 
+     *
+     * @return
      */
     public async getIrrigationDeviceListing(userId: number, pageSize: number, pageIndex: number): Promise<object> {
         const first_value = (pageSize * pageIndex) - pageSize;
@@ -282,11 +280,11 @@ class IrrigationDeviceController {
     /**
      * GET ('/information/:id')
      * Getting the information about the user
-     * 
+     *
      * @async
      * @param id - The user Id
-     * 
-     * @return 
+     *
+     * @return
      */
     public async getIrrigationInputDevicesByIrregationDeviceId(irrigationDeviceId: number): Promise<object> {
 
@@ -325,14 +323,15 @@ class IrrigationDeviceController {
             })
         })
     }
+
     /**
      * GET ('/information/:id')
      * Getting the information about the user
-     * 
+     *
      * @async
      * @param id - The user Id
-     * 
-     * @return 
+     *
+     * @return
      */
     public async updateIrrigationDeviceRelatedSensor(irrigationDeviceId: number, relatedSensorDevEui: string, humidityLimit: number, humidityLimitInferior: number): Promise<object> {
 
@@ -371,17 +370,18 @@ class IrrigationDeviceController {
             })
         })
     }
+
     /**
-         * GET ('/information/:id')
-         * Getting the information about the user
-         * 
-         * @async
-         * @param id - The user Id
-         * 
-         * @return 
-         */
+     * GET ('/information/:id')
+     * Getting the information about the user
+     *
+     * @async
+     * @param id - The user Id
+     *
+     * @return
+     */
     public async storeIrrigationDevice(name: string, nameSentilo: string, latitude: number, longitude: number,
-        description: string, status: boolean, userId: number, deviceTypeId: number, valves: any[], sensors: any[], sensorId: any): Promise<object> {
+                                       description: string, status: boolean, userId: number, deviceTypeId: number, valves: any[], sensors: any[], sensorId: any): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -523,15 +523,15 @@ class IrrigationDeviceController {
     /**
      * GET ('/information/:id')
      * Getting the information about the user
-     * 
+     *
      * @async
      * @param id - The user Id
-     * 
-     * @return 
+     *
+     * @return
      */
     public async updateIrrigationDevice(id: number, sensorId: number, name: string, nameSentilo: string, latitude: number,
-        longitude: number, description: string, status: boolean, userId: number, deviceTypeId: number,
-        valves: any[], sensors: any[]): Promise<object> {
+                                        longitude: number, description: string, status: boolean, userId: number, deviceTypeId: number,
+                                        valves: any[], sensors: any[]): Promise<object> {
         let valvesUpdate: any[] = []
         let valvesInsert: any[] = []
         let sensorsUpdate: any[] = []
@@ -737,11 +737,11 @@ class IrrigationDeviceController {
     /**
      * GET ('/information/:id')
      * Getting the information about the user
-     * 
+     *
      * @async
      * @param id - The user Id
-     * 
-     * @return 
+     *
+     * @return
      */
     public async deleteIrrigationDevice(id: number): Promise<object> {
 
@@ -774,6 +774,111 @@ class IrrigationDeviceController {
                         http: 200,
                         status: 'Success',
                         result: results[0]
+                    })
+                })
+            })
+        })
+    }
+
+    public async getSensorTypeBySensorId(deviceEUI: string): Promise<object> {
+        console.log(deviceEUI, "Que esta pasando aqui")
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT irrigation_device.deviceTypeId AS type FROM irrigation_device INNER JOIN sensor_info ON irrigation_device.sensorId = sensor_info.id WHERE sensor_info.device_EUI = '" + deviceEUI + "';";
+                console.log(query, "Que esta pasando aqui")
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log(results)
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: 'There are no users with this ID'
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results[0]
+                    })
+                })
+            })
+        })
+    }
+
+    public async updateGeswatIrrigationIntervals(irrigationDeviceId: string, intervals: any): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                try{
+                    let query = "UPDATE `irrigation_device` SET `intervalHours` = '" + intervals + "' WHERE irrigation_device.id = (SELECT irrigation_device.id AS type FROM irrigation_device INNER JOIN sensor_info ON irrigation_device.sensorId = sensor_info.id WHERE sensor_info.device_EUI = '" + irrigationDeviceId + "');";
+                    console.log(query, "Que esta pasando aqui")
+                    conn.query(query, (error: any, results: any) => {
+                        conn.release()
+
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            })
+                        }
+
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: results
+                        })
+                    })
+                }
+                catch (error) {
+                    reject({
+                        http: 406,
+                        status: 'Failed',
+                        error: error
+                    })
+                }
+            })
+        })
+    }
+
+    public async getGeswatInterval(id: string): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT irrigation_device.intervalHours AS intervalHours FROM irrigation_device WHERE irrigation_device.id = " + id + ";"
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
                     })
                 })
             })
