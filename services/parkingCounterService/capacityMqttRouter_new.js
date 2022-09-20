@@ -513,7 +513,10 @@ async function main() {
                             console.log("capacityCalculated", capacityCalculated)
                             console.log("capacityFreeSpaces", capacityFreeSpaces)
 
-                            let setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 0 0"
+                            let setMessageHex;
+
+                            if(username.includes('xirivella')) setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 0"
+                            else setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 0 0"
                             let setMessage = hexToBase64(setMessageHex)
                             let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
                                 capacityCalculated + " WHERE id=" + cartelDeviceEUIandLinesArray[index][0].parkingId + ";"
