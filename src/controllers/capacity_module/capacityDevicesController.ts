@@ -198,7 +198,7 @@ class CapacityDevicesController {
                                     })
                                 })
                                 console.log(res.capacity_devices, 'HOLAAAA 2')
-                                if(res.capacity_devices.length > 0) {
+                                if(res.capacity_devices != undefined && res.capacity_devices.length > 0) {
                                     results[0].parkingId = res.result[0].parkingId
                                     results[0].ribbonDeviceId = res.result[0].id
                                 }
