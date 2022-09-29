@@ -150,24 +150,24 @@ function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
                 break;
         }
     } else {
-            fPort = 4;
-            switch (num) {
-                case 0:
-                    send = "0QAA";
-                    break;
-                case 1:
-                    send = "0QEA";
-                    break;
-                case 2:
-                    send = "0QIA";
-                    break;
-                case 3:
-                    send = "0QQA";
-                    break;
-                default:
-                    break;
-            }
+        fPort = 4;
+        switch (num) {
+            case 0:
+                send = "0QD/";
+                break;
+            case 1:
+                send = "0QH/";
+                break;
+            case 2:
+                send = "0QL/";
+                break;
+            case 3:
+                send = "0QT/";
+                break;
+            default:
+                break;
         }
+    }
 
     //const topic = "dca632143f21/application/2/device/0079e129d52aa017/tx";
     const topic = mac + "/application/" + applicationId + "/device/" + deviceEUI + "/tx";
@@ -245,16 +245,16 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
         fPort = 4;
         switch (num) {
             case 0:
-                send = "0QD/";
+                send = "0QAA";
                 break;
             case 1:
-                send = "0QH/";
+                send = "0QEA";
                 break;
             case 2:
-                send = "0QL/";
+                send = "0QIA";
                 break;
             case 3:
-                send = "0QT/";
+                send = "0QQA";
                 break;
             default:
                 break;
