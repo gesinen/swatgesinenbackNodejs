@@ -455,6 +455,11 @@ class IrrigationDeviceController {
                                         if (valves.length != 0 && sensors.length != 0) {
                                             console.log(" ***** 4 *****")
                                             let outputDeviceInsertId = deviceOutputRes.insertId
+                                            console.log(deviceTypeId, 'esto es la previa, el tipo');
+                                            if(deviceTypeId == 4){
+                                                irrigationDeviceOutput.inputSensorName = 'a';
+                                                console.log('que está pasando??');
+                                            }
                                             let res: any = await irrigationDeviceInputController.getIrrigationInputDeviceByIrrigationDeviceIdAndName(irrigationDeviceOutput.inputSensorName, irrigationDeviceInsertId)
                                             console.log("resx", res)
                                             if (res.http == 200) {
