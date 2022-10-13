@@ -108,7 +108,7 @@ class BoilerController {
     schedule = Utils.checkUndefined(schedule)
     let insertSql = "INSERT INTO `boiler_device` (`userId`, `name`, `description`, `mode`, `schedule`,`scheduleWeekend`, `sensorId`, `releStatus`," +
       " `lastLongitude`, `lastTemperature`, `lastUpdateTime`,`boilerModel`,`height`,`length`,`width`,`shape`,`unit`,`filling`) VALUES ('" + userId + "', '" + name + "', '" + description + "', '" + mode +
-      "', '" + schedule + "', '" + scheduleWeekend + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "','" + shape + "','" + unit + ");"
+      "', '" + schedule + "', '" + scheduleWeekend + "', '" + sensorId + "', '0', '0', '0', current_timestamp(),'" + model + "','" + height + "','" + length + "','" + width + "','" + shape + "','" + unit + "', '0');"
     console.log(insertSql)
 
     return new Promise((resolve: any, reject: any) => {

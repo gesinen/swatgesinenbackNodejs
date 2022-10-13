@@ -84,12 +84,11 @@ async function getParkingCartelDeviceEuiAndLines(parkingId) {
         resArray = []
         for (const element of res) {
             let sqlGetParkingCartelDeviceEuiAndLines =
-                "SELECT sensor_gateway_pkid.mac_number,sensor_info.device_EUI as cartelDeviceEUI,capacity_cartel_line.lineNum, capacity_parking.currentCapacity " +
+                "SELECT sensor_info.device_EUI as cartelDeviceEUI,capacity_cartel_line.lineNum, capacity_parking.currentCapacity " +
                 ", capacity_parking.id as parkingId, capacity_parking.maxCapacity, capacity_parking.provider, capacity_parking.authToken" +
                 ", capacity_parking.name as parkingSensorName FROM `capacity_cartel_line` RIGHT JOIN capacity_cartel ON capacity_cartel.id=capacity_cartel_line.cartelId" +
                 " LEFT JOIN capacity_parking ON capacity_parking.id=capacity_cartel_line.parkingId RIGHT JOIN sensor_info" +
-                " ON sensor_info.id=capacity_cartel.sensorId INNER JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=capacity_cartel.sensorId " +
-                "WHERE capacity_cartel_line.cartelId=" + element.cartelId + " AND " +
+                " ON sensor_info.id=capacity_cartel.sensorId WHERE capacity_cartel_line.cartelId=" + element.cartelId + " AND " +
                 "capacity_cartel_line.parkingId IS NULL OR capacity_cartel_line.parkingId IS NOT NULL AND " +
                 "capacity_cartel_line.cartelId=" + element.cartelId + ";";
             //console.log(sqlGetParkingCartelDeviceEuiAndLines)
@@ -142,7 +141,7 @@ function hexToBase64(str) {
 const client = mqtt.connect('mqtts://gesinen.es:8882', options)
 
 async function subscribeGateways() {
-    let querySql = "SELECT gateways.mac, sensor_info.device_EUI FROM capacity_devices INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId INNER JOIN gateways ON gateways.sensors_id LIKE CONCAT('%', capacity_devices.sensorId, '%') INNER JOIN capacity_type_spot ON capacity_type_spot.capacityDeviceId=capacity_devices.id WHERE capacity_devices.type='parking_individual';";
+    let querySql = "SELECT gateways.mac AS mac_number, sensor_info.device_EUI FROM capacity_devices INNER JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId INNER JOIN gateways ON gateways.sensors_id LIKE CONCAT('%', capacity_devices.sensorId, '%') INNER JOIN capacity_type_spot ON capacity_type_spot.capacityDeviceId=capacity_devices.id WHERE capacity_devices.type='parking_individual';";
     console.log("querySql", querySql)
 
     let storedData = []
@@ -214,6 +213,7 @@ function hex2bin(hex) {
 // FREE / OCCUPIED
 function decodeMessageLibelium(messageHex) {
     let binary = hex2bin(messageHex)
+    console.log(binary, 'esto es el binario antes de devolver binary 07')
     return binary[7]
 }
 
@@ -250,7 +250,7 @@ function setCartelPlaces(gatewayMac, cartelDeviceEUI, pl1, pl2, pl3, pt1, pt2, p
         fPort: 4,
         data: setMessageBase64
     }
-    console.log("FINAL preparedMESSAGE", JSON.stringify(messageReadyToSend))
+    console.log("FINAL preparedMESSAGE", JSON.stringify(messageReadyToSend), setTopic)
     client.publish(setTopic, JSON.stringify(messageReadyToSend))
 }
 // Retrieves all parking id
@@ -268,8 +268,9 @@ async function getSensorRelatedParking(deviceEui) {
     return new Promise((resolve, reject) => {
         let getSpotDevices = "SELECT capacity_type_spot.parkingId FROM `sensor_info` INNER JOIN capacity_devices ON capacity_devices.sensorId=sensor_info.id " +
             "INNER JOIN `capacity_type_spot` ON capacity_type_spot.capacityDeviceId = capacity_devices.id WHERE sensor_info.device_EUI = '" + deviceEui + "';"
+        console.log(getSpotDevices, 'queryUpdateCartelParking')
         query(getSpotDevices).then(res => {
-            //console.log("getSensorRelatedParking", res)
+            console.log("getSensorRelatedParking", res)
             if (res.length > 0) {
                 resolve(res[0].parkingId)
             }
@@ -278,11 +279,21 @@ async function getSensorRelatedParking(deviceEui) {
     })
 }
 
+async function getCartelGatewayMac(cartelDeviceEUI) {
+    let sqlGetCurrentCapacity = "SELECT gateways.mac, gateways.name AS name FROM gateways INNER JOIN sensor_info ON gateways.sensors_id LIKE CONCAT('%', sensor_info.id, '%') WHERE sensor_info.device_EUI = '" + cartelDeviceEUI + "' AND gateways.name NOT LIKE '%alberto%';"
+    let res = await query(sqlGetCurrentCapacity)
+    console.log("res", res)
+    return {
+        mac_number: res[0].mac
+    }
+}
+
 // Refresh parking capacity on all related cartels
 async function refreshRealCartelCapacity(parkingId) {
     let cartelDeviceEUIandLinesArray = await getParkingCartelDeviceEuiAndLines(parkingId)
-        //console.log("cartelDeviceEUIandLinesArray", cartelDeviceEUIandLinesArray)
-    cartelDeviceEUIandLinesArray.forEach((element, index) => {
+        console.log("cartelDeviceEUIandLinesArray", cartelDeviceEUIandLinesArray)
+    for (const element of cartelDeviceEUIandLinesArray) {
+        const index = cartelDeviceEUIandLinesArray.indexOf(element);
         PL1 = 0, PL2 = 0, PL3 = 0, PT1 = 0, PT2 = 0, PT3 = 0
         if (element[0].parkingId != null) {
             PL1 = element[0].currentCapacity
@@ -296,8 +307,10 @@ async function refreshRealCartelCapacity(parkingId) {
             PL3 = element[2].currentCapacity
             PT3 = element[2].maxCapacity
         }
-        setCartelPlaces(cartelDeviceEUIandLinesArray[index][0].mac_number, cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI, PL1, PL2, PL3, PT1, PT2, PT3)
-    })
+        let gatewayMac = (await (getCartelGatewayMac(cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI))).mac_number;
+        console.log(gatewayMac, 'que coño pasa')
+        setCartelPlaces(gatewayMac, cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI, PL1, PL2, PL3, PT1, PT2, PT3)
+    }
 }
 
 // Updates all cartels on real (MQTT)
@@ -369,10 +382,10 @@ client.on('message', async function(topic, message) {
                 let deviceEUI = splitedTopic[4]
                 let gatewayMac = splitedTopic[0]
                 let messageFormated = JSON.parse(message.toString())
-                    //console.log("message", messageFormated)
+                console.log("message", messageFormated)
                 if (messageFormated.object.DecodeDataString != "PING" && messageFormated.fPort == 3) {
                     let decodeResult = decodeMessageLibelium(messageFormated.object.DecodeDataHex)
-                        //console.log("decodeResult", decodeResult)
+                    console.log("decodeResult", decodeResult)
                     let dbUpdateStatus = false
                     if (decodeResult) {
                         dbUpdateStatus = increaseCurrentParkingPlaces(deviceEUI)

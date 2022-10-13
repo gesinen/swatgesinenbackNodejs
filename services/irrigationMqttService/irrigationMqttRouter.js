@@ -391,9 +391,10 @@ async function main() {
                         }
                         let queryGetIrrigationDevices = "SELECT * FROM `irrigation_device` WHERE" +
                             " parametersSensorDevEui='" + relatedSensorDeviceEui + "';"
+                        console.log('porque no está funcionando esto');
                         query(queryGetIrrigationDevices).then(async function(rows) {
                                 console.log("getDeviceEuiBySensorId RES", rows)
-                                rows.forEach(async function(row) {
+                                for (const row of rows) {
                                     let irrigationDevice = await getDeviceBySensorId(row.sensorId)
                                     let irrigationDeviceId = row.id
                                     let irrigationDeviceDeviceEUI = irrigationDevice.device_EUI
@@ -405,8 +406,8 @@ async function main() {
                                     } else if (humedad <= parseInt(row.humidityLimitInferior)){
                                         activateAllValves(irrigationDeviceDeviceEUI, gatewayMac, client, deviceTypeId);
                                     }
-                                })
-                            })
+                                }
+                        })
                             //200 79 129 66
                     }
                 }
