@@ -545,8 +545,8 @@ class IrrigationDeviceController {
                     }
 
                     let query = "INSERT INTO irrigation_device (name,nameSentilo,latitude,longitude,description,status," +
-                        "userId,deviceTypeId, sensorId, humidityLimit) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
-                        lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + "," + sensorId + ", 100)"
+                        "userId,deviceTypeId, sensorId, humidityLimit, intervalHours) VALUES ('" + name + "','" + nameSentilo + "'," + lat + "," +
+                        lng + ",'" + description + "'," + status + "," + userId + "," + deviceTypeId + "," + sensorId + ", 100, '')"
                     console.log("INSERT IRRIG DEV", query)
                     conn.query(query, async (error: any, results: any) => {
                         conn.release()
