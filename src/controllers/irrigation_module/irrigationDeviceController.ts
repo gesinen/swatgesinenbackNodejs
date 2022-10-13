@@ -112,6 +112,42 @@ class IrrigationDeviceController {
         })
     }
 
+    public async getIrrigationDeviceTempHum(id: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+                let query = "SELECT * FROM `irrigation_device_temphum` WHERE sensorId=" + id + ";";
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: []
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
+                    })
+                })
+            })
+        })
+    }
+
     /**
      * GET ('/information/:id')
      * Getting the information about the user
@@ -353,6 +389,117 @@ class IrrigationDeviceController {
                     }
                     console.log("results", results)
                     if (results && results.affectedRows) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            message: 'Irrigation device related sensor updated succesfully'
+                        })
+                    } else {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            message: "Irrigation device related sensor could not be updated",
+                            result: results
+                        })
+                    }
+                })
+            })
+        })
+    }
+
+    public async updateIrrigationDeviceRelatedSensorValves(irrigationDeviceId: number, valveNumber: number, humidityLimit: number, humidityLimitInferior: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT * FROM irrigation_device_temphum WHERE sensorId =" + irrigationDeviceId + " AND valveNumber = " + valveNumber + ";"
+                conn.query(query, async (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log("results", results)
+                    if (results.length == 0) {
+                        results = await this.createNewTempHum(irrigationDeviceId, valveNumber, humidityLimit, humidityLimitInferior, relatedSensorDevEui, active)
+                        console.log('entro en crear');
+                    } else {
+                        results = await this.updateTempHum(irrigationDeviceId, valveNumber, humidityLimit, humidityLimitInferior, relatedSensorDevEui, active)
+                        console.log('entro en update');
+                    }
+                    resolve({
+                        http: 204,
+                        status: 'Success',
+                        message: "Irrigation related device created",
+                        result: results
+                    })
+                })
+            })
+        })
+    }
+
+    public async createNewTempHum(irrigationDeviceId: number, valveNumber: number, humidityLimit: number, humidityLimitInferior: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "INSERT INTO irrigation_device_temphum (sensorId, valveNumber, humidityLimit, humidityLimitInferior, sensorDevEui, active)" + "VALUES (" + irrigationDeviceId + "," + valveNumber + "," + humidityLimit + "," + humidityLimitInferior + ",'" + relatedSensorDevEui + "'," + active + ");"
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log("results del crear", results)
+                    if (results) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            message: 'Irrigation device related sensor updated succesfully'
+                        })
+                    } else {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            message: "Irrigation device related sensor could not be updated",
+                            result: results
+                        })
+                    }
+                })
+            })
+        })
+    }
+
+    public async updateTempHum(irrigationDeviceId: number, valveNumber: number, humidityLimit: number, humidityLimitInferior: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "UPDATE irrigation_device_temphum SET humidityLimit = " + humidityLimit + ", humidityLimitInferior = " + humidityLimitInferior + ", active = " + active + ", sensorDevEui = '" + relatedSensorDevEui + "' WHERE sensorId = " + irrigationDeviceId + " AND valveNumber = " + valveNumber + ";"
+                console.log(query, 'query del update');
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log("results del update", results)
+                    if (results) {
                         resolve({
                             http: 200,
                             status: 'Success',
