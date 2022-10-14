@@ -432,6 +432,12 @@ class WaterDevicesController {
     if (name) {
       name = "'" + name + "'";
     }
+    if(water_user_id == -1){
+      water_user_id =  null;
+    }
+    if(water_group_id == -1){
+      water_group_id =  null;
+    }
     if (variable_name) {
       variable_name = "'" + variable_name + "'";
     }

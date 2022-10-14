@@ -10,7 +10,7 @@ class BoilerRouter {
         this.router = (0, express_1.Router)();
         this.createBoilerAction = () => this.router.post("/", (req, res) => {
             const params = req.body;
-            boilerController_1.default.createBoilerDevice(params.userId, params.name, params.description, params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width)
+            boilerController_1.default.createBoilerDevice(params.userId, params.name, params.description, params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width, params.shape, params.unit)
                 .then(response => {
                 res.send(response);
             })
@@ -20,7 +20,7 @@ class BoilerRouter {
         });
         this.updateBoilerAction = () => this.router.put("/", (req, res) => {
             const params = req.body;
-            boilerController_1.default.updateBoilerDevice(params.id, params.userId, params.name, params.description, params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width)
+            boilerController_1.default.updateBoilerDevice(params.id, params.userId, params.name, params.description, params.sensorId, params.mode, params.schedule, params.scheduleWeekend, params.model, params.height, params.length, params.width, params.shape, params.unit)
                 .then(response => {
                 res.send(response);
             })
