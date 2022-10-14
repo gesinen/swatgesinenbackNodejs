@@ -182,8 +182,11 @@ class CapacityDevicesController {
                                     })
                                 })
                                 console.log("res", res)
-                                results[0].status = res.capacity_devices[0].status
-                                results[0].spotDeviceId = res.capacity_devices[0].id
+                                console.log(res.capacity_devices, 'HOLAAAA 1')
+                                if(res.capacity_devices.length > 0) {
+                                    results[0].status = res.capacity_devices[0].status
+                                    results[0].spotDeviceId = res.capacity_devices[0].id
+                                }
                             } else {
                                 let res: any = await capacityTypeRibbonController.getCapacityRibbonDeviceById(results[0].id).catch(err => {
                                     console.log(err)
@@ -194,9 +197,12 @@ class CapacityDevicesController {
                                         response: "Capacity ribbon device could not be retrieved"
                                     })
                                 })
+                                console.log(res.capacity_devices, 'HOLAAAA 2')
+                                if(res.capacity_devices != undefined && res.capacity_devices.length > 0) {
+                                    results[0].parkingId = res.result[0].parkingId
+                                    results[0].ribbonDeviceId = res.result[0].id
+                                }
                                 console.log("res", res)
-                                results[0].parkingId = res.result[0].parkingId
-                                results[0].ribbonDeviceId = res.result[0].id
                             }
                             resolve({
                                 http: 200,

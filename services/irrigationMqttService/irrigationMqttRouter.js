@@ -36,8 +36,8 @@ const mysql = require('mysql');
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    //password: 'Al8987154St12',
-    password: '',
+    password: 'Al8987154St12',
+    //password: '',
     database: 'swat_gesinen'
 });
 
@@ -98,7 +98,7 @@ function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
     const num = index - 1;
     let send = '';
     let fPort;
-    if (deviceTypeId !== 3) {
+    if (deviceTypeId < 3) {
         fPort = 10;
         switch (num) {
             case 0:
@@ -128,7 +128,7 @@ function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
             default:
                 break;
         }
-    } else {
+    } else if (deviceTypeId === 3) {
         fPort = 4;
         switch (num) {
             case 0:
@@ -145,6 +145,24 @@ function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
                 break;
             case 4:
                 send = "DRAEDw8=";
+                break;
+            default:
+                break;
+        }
+    } else {
+        fPort = 4;
+        switch (num) {
+            case 0:
+                send = "0QD/";
+                break;
+            case 1:
+                send = "0QH/";
+                break;
+            case 2:
+                send = "0QL/";
+                break;
+            case 3:
+                send = "0QT/";
                 break;
             default:
                 break;
@@ -171,7 +189,7 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
     const num = index - 1;
     let send = '';
     let fPort;
-    if (deviceTypeId !== 3) {
+    if (deviceTypeId < 3) {
         fPort = 10;
         switch (num) {
             case 0:
@@ -201,7 +219,7 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
             default:
                 break;
         }
-    } else {
+    } else if (deviceTypeId === 3) {
         fPort = 4;
         switch (num) {
             case 0:
@@ -218,6 +236,25 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
                 break;
             case 4:
                 send = "DRAEAAA=";
+                break;
+            default:
+                break;
+        }
+
+    } else {
+        fPort = 4;
+        switch (num) {
+            case 0:
+                send = "0QAA";
+                break;
+            case 1:
+                send = "0QEA";
+                break;
+            case 2:
+                send = "0QIA";
+                break;
+            case 3:
+                send = "0QQA";
                 break;
             default:
                 break;
@@ -354,9 +391,10 @@ async function main() {
                         }
                         let queryGetIrrigationDevices = "SELECT * FROM `irrigation_device` WHERE" +
                             " parametersSensorDevEui='" + relatedSensorDeviceEui + "';"
+                        console.log('porque no está funcionando esto');
                         query(queryGetIrrigationDevices).then(async function(rows) {
                                 console.log("getDeviceEuiBySensorId RES", rows)
-                                rows.forEach(async function(row) {
+                                for (const row of rows) {
                                     let irrigationDevice = await getDeviceBySensorId(row.sensorId)
                                     let irrigationDeviceId = row.id
                                     let irrigationDeviceDeviceEUI = irrigationDevice.device_EUI
@@ -368,8 +406,8 @@ async function main() {
                                     } else if (humedad <= parseInt(row.humidityLimitInferior)){
                                         activateAllValves(irrigationDeviceDeviceEUI, gatewayMac, client, deviceTypeId);
                                     }
-                                })
-                            })
+                                }
+                        })
                             //200 79 129 66
                     }
                 }

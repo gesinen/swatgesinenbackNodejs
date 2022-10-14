@@ -321,7 +321,7 @@ class IrrigationDeviceOutputController {
                                 error: error
                             })
                         }
-                        console.log(results)
+                        console.log(results, 'este es el undefined?')
                         if (results && results.affectedRows != undefined && results.affectedRows == 1) {
                             resolve({
                                 http: 200,

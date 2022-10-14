@@ -10,7 +10,12 @@ class IrrigationDeviceRouter {
     this.storeIrrigationDevice();
     this.updateIrrigationDevice();
     this.deleteIrrigationDevice();
-    this.updateIrrigationDeviceRelatedSensorId()
+    this.updateIrrigationDeviceRelatedSensorId();
+    this.getSensorTypeBySensorId();
+    this.updateGeswatIrrigationIntervals();
+    this.getGeswatInterval();
+    this.updateIrrigationDeviceRelatedSensorIdValves();
+    this.getIrrigationDeviceTempHumById();
   }
 
   /**
@@ -30,6 +35,20 @@ class IrrigationDeviceRouter {
           res.send(err);
         });
     });
+
+    public getIrrigationDeviceTempHumById = () =>
+        this.router.get("/temphum/:id", (req: Request, res: Response) => {
+            const id = parseInt(req.params.id);
+
+            irrigationController
+                .getIrrigationDeviceTempHum(id)
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
 
   /**
    * Get the user data
@@ -99,6 +118,28 @@ class IrrigationDeviceRouter {
           res.send(err);
         });
     });
+
+    public updateIrrigationDeviceRelatedSensorIdValves = () =>
+        this.router.put("/relatedSensor/byValve/:irrigationDeviceId/:relatedSensorDevEui/:humidityLimit/:humidityLimitInferior/:valveNumber/:active", (req: Request, res: Response) => {
+            const params: any = req.params;
+            console.log("router store params");
+            console.log(params);
+            irrigationController
+                .updateIrrigationDeviceRelatedSensorValves(
+                    params.irrigationDeviceId,
+                    params.valveNumber,
+                    parseInt(params.humidityLimit),
+                    parseInt(params.humidityLimitInferior),
+                    params.relatedSensorDevEui,
+                    params.active
+                )
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
 
   /**
    * Get user related municipality_id
@@ -187,6 +228,46 @@ class IrrigationDeviceRouter {
           });
       }
     );
+
+    public getSensorTypeBySensorId = () =>
+        this.router.get("/relatedSensor/:irrigationDeviceId", (req: Request, res: Response) => {
+            const params: any = req.params;
+            console.log(params, "Que esta pasando aqui")
+            irrigationController
+                .getSensorTypeBySensorId(params.irrigationDeviceId)
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
+
+    public updateGeswatIrrigationIntervals = () =>
+        this.router.put("/updateGeswat/:irrigationDeviceId/:intervals", (req: Request, res: Response) => {
+            const intervals = req.params.intervals;
+            const irrigationDeviceId = req.params.irrigationDeviceId;
+            irrigationController
+                .updateGeswatIrrigationIntervals(irrigationDeviceId, intervals)
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
+    public getGeswatInterval = () =>
+        this.router.get("/geswatInterval/:id", (req: Request, res: Response) => {
+            const params: any = req.params;
+            irrigationController
+                .getGeswatInterval(params.id)
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
 }
 
 const irrigationDeviceRouter = new IrrigationDeviceRouter();

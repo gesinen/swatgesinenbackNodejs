@@ -141,13 +141,13 @@ class CapacityDevicesController {
                         })
                     }
 
-                    if (results.length == 0) {
+                    /*if (results.length == 0) {
                         resolve({
                             http: 204,
                             status: 'Success',
                             result: "There is no capacity spot device with this ID",
                         })
-                    } else {
+                    }*/ else {
                         resolve({
                             http: 200,
                             status: 'Success',

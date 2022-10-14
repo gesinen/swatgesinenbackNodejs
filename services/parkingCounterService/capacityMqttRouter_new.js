@@ -110,7 +110,7 @@ async function getCapacityServiceInfo() {
             if (error) throw new Error(error);
             //console.log("getBoilerServiceInfo", response.body);
             let jsonRes = JSON.parse(response.body)
-                //console.log("getCapacityServiceInfo", jsonRes)
+            console.log("getCapacityServiceInfo", jsonRes)
             resolve(jsonRes.response)
         });
     })
@@ -304,6 +304,15 @@ function sendToSentilo(parkingSensorName, provider, authToken, value) {
     });
 }
 
+async function getUsernameByParking(parkingId) {
+    let sqlGetCurrentCapacity = "SELECT email AS username FROM users INNER JOIN capacity_parking ON users.id = capacity_parking.userId WHERE capacity_parking.id = " + parkingId + ";"
+    let res = await query(sqlGetCurrentCapacity)
+    console.log("res", res)
+    return {
+        username: res[0].username
+    }
+}
+
 
 async function main() {
     // Obtengo los topics de mqtt de todos los sensores para subscribirme tras la conexion satisfactoria a mqtt
@@ -357,6 +366,18 @@ async function main() {
                      parkingId -> getParkingCartelDeviceEuiAndLines() -> [ cartelDeviceEUI , lineNum ]
                      */
                     let cartelDeviceEUIandLinesArray = await getParkingCartelDeviceEuiAndLines(currentCapacityAndParkingId.parkingId)
+                    let username = await getUsernameByParking(currentCapacityAndParkingId.parkingId);
+                    username = username.username;
+                    let messageWindow;
+
+                    console.log('username', username)
+
+                    if(username.includes('montserrat')) messageWindow = "06"
+                    else if(username.includes('xirivella')) messageWindow = "01"
+                    else messageWindow = "00"
+
+                    console.log('messageWindow', messageWindow)
+
                     console.log("cartelDeviceEUIandLinesArray", cartelDeviceEUIandLinesArray)
                     cartelDeviceEUIandLinesArray.forEach((element, index) => {
                         console.log("element", element)
@@ -387,7 +408,7 @@ async function main() {
                                 console.log("capacityFreeSpaces", capacityFreeSpaces)
                                 console.log("capacityFreeSpacesOther", capacityFreeSpacesOther)
 
-                                let setMessageHex = "1B 06 " + intToHex(capacityFreeSpaces) + " 0 " + intToHex(capacityFreeSpacesOther) + " 0"
+                                let setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 " + intToHex(capacityFreeSpacesOther) + " 0"
                                 //let setMessageHex = "1B 01 " + intToHex(capacityFreeSpaces) + " 0 0 0"
                                 let setMessage = hexToBase64(setMessageHex)
                                 let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
@@ -445,7 +466,7 @@ async function main() {
                                 if (capacityFreeSpacesOther > parseInt(element[0].maxCapacity)) {
                                     capacityFreeSpacesOther = parseInt(element[0].maxCapacity)
                                 }
-                                let setMessageHex = "1B 06 " + intToHex(capacityFreeSpacesOther) + " 0 " + intToHex(capacityFreeSpaces) + " 0"
+                                let setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpacesOther) + " 0 " + intToHex(capacityFreeSpaces) + " 0"
                                 let setMessage = hexToBase64(setMessageHex)
                                 let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
                                     capacityCalculated + " WHERE id=" + element[1].parkingId + ";"
@@ -492,7 +513,10 @@ async function main() {
                             console.log("capacityCalculated", capacityCalculated)
                             console.log("capacityFreeSpaces", capacityFreeSpaces)
 
-                            let setMessageHex = "1B 06 " + intToHex(capacityFreeSpaces) + " 0 0 0"
+                            let setMessageHex;
+
+                            if(username.includes('xirivella')) setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 0"
+                            else setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 0 0"
                             let setMessage = hexToBase64(setMessageHex)
                             let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
                                 capacityCalculated + " WHERE id=" + cartelDeviceEUIandLinesArray[index][0].parkingId + ";"
