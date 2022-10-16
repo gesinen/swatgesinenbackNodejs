@@ -27,7 +27,7 @@ class WaterObservationsController {
         var values_to_insert = "";
         var record_counter = 0;
         console.log("importFile");
-
+console.log(json_file_data);
         json_file_data.water_info.forEach(function (element: any, index: any) {
           var select_query =
             "SELECT water_devices.id, water_devices.sensor_id, water_devices.name, " +
@@ -47,6 +47,7 @@ class WaterObservationsController {
                 console.log("contract_number not found");
               } else {
                 let water_device_info = results[0];
+                console.log('result',water_device_info);
                 values_to_insert +=
                   "(" +
                   water_device_info.id +
@@ -59,7 +60,7 @@ class WaterObservationsController {
                   "', 'S01', NULL, NULL, " +
                   element.observation_value +
                   ",'" +
-                  json_file_data.date +
+                  element.message_timestamp +
                   "', NULL, " +
                   json_file_data.user_id +
                   ", 'normal', 'normal', current_timestamp(), current_timestamp()),";
