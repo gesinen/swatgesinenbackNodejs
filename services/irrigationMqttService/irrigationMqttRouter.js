@@ -172,13 +172,13 @@ function activateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
     //const topic = "dca632143f21/application/2/device/0079e129d52aa017/tx";
     const topic = mac + "/application/" + applicationId + "/device/" + deviceEUI + "/tx";
 
-    let msg = JSON.stringify({
+    let msg = {
         confirmed: true,
         fPort: fPort,
         data: send
-    });
+    }
     console.log("topic", topic)
-    console.log("msg", msg)
+    console.log("msg", JSON.stringify(msg))
     mqttClient.publish(topic, JSON.stringify(msg))
 
 }
@@ -264,11 +264,11 @@ function deactivateValve(index, deviceEUI, mac, mqttClient, deviceTypeId) {
     //const topic = "dca632143f21/application/2/device/0079e129d52aa017/tx";
     const topic = mac + "/application/" + applicationId + "/device/" + deviceEUI + "/tx";
 
-    let msg = JSON.stringify({
+    let msg = {
         confirmed: true,
         fPort: fPort,
         data: send
-    });
+    }
     console.log("topic", topic)
     console.log("msg", msg)
     mqttClient.publish(topic, JSON.stringify(msg))

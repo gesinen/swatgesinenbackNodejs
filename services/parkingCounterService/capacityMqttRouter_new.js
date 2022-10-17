@@ -379,7 +379,8 @@ async function main() {
                     console.log('messageWindow', messageWindow)
 
                     console.log("cartelDeviceEUIandLinesArray", cartelDeviceEUIandLinesArray)
-                    cartelDeviceEUIandLinesArray.forEach((element, index) => {
+                    for (const element of cartelDeviceEUIandLinesArray) {
+                        const index = cartelDeviceEUIandLinesArray.indexOf(element);
                         console.log("element", element)
                         let setTopic = gatewayMac + "/application/2/device/" + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI + "/tx"
                             // mensaje 1B 06 p1 p1m p2 p2m
@@ -515,7 +516,10 @@ async function main() {
 
                             let setMessageHex;
 
-                            if(username.includes('xirivella')) setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 0"
+                            if(username.includes('xirivella')){
+                                const xirivellaSpot = await getXirivellaSpecialSpot(element[0].parkingId)
+                                setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " " + xirivellaSpot.currentXirivellaSpot + " 0"
+                            }
                             else setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 0 0"
                             let setMessage = hexToBase64(setMessageHex)
                             let sqlQueryUpdateParkingCapacity = "UPDATE capacity_parking SET `currentCapacity`=" +
@@ -549,7 +553,7 @@ async function main() {
                             sendToSentilo(element[0].parkingSensorName, element[0].provider, element[0].authToken, capacityFreeSpaces)
 
                         }
-                    });
+                    }
                 }
                 //console.log("cartelDeviceEUIandLines", cartelDeviceEUIandLinesArray)
 
@@ -557,6 +561,15 @@ async function main() {
             }
         }
     })
+}
+
+async function getXirivellaSpecialSpot(parkingId){
+    let sqlGetCurrentCapacity = "SELECT status FROM `capacity_type_spot` WHERE parkingId ="+ parkingId + ";"
+    let res = await query(sqlGetCurrentCapacity)
+    console.log("responseFromXirivellaCapacity", res)
+    return {
+        currentXirivellaSpot: res[0].status
+    }
 }
 
 main()

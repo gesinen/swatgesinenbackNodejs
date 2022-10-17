@@ -239,9 +239,23 @@ Cartel tipo: 0X08 -> display 3 parkings plazasLibres / plazasTotales
 Estructura de mensaje: OX08 PL1 PL2 PL3 PT1 PT2 PT3
 PL = plazas libres, PT = plazas totales
 */
-function setCartelPlaces(gatewayMac, cartelDeviceEUI, pl1, pl2, pl3, pt1, pt2, pt3) {
+
+async function getXirivellaParkingCapacity(parkingId){
+    let sqlGetCurrentCapacity = "SELECT currentCapacity FROM `capacity_parking` WHERE id =" + parkingId + ";"
+    let res = await query(sqlGetCurrentCapacity)
+    console.log("responseFromXirivellaCapacity", res)
+    return {
+        currentXirivellaCapacity: res[0].currentCapacity
+    }
+}
+
+async function setCartelPlaces(gatewayMac, username, parkingId, cartelDeviceEUI, pl1, pl2, pl3, pt1, pt2, pt3) {
     let setTopic = gatewayMac + "/application/4/device/" + cartelDeviceEUI + "/tx"
-    let setMessage = "1B 08 " + intToHex(pl1) + " " + intToHex(pl2) + " " + intToHex(pl3) + " " + intToHex(pt1) + " " + intToHex(pt2) + " " + intToHex(pt3)
+    let setMessage;
+    if (username.includes('xirivella')) {
+        const currentCapacity = await getXirivellaParkingCapacity(parkingId);
+        setMessage = "1B 01 " + intToHex(currentCapacity.currentXirivellaCapacity) + " " + intToHex(pl1) + "0"
+    } else setMessage = "1B 08 " + intToHex(pl1) + " " + intToHex(pl2) + " " + intToHex(pl3) + " " + intToHex(pt1) + " " + intToHex(pt2) + " " + intToHex(pt3)
     console.log("setMessageNormal", setMessage)
     let setMessageBase64 = hexToBase64(setMessage)
     console.log("setMessageBase64", setMessageBase64)
@@ -288,29 +302,62 @@ async function getCartelGatewayMac(cartelDeviceEUI) {
     }
 }
 
+async function getParkingPlacesCount(parkingId, username) {
+    let sqlGetCurrentCapacity = "SELECT COUNT(*) AS placesCount FROM `capacity_type_spot` WHERE status = true AND parkingId =" + parkingId + ";"
+    let res = await query(sqlGetCurrentCapacity)
+    console.log(res, "la cuenta")
+    if(!username.includes('xirivella')){
+        let sqlUpdateCurrentCapacity = "UPDATE capacity_parking SET currentCapacity = "+ res[0].placesCount + " WHERE id = " + parkingId + ";"
+        let res2 = await query(sqlUpdateCurrentCapacity)
+        console.log(res2, "el update")
+    }
+    return {
+        currentCapacity: res[0].placesCount
+    }
+}
+
+async function getUsernameByParking(parkingId) {
+    let sqlGetCurrentCapacity = "SELECT email AS username FROM users INNER JOIN capacity_parking ON users.id = capacity_parking.userId WHERE capacity_parking.id = " + parkingId + ";"
+    let res = await query(sqlGetCurrentCapacity)
+    console.log("res", res)
+    return {
+        username: res[0].username
+    }
+}
+
 // Refresh parking capacity on all related cartels
 async function refreshRealCartelCapacity(parkingId) {
     let cartelDeviceEUIandLinesArray = await getParkingCartelDeviceEuiAndLines(parkingId)
-        console.log("cartelDeviceEUIandLinesArray", cartelDeviceEUIandLinesArray)
+    console.log("cartelDeviceEUIandLinesArray", cartelDeviceEUIandLinesArray)
+    let username = await getUsernameByParking(parkingId);
+    username = username.username
+    console.log(username, 'esto es el usuario');
     for (const element of cartelDeviceEUIandLinesArray) {
         const index = cartelDeviceEUIandLinesArray.indexOf(element);
         PL1 = 0, PL2 = 0, PL3 = 0, PT1 = 0, PT2 = 0, PT3 = 0
         if (element[0].parkingId != null) {
-            PL1 = element[0].currentCapacity
+            const currentCapacity = await getParkingPlacesCount(element[0].parkingId, username)
+            console.log(currentCapacity, 'esto es el currentcapacity 1 ma nigga')
+            PL1 = currentCapacity.currentCapacity
             PT1 = element[0].maxCapacity
         }
         if (element[1].parkingId != null) {
-            PL2 = element[1].currentCapacity
+            const currentCapacity = await getParkingPlacesCount(element[1].parkingId, username)
+            console.log(currentCapacity, 'esto es el currentcapacity 2 ma nigga')
+            PL2 = currentCapacity.currentCapacity
             PT2 = element[1].maxCapacity
         }
         if (element[2].parkingId != null) {
-            PL3 = element[2].currentCapacity
+            const currentCapacity = await getParkingPlacesCount(element[2].parkingId, username)
+            console.log(currentCapacity, 'esto es el currentcapacity 3 ma nigga')
+            PL3 = currentCapacity.currentCapacity
             PT3 = element[2].maxCapacity
         }
         let gatewayMac = (await (getCartelGatewayMac(cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI))).mac_number;
         console.log(gatewayMac, 'que coño pasa')
-        setCartelPlaces(gatewayMac, cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI, PL1, PL2, PL3, PT1, PT2, PT3)
+        await setCartelPlaces(gatewayMac, username, element[0].parkingId, cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI, PL1, PL2, PL3, PT1, PT2, PT3)
     }
+
 }
 
 // Updates all cartels on real (MQTT)
@@ -324,47 +371,39 @@ async function refreshAllCartelsReal() {
 }
 
 // Increases related spot device parking current capacity
-function increaseCurrentParkingPlaces(spotDeviceEUI) {
+async function increaseCurrentParkingPlaces(spotDeviceEUI) {
     return new Promise((resolve, reject) => {
 
-        let getParkingId = "SELECT capacity_type_spot.parkingId FROM `sensor_info` INNER JOIN capacity_devices ON capacity_devices.sensorId=sensor_info.id " +
-            "INNER JOIN capacity_type_spot ON capacity_type_spot.capacityDeviceId=capacity_devices.id WHERE " +
-            "sensor_info.device_EUI='" + spotDeviceEUI + "' AND capacity_devices.type='parking_individual';"
-        console.log("increaseCurrentParkingPlaces", getParkingId)
-        query(getParkingId).then(res => {
+        let updateSensor = "UPDATE capacity_type_spot SET capacity_type_spot.status = true WHERE capacity_type_spot.capacityDeviceId " +
+            "= (SELECT capacity_devices.id FROM capacity_devices INNER JOIN sensor_info ON capacity_devices.sensorId = sensor_info.id " +
+            "WHERE sensor_info.device_EUI = '" + spotDeviceEUI + "');"
+        console.log("increaseCurrentParkingPlaces", updateSensor)
+
+        query(updateSensor).then(res => {
             console.log("res", res)
-            let parkingId = res[0].parkingId
-            let updateParkingCapacity = "UPDATE capacity_parking SET currentCapacity = currentCapacity + 1 WHERE id = " + parkingId
-            query(updateParkingCapacity).then(putRes => {
-                if (putRes.affectedRows > 0) {
-                    resolve(true)
-                } else {
-                    reject(false)
-                }
-            })
+            if (res.affectedRows > 0) {
+                resolve(true)
+            } else {
+                reject(false)
+            }
         })
     })
 }
 
 // Decreases related spot device parking current capacity
-function decreaseCurrentParkingPlaces(spotDeviceEUI) {
-    let getParkingId = "SELECT capacity_type_spot.parkingId FROM `sensor_info` INNER JOIN capacity_devices ON capacity_devices.sensorId=sensor_info.id " +
-        "INNER JOIN capacity_type_spot ON capacity_type_spot.capacityDeviceId=capacity_devices.id WHERE " +
-        "sensor_info.device_EUI='" + spotDeviceEUI + "' AND capacity_devices.type='parking_individual';"
-    console.log("increaseCurrentParkingPlaces", getParkingId)
+async function decreaseCurrentParkingPlaces(spotDeviceEUI) {
+    return new Promise((resolve, reject) => {
+        let updateSensor = "UPDATE capacity_type_spot SET capacity_type_spot.status = false WHERE capacity_type_spot.capacityDeviceId " +
+            "= (SELECT capacity_devices.id FROM capacity_devices INNER JOIN sensor_info ON capacity_devices.sensorId = sensor_info.id " +
+            "WHERE sensor_info.device_EUI = '" + spotDeviceEUI + "');"
+        console.log("increaseCurrentParkingPlaces", updateSensor)
 
-    query(getParkingId).then(res => {
-        console.log("res", res)
-        let parkingId = res[0].parkingId
-        let updateParkingCapacity = "UPDATE capacity_parking SET currentCapacity = currentCapacity - 1 WHERE id = " + parkingId
-        query(updateParkingCapacity).then(putRes => {
-
-            if (putRes.affectedRows > 0) {
-                if (putRes.affectedRows > 0) {
-                    resolve(true)
-                } else {
-                    reject(false)
-                }
+        query(updateSensor).then(res => {
+            console.log("res", res)
+            if (res.affectedRows > 0) {
+                resolve(true)
+            } else {
+                reject(false)
             }
         })
     })
@@ -388,15 +427,16 @@ client.on('message', async function(topic, message) {
                     console.log("decodeResult", decodeResult)
                     let dbUpdateStatus = false
                     if (decodeResult) {
-                        dbUpdateStatus = increaseCurrentParkingPlaces(deviceEUI)
+                        dbUpdateStatus = await increaseCurrentParkingPlaces(deviceEUI)
                     } else {
-                        dbUpdateStatus = decreaseCurrentParkingPlaces(deviceEUI)
+                        dbUpdateStatus = await decreaseCurrentParkingPlaces(deviceEUI)
                     }
+                    console.log("Hemos salido ya de los updates", dbUpdateStatus);
                     if (dbUpdateStatus) {
                         let parkingId = await getSensorRelatedParking(deviceEUI)
                         console.log("parkingId", parkingId)
                         if (!isNaN(parkingId)) {
-                            refreshRealCartelCapacity(parkingId)
+                            await refreshRealCartelCapacity(parkingId)
                         }
                     }
                 }
