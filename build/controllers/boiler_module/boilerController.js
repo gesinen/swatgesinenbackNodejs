@@ -352,7 +352,7 @@ class BoilerController {
     updateBoilerDevicePingDataTempDistV1(id, lastLongitude, lastTemperature) {
         return __awaiter(this, void 0, void 0, function* () {
             let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
-                + "', lastUpdateTime=now() WHERE id=" + id + ";";
+                + "', lastUpdateTime=now() WHERE sensorId=" + id + ";";
             console.log("updateSql", updateSql);
             return new Promise((resolve, reject) => {
                 database_1.default.getConnection((error, conn) => {

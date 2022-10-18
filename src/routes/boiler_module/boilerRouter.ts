@@ -66,7 +66,8 @@ class BoilerRouter {
     this.router.put("/pingDistTempV1", (req: Request, res: Response) => {
       const params = req.body;
       console.log(params)
-      boilerController.updateBoilerDevicePingDataTempDistV1(params.id, params.distance, params.temperature)
+      let sesnor_id = params.boilerDevEui;
+      boilerController.updateBoilerDevicePingDataTempDistV1(sesnor_id, params.distance, params.temperature)
         .then(response => {
           res.send(response)
         })

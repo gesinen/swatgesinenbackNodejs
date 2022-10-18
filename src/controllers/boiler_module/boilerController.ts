@@ -336,7 +336,7 @@ class BoilerController {
   public async updateBoilerDevicePingDataTempDistV1(id: number, lastLongitude: string, lastTemperature: string): Promise<object> {
 
     let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
-      + "', lastUpdateTime=now() WHERE id=" + id + ";"
+      + "', lastUpdateTime=now() WHERE sensorId=" + id + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {
