@@ -59,7 +59,7 @@ async function query(sql) {
 }
 
 async function getCurrentCapacityAndParkingId(deviceEui) {
-    let sqlGetCurrentCapacity = "SELECT capacity_parking.currentCapacity, capacity_parking.id as parkingId FROM `sensor_info` INNER JOIN capacity_devices ON " +
+    let sqlGetCurrentCapacity = "SELECT capacity_parking.currentCapacity, capacity_parking.maxCapacity, capacity_parking.id as parkingId FROM `sensor_info` INNER JOIN capacity_devices ON " +
         "capacity_devices.sensorId=sensor_info.id INNER JOIN capacity_type_ribbon ON " +
         "capacity_type_ribbon.capacityDeviceId=capacity_devices.id INNER JOIN capacity_parking ON" +
         " capacity_parking.id=capacity_type_ribbon.parkingId WHERE sensor_info.device_EUI = '" + deviceEui + "';"
@@ -67,6 +67,7 @@ async function getCurrentCapacityAndParkingId(deviceEui) {
     console.log("res", res)
     return {
         currentCapacity: res[0].currentCapacity,
+        maxCapacity: res[0].maxCapacity,
         parkingId: res[0].parkingId
     }
 }
@@ -204,7 +205,7 @@ function calculateCapacityIncOrDec(message) {
     return parseInt(entrada - salida + bidir1 - bidir2)
 }
 
-async function saveMessageLog(messageHex, capacityDeviceEUI, parkingId, currentCapacity, maxCapacity) {
+async function saveMessageLog(messageHex, frameCounter, capacityDeviceEUI, parkingId, currentCapacity, maxCapacity) {
     let msgSplited = messageHex.split(",")
     let entrada = hexToInt(msgSplited[1])
     let salida = hexToInt(msgSplited[2])
@@ -223,11 +224,11 @@ async function saveMessageLog(messageHex, capacityDeviceEUI, parkingId, currentC
     if (bidir2 < 0) {
         bidir2 = 0
     }
-    parseInt(entrada - salida + bidir1 - bidir2)
+    const actualCurrentCapacity = currentCapacity + parseInt(entrada - salida + bidir1 - bidir2)
     messageInt = entrada + " " + salida + " " + bidir1 + " " + bidir2
 
-    sqlInsertLogOnTable = "INSERT INTO `capacity_devices_log` (`messageHex`, `messageInt`, `capacityDeviceEUI`, `parkingId`, `currentCapacity`, `maxCapacity`) VALUES " +
-        "('" + messageHex + "', '" + messageInt + "', '" + capacityDeviceEUI + "', " + parkingId + ", " + currentCapacity + ", " + maxCapacity + ");"
+    sqlInsertLogOnTable = "INSERT INTO `capacity_devices_log` (`messageHex`, `frameCounter`,`messageInt`, `capacityDeviceEUI`, `parkingId`, `currentCapacity`, `maxCapacity`) VALUES " +
+        "('" + messageHex + "', " + frameCounter + ", '" + messageInt + "', '" + capacityDeviceEUI + "', " + parkingId + ", " + actualCurrentCapacity + ", " + maxCapacity + ");"
 
     console.log("sqlInsertLogOnTable", sqlInsertLogOnTable);
 
@@ -361,6 +362,11 @@ async function main() {
                     // Obtengo cual parking esta asociado a este sensor
                     let currentCapacityAndParkingId = await getCurrentCapacityAndParkingId(deviceEUI)
 
+                    await saveMessageLog(messageFormated.object.DecodeDataHex, messageFormated.fCnt, deviceEUI, currentCapacityAndParkingId.parkingId,
+                        currentCapacityAndParkingId.currentCapacity, currentCapacityAndParkingId.maxCapacity)
+
+                    console.log('el mensaje ha sido guardado')
+
                     /*
                      Obtengo el cartel asociado a este parking y cada una de sus lineas (este cartel por ejemplo tiene 2 lineas)
                      parkingId -> getParkingCartelDeviceEuiAndLines() -> [ cartelDeviceEUI , lineNum ]
@@ -435,9 +441,6 @@ async function main() {
                                         // Tras preparar el mensaje y obtener cuantas plazas quedan, envio el mensaje
                                         client.publish(setTopic, JSON.stringify(messageReadyToSend))
                                         console.log("MQTT MSG SEND SUCCESFULLY");
-                                        // Guardo el mensaje de log para que podamos ver si hay algun problema con algun dispositivo conflictivo
-                                        saveMessageLog(messageFormated.object.DecodeDataHex, deviceEUI, cartelDeviceEUIandLinesArray[index][0].parkingId,
-                                            element[0].currentCapacity, element[0].maxCapacity)
                                     } else {
                                         console.log("CAPACITY HASNT BEEN UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
                                     }
@@ -490,8 +493,6 @@ async function main() {
 
                                         client.publish(setTopic, JSON.stringify(messageReadyToSend))
                                         console.log("MQTT MSG SEND SUCCESFULLY");
-                                        saveMessageLog(messageFormated.object.DecodeDataHex, deviceEUI, cartelDeviceEUIandLinesArray[index][1].parkingId,
-                                            element[1].currentCapacity, element[1].maxCapacity)
                                     } else {
                                         console.log("CAPACITY HASNT BEEN UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
                                     }
@@ -544,8 +545,6 @@ async function main() {
 
                                     client.publish(setTopic, JSON.stringify(messageReadyToSend))
                                     console.log("MQTT MSG SEND SUCCESFULLY");
-                                    saveMessageLog(messageFormated.object.DecodeDataHex, deviceEUI, cartelDeviceEUIandLinesArray[index][0].parkingId,
-                                        element[0].currentCapacity, element[0].maxCapacity)
                                 } else {
                                     console.log("CAPACITY HASNT BEEN UPDATED ON PANEL -> " + cartelDeviceEUIandLinesArray[index][0].cartelDeviceEUI)
                                 }

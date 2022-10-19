@@ -13,7 +13,8 @@ class CapacityParkingRouter {
     this.updateCapacityDeviceAction();
     this.updateParkingActualCapacity();
     this.getParkingSensors();
-    this.getParkingUserByGateway()
+    this.getParkingUserByGateway();
+    this.getParkingMessages();
 
     //for Mobile Application
     this.getParkingByIdUsingAuthToken();
@@ -68,6 +69,25 @@ class CapacityParkingRouter {
           });
       }
     );
+
+    public getParkingMessages = () =>
+        this.router.get(
+            "/messages/:parkingId/:pageSize/:pageIndex",
+            (req: Request, res: Response) => {
+                capacityParkingController
+                    .getParkingMessages(
+                        parseInt(req.params.parkingId),
+                        parseInt(req.params.pageSize),
+                        parseInt(req.params.pageIndex)
+                    )
+                    .then((response) => {
+                        res.send(response);
+                    })
+                    .catch((err) => {
+                        res.send(err);
+                    });
+            }
+        );
 
   /**
    * Get a capacity device with an ID
