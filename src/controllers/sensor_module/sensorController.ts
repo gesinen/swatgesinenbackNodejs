@@ -455,6 +455,49 @@ class SensorController {
     });
   }
 
+  public async getNetworkServerMacAndApplication(macnumber: string) {
+    var query_servers =
+      "SELECT mac, application, name FROM gateways WHERE mac = " + macnumber;
+
+    return new Promise((resolve, reject) => {
+      db.getConnection((error: any, conn: any) => {
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(query_servers, (err: any, results: any) => {
+          conn.release();
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          else {
+            if (results && results.length == 0) {
+              resolve({
+                http: 204,
+                status: "Success",
+                result: "There is no sensor with this id"
+              });
+            }
+            else {
+              resolve({
+                http: 200,
+                status: "Success",
+                result: results[0]
+              });
+            }
+          }        
+        })
+      })
+    })
+  }
 
 
   // Get sensor device eui and gateway mac

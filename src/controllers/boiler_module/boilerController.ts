@@ -27,6 +27,10 @@ class BoilerController {
           topic: gateway.mac + '/application/1/device/' + sensorDevEui + "/rx",
           sensorId: sensorId,
           sensorDevEui: sensorDevEui
+        },{
+          topic: gateway.mac + '/application/2/device/' + sensorDevEui + "/rx",
+          sensorId: sensorId,
+          sensorDevEui: sensorDevEui
         })
       }
     }
@@ -51,9 +55,12 @@ class BoilerController {
       var sensorId = sensorRequiredInfo.result.id
       var sensorDevEui = sensorRequiredInfo.result.device_EUI
       var gateway = sensorRequiredInfo.result.network_server_mac
+      var gatewayInfo :any  = await sensorController.getNetworkServerMacAndApplication(gateway);
+      let application = gatewayInfo.result.application; 
       //for (let gateway of gateways) {
         boilersInfo.push({
-          topic: gateway + '/application/1/device/' + sensorDevEui + "/rx",
+          topic: gateway + '/application/'+application+'/device/' + sensorDevEui + "/rx",
+         // topic: gateway + '/application/1/device/' + sensorDevEui + "/rx",
           sensorId: sensorId,
           sensorDevEui: sensorDevEui
         })

@@ -25,8 +25,8 @@ class LoraDashboardRouter {
     this.getNetworkServerSensorStatusSelected();
     this.getNetworkServerSensorSignalSelected();
     this.getNetworkServerPackagesSelected();
-  }
 
+  }
   // Methods
   public getNetworkServerGeneralInformation = () =>
     this.router.get("/information/:userId", (req: Request, res: Response) => {
