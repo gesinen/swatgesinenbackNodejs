@@ -195,12 +195,12 @@ class BoilerController {
     schedule = Utils.checkUndefined(schedule)
     let insertSql = "UPDATE `boiler_device` SET userId='" + userId + "', name='" + name + "', description='" + description +
       "', sensorId='" + sensorId + "' , mode='" + mode + "', schedule='" + schedule + "', scheduleWeekend='" + scheduleWeekend + "', boilerModel='" + model + "', height='" +
-      height + "', length='" + length + "', width='" + width + "', shape='" + shape + "', unit='" + unit + " ', lastUpdateTime=now() WHERE id=" + id + ";"
+      height + "', length='" + length + "', width='" + width + "', shape='" + shape + "', unit='" + unit + " ', lastUpdateTime=DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE id=" + id + ";"
 
     /*let insertSql = 'UPDATE `boiler_device` SET userId = @userId, name = @name, description = @description, ' +
         'sensorId = @sensorId, mode = @mode, schedule = @schedule, scheduleWeekend = @scheduleWeekend, ' +
         'boilerModel = @model, height = @height, length = @length, width = @width, ' +
-        'shape = @shape, lastUpdateTime=now() WHERE id= @id;'*/
+        'shape = @shape, lastUpdateTime=DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE id= @id;'*/
 
     console.log(insertSql)
 
@@ -251,7 +251,7 @@ class BoilerController {
     if (mode == "schedule") {
       updateSql += ", schedule='" + schedule + "'"
     }
-    updateSql += ", mode='" + mode + "', lastUpdateTime=now() WHERE id=" + id + ";"
+    updateSql += ", mode='" + mode + "', lastUpdateTime=DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE id=" + id + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {
@@ -303,7 +303,7 @@ class BoilerController {
     if (mode == "schedule") {
       updateSql += ", schedule='" + schedule + "'"
     }
-    updateSql += ", mode='" + mode + "', lastUpdateTime=now() WHERE sensorId=" + sensorId + ";"
+    updateSql += ", mode='" + mode + "', lastUpdateTime=DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE sensorId=" + sensorId + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {
@@ -343,7 +343,7 @@ class BoilerController {
   public async updateBoilerDevicePingDataTempDistV1(id: number, lastLongitude: string, lastTemperature: string): Promise<object> {
 
     let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
-      + "', lastUpdateTime=now() WHERE sensorId=" + id + ";"
+      + "', lastUpdateTime=DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE sensorId=" + id + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {
@@ -384,7 +384,7 @@ class BoilerController {
   public async updateBoilerDevicePingDataTempDistBySensorId(sesnorId: number, lastLongitude: string, lastTemperature: string): Promise<object> {
 
     let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
-      + "', lastUpdateTime=now() WHERE sensorId=" + sesnorId + ";"
+      + "', lastUpdateTime=DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE sensorId=" + sesnorId + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {
@@ -424,7 +424,7 @@ class BoilerController {
   public async updateBoilerDevicePingDataTempDistV1BySensorId(sensorId: number, lastLongitude: string, lastTemperature: string): Promise<object> {
 
     let updateSql = "UPDATE `boiler_device` SET lastLongitude='" + lastLongitude + "', lastTemperature='" + lastTemperature
-      + "', lastUpdateTime=now() WHERE sensorId=" + sensorId + ";"
+      + "', lastUpdateTime=DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE sensorId=" + sensorId + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {
@@ -474,7 +474,7 @@ class BoilerController {
       updateSql += ", schedule='" + schedule
 
     }
-    updateSql += ", mode='" + mode + "', lastUpdateTime=now() WHERE id=" + id + ";"
+    updateSql += ", mode='" + mode + "', lastUpdateTime= DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE id=" + id + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {
@@ -523,7 +523,7 @@ class BoilerController {
       updateSql += ", schedule='" + schedule
 
     }
-    updateSql += ", mode='" + mode + "', lastUpdateTime=now() WHERE id=" + id + ";"
+    updateSql += ", mode='" + mode + "', lastUpdateTime=DATE_ADD(NOW(), INTERVAL 2 HOUR) WHERE id=" + id + ";"
     console.log("updateSql", updateSql)
 
     return new Promise((resolve: any, reject: any) => {

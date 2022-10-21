@@ -44,6 +44,42 @@ class CapacityDevicesController {
         })
     }
 
+    public async getParkingMessages(parkingId: number, pageSize: number, pageIndex: number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const first_value = (pageSize * pageIndex) - pageSize;
+            var query = "SELECT * FROM capacity_devices_log WHERE parkingId = " + parkingId +
+                " ORDER BY timestamp DESC LIMIT " + first_value + ', ' + pageSize + ";"
+
+            db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+                console.log("query",query)
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        messages: results,
+                    })
+                })
+            })
+        })
+    }
+
     public async getParking(id: number): Promise<any> {
         return new Promise((resolve, reject) => {
             var query = "SELECT * FROM capacity_parking WHERE id = "+ id;
