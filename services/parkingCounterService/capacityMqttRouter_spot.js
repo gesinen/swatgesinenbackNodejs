@@ -309,6 +309,10 @@ async function getParkingPlacesCount(parkingId, username) {
     if(!username.includes('xirivella')){
         let sqlUpdateCurrentCapacity = "UPDATE capacity_parking SET currentCapacity = "+ res[0].placesCount + " WHERE id = " + parkingId + ";"
         let res2 = await query(sqlUpdateCurrentCapacity)
+        let sqlGetTotalCapacity = "SELECT COUNT(*) AS totalPlaces FROM capacity_type_spot WHERE parkingId = " + parkingId + ";"
+        let res3 = await query(sqlGetTotalCapacity)
+        let sqlUpdateTotalCapacity = "UPDATE capacity_parking SET maxCapacity = "+ res[0].totalPlaces + " WHERE id = " + parkingId + ";"
+        let res4 = await query(sqlUpdateTotalCapacity)
         console.log(res2, "el update")
     }
     return {
