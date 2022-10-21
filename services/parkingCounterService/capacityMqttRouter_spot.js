@@ -309,11 +309,14 @@ async function getParkingPlacesCount(parkingId, username) {
     if(!username.includes('xirivella')){
         let sqlUpdateCurrentCapacity = "UPDATE capacity_parking SET currentCapacity = "+ res[0].placesCount + " WHERE id = " + parkingId + ";"
         let res2 = await query(sqlUpdateCurrentCapacity)
+        console.log(res2, "el update")
         let sqlGetTotalCapacity = "SELECT COUNT(*) AS totalPlaces FROM capacity_type_spot WHERE parkingId = " + parkingId + ";"
         let res3 = await query(sqlGetTotalCapacity)
-        let sqlUpdateTotalCapacity = "UPDATE capacity_parking SET maxCapacity = "+ res[0].totalPlaces + " WHERE id = " + parkingId + ";"
+        console.log(res3, "el count total")
+        let sqlUpdateTotalCapacity = "UPDATE capacity_parking SET maxCapacity = "+ res3[0].totalPlaces + " WHERE id = " + parkingId + ";"
         let res4 = await query(sqlUpdateTotalCapacity)
-        console.log(res2, "el update")
+        console.log(res4, "el update del count total")
+
     }
     return {
         currentCapacity: res[0].placesCount
@@ -400,7 +403,7 @@ async function decreaseCurrentParkingPlaces(spotDeviceEUI) {
         let updateSensor = "UPDATE capacity_type_spot SET capacity_type_spot.status = false WHERE capacity_type_spot.capacityDeviceId " +
             "= (SELECT capacity_devices.id FROM capacity_devices INNER JOIN sensor_info ON capacity_devices.sensorId = sensor_info.id " +
             "WHERE sensor_info.device_EUI = '" + spotDeviceEUI + "');"
-        console.log("increaseCurrentParkingPlaces", updateSensor)
+        console.log("decreaseCurrentParkingPlaces", updateSensor)
 
         query(updateSensor).then(res => {
             console.log("res", res)
@@ -430,9 +433,9 @@ client.on('message', async function(topic, message) {
                     let decodeResult = decodeMessageLibelium(messageFormated.object.DecodeDataHex)
                     console.log("decodeResult", decodeResult)
                     let dbUpdateStatus = false
-                    if (decodeResult) {
+                    if (decodeResult == 1 || decodeResult == '1') {
                         dbUpdateStatus = await increaseCurrentParkingPlaces(deviceEUI)
-                    } else {
+                    } else if (decodeResult == 0 || decodeResult == '0'){
                         dbUpdateStatus = await decreaseCurrentParkingPlaces(deviceEUI)
                     }
                     console.log("Hemos salido ya de los updates", dbUpdateStatus);
