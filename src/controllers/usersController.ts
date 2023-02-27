@@ -69,7 +69,13 @@ class UsersController {
           pass +
           "'";
         console.log("QUERY", query);
-
+        if(err) {
+          reject({
+            http: 500,
+            status: "Failed",
+            error: err,
+          });
+        }
         conn.query(query, (error: any, results: any) => {
           conn.release();
 

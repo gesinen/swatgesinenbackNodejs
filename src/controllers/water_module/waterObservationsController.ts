@@ -527,7 +527,7 @@ console.log(json_file_data);
           select_query =
             "SELECT water_devices." +
             userColumnSelection +
-            " AS user_column_selection, water_module_observation.observation_value, " +
+            " AS user_column_selection, water_module_observation.device_id, water_module_observation.observation_value, " +
             "water_module_observation.message_timestamp " +
             "FROM `water_module_observation`, (SELECT water_module_observation.device_id, " +
             "MAX(water_module_observation.message_timestamp) as last_message_timestamp FROM " +
