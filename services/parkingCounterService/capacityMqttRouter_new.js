@@ -379,7 +379,7 @@ async function main() {
                     console.log('username', username)
 
                     if(username.includes('montserrat')) messageWindow = "06"
-                    else if(username.includes('xirivella')) messageWindow = "01"
+                    else if(username.includes('xirivella')) messageWindow = "02"
                     else messageWindow = "00"
 
                     console.log('messageWindow', messageWindow)
@@ -519,7 +519,7 @@ async function main() {
 
                             if(username.includes('xirivella')){
                                 const xirivellaSpot = await getXirivellaSpecialSpot(element[0].parkingId)
-                                setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " " + xirivellaSpot.currentXirivellaSpot + " 0"
+                                setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " " + xirivellaSpot.currentXirivellaSpot;
                             }
                             else setMessageHex = "1B " + messageWindow + " " + intToHex(capacityFreeSpaces) + " 0 0 0"
                             let setMessage = hexToBase64(setMessageHex)
