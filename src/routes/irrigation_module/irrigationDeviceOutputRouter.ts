@@ -12,7 +12,31 @@ class IrrigationDeviceOutputRouter {
     this.updateIrrigationOutputDevice();
     this.updateValvesConfig();
     this.getIrrigationOutputDeviceIntervalById();
+
+    //Added by shesh
+    // create Valve config for milesight
+    this.createIrrigationDeviceValveConfig();
+    this.getIrrigationDeviceOutputInfoById();
+    this.getValvesConfigByIrrigationDeviceId();
   }
+
+  /**
+   * Get the user data
+   * GET ('/information/:id')
+   */
+  public getIrrigationDeviceOutputInfoById = () =>
+    this.router.get("/outputInfo/:id", (req: Request, res: Response) => {
+      const id = parseInt(req.params.id);
+
+      irrigationDeviceOutputController
+        .getIrrigationDeviceOutputInfoByIdAction(id)
+        .then((response: any) => {
+          res.send(response);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
 
   /**
    * Get the user data
@@ -158,6 +182,7 @@ class IrrigationDeviceOutputRouter {
       }
     });
 
+
   /**
    * Get user related municipality_id
    * GET ('/municipality/{user_id}')
@@ -184,6 +209,68 @@ class IrrigationDeviceOutputRouter {
           res.send(err);
         });
     });
+
+    /**
+   * post valve config irrigation device output valve milesight
+   * POST ('/createconfig/{valves}')
+   */
+  public createIrrigationDeviceValveConfig = () =>
+  this.router.post("/createconfig/valves", async (req: Request, res: Response) => {
+    try {
+      const params = req.body;
+      console.log('params',params);
+      
+      let acumRes: number = 0;
+      
+      for(let j = 0 ;j<params.length;j++){ 
+            
+           let res:any = await irrigationDeviceOutputController.createIrrigationDeviceValveConfigAction(params[j]);
+          if (res.http == 200) {
+            acumRes++;
+          }
+          console.log("res", res);
+      } 
+        
+      
+      
+      if (params.length == acumRes) {
+        res.send({
+          http: 200,
+          status: "Success",
+          result: "Irrigation device valve intervals updated succesfully",
+        });
+      } else {
+        res.send({
+          http: 204,
+          status: "Success",
+          result: "Irrigation device valve intervals couldnt be updated",
+        });
+      }
+    } catch (error) {
+      res.send(error);
+    }
+  });
+
+   /**
+   * Get user related municipality_id
+   * POST ('/municipality/{user_id}')
+   * params user_id -> id of the user we want to get the municipality_id from
+   */
+   public getValvesConfigByIrrigationDeviceId = () =>
+   this.router.get("/configSolts/valves/:id", async (req: Request, res: Response) => {
+     
+      const id = parseInt(req.params.id);
+       
+         irrigationDeviceOutputController
+         .getValvesConfigByIrrigationDeviceIdAction(id)
+         .then((response: any) => {
+          res.send(response);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });     
+   
 }
 
 const irrigationDeviceOutputRouter = new IrrigationDeviceOutputRouter();

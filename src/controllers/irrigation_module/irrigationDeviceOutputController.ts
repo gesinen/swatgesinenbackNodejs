@@ -52,6 +52,53 @@ class IrrigationDeviceOutputController {
     }
 
     /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
+    public async getIrrigationDeviceOutputInfoByIdAction(id: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT irrigation_device_output.* , irrigation_device.humidityLimit,irrigation_device.humidityLimitInferior,irrigation_device.parametersSensorDevEui,sensor_info.id as sensorId, sensor_info.device_eui as deviceEUI, sensor_info.network_server_mac as gateway_mac from irrigation_device_output INNER JOIN sensor_info ON irrigation_device_output.sensorId = sensor_info.id  Inner Join irrigation_device On irrigation_device.sensorId = irrigation_device_output.sensorIdInput WHERE irrigation_device_output.id = " + id;
+                console.log("queryGetIrrigationOutputDevice", query);
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: 'There is no irrigation device output with this ID'
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results[0]
+                    })
+                })
+            })
+        })
+    }
+
+    /**
  * GET ('/information/:id')
  * Getting the information about the user
  * 
@@ -67,7 +114,7 @@ class IrrigationDeviceOutputController {
             db.getConnection((err: any, conn: any) => {
 
                 //let query = "SELECT irrigation_device_output.name,irrigation_device_output.description,irrigation_device_output.id,irrigation_device_output.sensorIdInput as inputSensorId FROM irrigation_device_output WHERE irrigation_device_output.irrigationDeviceId = " + irrigationDeviceId;
-                let query = "SELECT irrigation_device_output.name,irrigation_device_output.description,irrigation_device_output.id,irrigation_device_output.sensorIdInput as inputSensorId, irrigation_device_input.name as inputSensorName FROM irrigation_device_output LEFT JOIN irrigation_device_link ON irrigation_device_link.irrigationDeviceOutputId=irrigation_device_output.id LEFT JOIN irrigation_device_input ON irrigation_device_input.id=irrigation_device_link.irrigationDeviceInputId WHERE irrigation_device_output.irrigationDeviceId = " + irrigationDeviceId;
+                let query = "SELECT irrigation_device_output.name,irrigation_device_output.description,irrigation_device_output.id,irrigation_device_output.sensorIdInput as inputSensorId, irrigation_device_input.name as inputSensorName,irrigation_device_output.sensorId as outputSensorId  FROM irrigation_device_output LEFT JOIN irrigation_device_link ON irrigation_device_link.irrigationDeviceOutputId=irrigation_device_output.id LEFT JOIN irrigation_device_input ON irrigation_device_input.id=irrigation_device_link.irrigationDeviceInputId WHERE irrigation_device_output.irrigationDeviceId = " + irrigationDeviceId;
 
                 console.log(query)
                 conn.query(query, (error: any, results: any) => {
@@ -493,6 +540,102 @@ class IrrigationDeviceOutputController {
                         http: 200,
                         status: 'Success',
                         result: results[0]
+                    })
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
+    public async createIrrigationDeviceValveConfigAction(data:any): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+                console.log('data',data);
+                let irrigationDeviceId = data.valveConfig.valve[0].irrigationDeviceId;
+                let valvConfig = JSON.stringify(data.valveConfig);
+                let query = "Insert into irrigation_device_output_config (irrigationDeviceId,valveConfig) value("+irrigationDeviceId+",'"+valvConfig+"')";
+                console.log(query)
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log("results del crear", results)
+                    if (results) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            message: 'Irrigation device ooutput config created succesfully'
+                        })
+                    } else {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            message: "Irrigation device ooutput config Not created succesfully",
+                            result: results
+                        })
+                    }
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
+    public async getValvesConfigByIrrigationDeviceIdAction(id: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT * FROM irrigation_device_output_config WHERE irrigation_device_output_config.irrigationDeviceId=" + id+";";
+                console.log("queryGetIrrigationOutputDevice", query);
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+                    console.log('results',results,results.length)
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: 'There is no irrigation device output with this ID'
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
                     })
                 })
             })

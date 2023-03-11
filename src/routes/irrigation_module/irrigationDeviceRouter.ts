@@ -163,7 +163,8 @@ class IrrigationDeviceRouter {
           params.deviceTypeId,
           params.valves,
           params.sensors,
-          params.sensorId
+          params.sensorId,
+          params.parametersSensorDevEui
         )
         .then((response) => {
           res.send(response);
