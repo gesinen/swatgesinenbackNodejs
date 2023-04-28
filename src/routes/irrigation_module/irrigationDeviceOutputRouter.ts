@@ -18,6 +18,11 @@ class IrrigationDeviceOutputRouter {
     this.createIrrigationDeviceValveConfig();
     this.getIrrigationDeviceOutputInfoById();
     this.getValvesConfigByIrrigationDeviceId();
+    this.deleteIrrigationSlotConfig();
+    this.SyncValvePlanConfigfromDevice();
+    this.getIrrigationDeviceschedulePlansUpdatedDirectlyFromDevice();
+    this.UpdateIrrigationOutputValveStatusMode();
+    this.getIrrigationOutputValveOnOffHistory();
   }
 
   /**
@@ -37,6 +42,26 @@ class IrrigationDeviceOutputRouter {
           res.send(err);
         });
     });
+
+    /**
+   * Get the user data
+   * GET ('/information/:id')
+   */
+  public getIrrigationOutputValveOnOffHistory = () =>
+  this.router.get("/history/OnOff/:irrigationDeviceId/:valve/:fromDate/:toDate", (req: Request, res: Response) => {
+    const irrigationDeviceId = parseInt(req.params.irrigationDeviceId);
+    const valve = parseInt(req.params.valve);
+    const fromDate = req.params.fromDate;
+    const toDate = req.params.toDate;
+    irrigationDeviceOutputController
+      .getIrrigationOutputValveOnOffHistoryAction(irrigationDeviceId,valve,fromDate,toDate)
+      .then((response: any) => {
+        res.send(response);
+      })
+      .catch((err: any) => {
+        res.send(err);
+      });
+  });
 
   /**
    * Get the user data
@@ -223,8 +248,15 @@ class IrrigationDeviceOutputRouter {
       let acumRes: number = 0;
       
       for(let j = 0 ;j<params.length;j++){ 
-            
-           let res:any = await irrigationDeviceOutputController.createIrrigationDeviceValveConfigAction(params[j]);
+        let res: any;
+        if(params[j].id != null){
+         res =
+            await irrigationDeviceOutputController.updateIrrigationDeviceValveConfigSlotAction(
+              params[j].id,params[j]);
+        }
+        else{            
+           res = await irrigationDeviceOutputController.createIrrigationDeviceValveConfigAction(params[j]);
+        }
           if (res.http == 200) {
             acumRes++;
           }
@@ -269,7 +301,123 @@ class IrrigationDeviceOutputRouter {
         .catch((err: any) => {
           res.send(err);
         });
-    });     
+    });   
+
+   /**
+   * Get config plans from device directly updated
+   * POST ('/municipality/{user_id}')
+   * params user_id -> id of the user we want to get the municipality_id from
+   */
+   public getIrrigationDeviceschedulePlansUpdatedDirectlyFromDevice = () =>
+   this.router.get("/configSolts/plans/:id", async (req: Request, res: Response) => {
+     
+      const id = parseInt(req.params.id);
+       
+         irrigationDeviceOutputController
+         .getIrrigationDeviceschedulePlansUpdatedDirectlyFromDeviceAction(id)
+         .then((response: any) => {
+          res.send(response);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+   
+    /**
+   * Get config plans from device directly updated
+   * POST ('/municipality/{user_id}')
+   * params user_id -> id of the user we want to get the municipality_id from
+   */
+   public SyncValvePlanConfigfromDevice = () =>
+   this.router.post("/configSolts/syncPlan", async (req: Request, res: Response) => {
+     try{
+      const params = req.body;
+      let deviceId = params.irrigationoutputId;
+      let slotNumber = params.slotNumber;
+      let funres:any;
+      let myres:any;
+          myres =  await irrigationDeviceOutputController
+         .SyncValvePlanConfigfromDeviceAction(deviceId,slotNumber);
+         console.log('myres',myres);
+        
+        if(myres.opetation != 'INSERT')
+        {
+          console.log('update',myres.result[0].id);
+          let id = myres.result[0].id;
+          funres = await irrigationDeviceOutputController.updateIrrigationDeviceValveConfigSlotAction(id,params);
+           // res.send();  
+          }
+           else{       
+            console.log('inserting'); 
+            funres = await irrigationDeviceOutputController.createIrrigationDeviceValveConfigAction(params);
+           //res.send(); 
+          }
+          // console.log('res',res);
+           //res.send();
+           if(funres.http == 200){
+           res.send({
+            http: 200,
+            status: "Success",
+            result: "sync is done",
+          });
+        }
+        else{
+          res.send({
+            http: 204,
+            status: "Success",
+            result: "No Action performed",
+          });
+        }
+        
+      }catch(error) {
+          res.send(error);
+          
+        };
+    });
+   
+    /**
+   * Get user related municipality_id
+   * GET ('/municipality/{user_id}')
+   * params user_id -> id of the user we want to get the municipality_id from
+   */
+  public deleteIrrigationSlotConfig = () =>
+  this.router.delete("/configslot/:id", (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+
+    irrigationDeviceOutputController
+      .deleteIrrigationSlotConfigAction(id)
+      .then((response: any) => {
+        res.send(response);
+      })
+      .catch((err: any) => {
+        res.send(err);
+      });
+  });
+
+  /**
+   * Get user related municipality_id
+   * GET ('/municipality/{user_id}')
+   * params user_id -> id of the user we want to get the municipality_id from
+   */
+  public UpdateIrrigationOutputValveStatusMode = () =>
+    this.router.put("/valveStatusMode/:id/:sensorIndex/:valveStatusMode", (req: Request, res: Response) => {
+      console.log("*** updateIrrigationOutputDevice  status mode***", "update");
+      const id = parseInt(req.params.id);
+      const sensorIndex = parseInt(req.params.sensorIndex);
+      const valvestatusMode = req.params.valveStatusMode;
+      irrigationDeviceOutputController
+        .UpdateIrrigationOutputValveStatusModeAction(
+          id,
+          sensorIndex,
+          valvestatusMode
+        )
+        .then((response: any) => {
+          res.send(response);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
    
 }
 

@@ -25,6 +25,7 @@ import capacityTypeRibbonRouter from './routes/capacity_module/capacityTypeRibbo
 import capacityTypeSpotRouter from './routes/capacity_module/capacityTypeSpotRouter';
 import boilerRouter from './routes/boiler_module/boilerRouter';
 import waterDevicesColumnConfigRouter from './routes/water_module/waterDevicesColumnConfigRouter'
+import historicRouter from './routes/historic_module/historicRouter';
 
 class Server {
 
@@ -65,6 +66,7 @@ class Server {
         this.app.use('/v2/irrigation/devices/input', irrigationDeviceInputRouter);
         this.app.use('/v2/irrigation/devices/input/history', irrigationDeviceInputHistoryRouter);
         this.app.use('/v2/boiler/devices', boilerRouter);
+        this.app.use('/v2/historic', historicRouter);
     }
 
     start(): void {

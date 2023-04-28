@@ -120,7 +120,7 @@ class IrrigationDeviceRouter {
     });
 
     public updateIrrigationDeviceRelatedSensorIdValves = () =>
-        this.router.put("/relatedSensor/byValve/:irrigationDeviceId/:relatedSensorDevEui/:humidityLimit/:humidityLimitInferior/:valveNumber/:active", (req: Request, res: Response) => {
+        this.router.put("/relatedSensor/byValve/:irrigationDeviceId/:relatedSensorDevEui/:humidityLimit/:humidityLimitTime/:humidityLimitInferior/:humidityLimitInferiorTime/:valveNumber/:active", (req: Request, res: Response) => {
             const params: any = req.params;
             console.log("router store params");
             console.log(params);
@@ -129,7 +129,9 @@ class IrrigationDeviceRouter {
                     params.irrigationDeviceId,
                     params.valveNumber,
                     parseInt(params.humidityLimit),
+                    parseInt(params.humidityLimitTime),
                     parseInt(params.humidityLimitInferior),
+                    parseInt(params.humidityLimitInferiorTime),
                     params.relatedSensorDevEui,
                     params.active
                 )
@@ -190,6 +192,7 @@ class IrrigationDeviceRouter {
           irrigationDeviceId,
           params.sensorId,
           params.name,
+          params.parametersSensorDevEui,
           params.nameSentilo,
           params.latitude,
           params.longitude,

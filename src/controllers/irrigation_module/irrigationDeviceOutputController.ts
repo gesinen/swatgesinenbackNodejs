@@ -66,8 +66,9 @@ class IrrigationDeviceOutputController {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "SELECT irrigation_device_output.* , irrigation_device.humidityLimit,irrigation_device.humidityLimitInferior,irrigation_device.parametersSensorDevEui,sensor_info.id as sensorId, sensor_info.device_eui as deviceEUI, sensor_info.network_server_mac as gateway_mac from irrigation_device_output INNER JOIN sensor_info ON irrigation_device_output.sensorId = sensor_info.id  Inner Join irrigation_device On irrigation_device.sensorId = irrigation_device_output.sensorIdInput WHERE irrigation_device_output.id = " + id;
-                console.log("queryGetIrrigationOutputDevice", query);
+               // let query = "SELECT irrigation_device_output.* , irrigation_device_temphum.humidityLimit as valvehumidityLimit,irrigation_device_temphum.humidityLimitInferior as valvehumidityLimitInferior, irrigation_device.humidityLimit as controllerhumidityLimit ,irrigation_device.humidityLimitInferior as controllerhumidityLimitInferior,irrigation_device.parametersSensorDevEui,sensor_info.id as sensorId, sensor_info.device_eui as deviceEUI, sensor_info.network_server_mac as gateway_mac from irrigation_device_output INNER JOIN sensor_info ON irrigation_device_output.sensorId = sensor_info.id  INNER JOIN irrigation_device_temphum  ON irrigation_device_temphum.sensorId = irrigation_device_output.id  Inner Join irrigation_device On irrigation_device.sensorId = irrigation_device_output.sensorIdInput WHERE irrigation_device_output.id = " + id;
+               let query = "SELECT irrigation_device_output.* , irrigation_device_temphum.humidityLimit as valvehumidityLimit,irrigation_device_temphum.humidityLimitTime as valvehumidityLimitTime,irrigation_device_temphum.humidityLimitInferior as valvehumidityLimitInferior,irrigation_device_temphum.humidityLimitInferiorTime as valvehumidityLimitInferiorTime,irrigation_device_temphum.active as valveactive, irrigation_device.humidityLimit as controllerhumidityLimit ,irrigation_device.humidityLimitInferior as controllerhumidityLimitInferior,irrigation_device.parametersSensorDevEui,sensor_info.id as sensorId, sensor_info.device_eui as deviceEUI, sensor_info.network_server_mac as gateway_mac from irrigation_device_output INNER JOIN sensor_info ON irrigation_device_output.sensorId = sensor_info.id  LEFT JOIN irrigation_device_temphum  ON irrigation_device_temphum.sensorId = irrigation_device_output.id  Inner Join irrigation_device On irrigation_device.sensorId = irrigation_device_output.sensorIdInput WHERE irrigation_device_output.id = " + id; 
+               console.log("queryGetIrrigationOutputDevice", query);
 
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -92,6 +93,54 @@ class IrrigationDeviceOutputController {
                         http: 200,
                         status: 'Success',
                         result: results[0]
+                    })
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
+    public async getIrrigationOutputValveOnOffHistoryAction(irrigationDeviceId:number,valve:number,fromDate:string,toDate:string): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT * FROM irrigation_valve_onoff_history WHERE irrigationDeviceId=" + irrigationDeviceId + " AND  valveNumber = "+ valve +
+               " AND timestamp >= '" + fromDate + "' and timestamp <= '" + toDate + " 23:59' ORDER BY timestamp" + ";";
+               console.log("queryGetIrrigationOutputDevice", query);
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: 'There is no irrigation device output with this ID'
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
                     })
                 })
             })
@@ -545,7 +594,7 @@ class IrrigationDeviceOutputController {
             })
         })
     }
-
+// new Method created By shesh 
     /**
      * GET ('/information/:id')
      * Getting the information about the user
@@ -562,8 +611,9 @@ class IrrigationDeviceOutputController {
             db.getConnection((err: any, conn: any) => {
                 console.log('data',data);
                 let irrigationDeviceId = data.valveConfig.valve[0].irrigationDeviceId;
+                let slotNumber = data.slotNumber;
                 let valvConfig = JSON.stringify(data.valveConfig);
-                let query = "Insert into irrigation_device_output_config (irrigationDeviceId,valveConfig) value("+irrigationDeviceId+",'"+valvConfig+"')";
+                let query = "Insert into irrigation_device_output_config (irrigationDeviceId,valveConfig,slotNumber) value("+irrigationDeviceId+",'"+valvConfig+"',"+slotNumber+")";
                 console.log(query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -587,6 +637,56 @@ class IrrigationDeviceOutputController {
                             http: 204,
                             status: 'Success',
                             message: "Irrigation device ooutput config Not created succesfully",
+                            result: results
+                        })
+                    }
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id  
+     * 
+     * @return 
+     */
+    public async updateIrrigationDeviceValveConfigSlotAction(id: number, data:any): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+                console.log('update config',data.valveConfig.valve[0]);
+                let irrigationDeviceId = data.valveConfig.valve[0].irrigationDeviceId;
+                let valvConfig = JSON.stringify(data.valveConfig);
+                let slotNumber = data.slotNumber;
+                let query = "UPDATE irrigation_device_output_config SET slotNumber="+ slotNumber +", irrigationDeviceId='" + irrigationDeviceId + "' ,valveConfig='" + valvConfig + "' WHERE id=" + id+  ";"
+                console.log(query)
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log(results)
+                    if (results && results.affectedRows > 0) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: 'Irrigation device output slot config  updated succesfully'
+                        })
+                    } else {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            message: "Irrigation device output valve slot config could not be updated",
                             result: results
                         })
                     }
@@ -641,6 +741,187 @@ class IrrigationDeviceOutputController {
             })
         })
     }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
+    public async SyncValvePlanConfigfromDeviceAction(deviceId: number,slotNumber:Number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT * FROM irrigation_device_output_config WHERE irrigation_device_output_config.irrigationDeviceId =" + deviceId+" AND irrigation_device_output_config.slotNumber = "+slotNumber+";";
+                console.log("queryGetIrrigationOutputDevice", query);
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+                    console.log('results',results,results.length)
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            opetation:'INSERT',
+                            result: 'There is no irrigation device output config with this slot number and irrigation device'
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        opetation:'UPDATE',
+                        result: results
+                    })
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
+    public async getIrrigationDeviceschedulePlansUpdatedDirectlyFromDeviceAction(id: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "SELECT * FROM irrigation_device_ouput_config_from_device WHERE irrigation_device_ouput_config_from_device.irrigationDeviceId=" + id+";";
+                console.log("queryGetIrrigationOutputDevice", query);
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+                    console.log('results',results,results.length)
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: 'There is no irrigation device output with this ID'
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results
+                    })
+                })
+            })
+        })
+    }
+
+    /**
+     * GET ('/information/:id')
+     * Getting the information about the user
+     * 
+     * @async
+     * @param id - The user Id
+     * 
+     * @return 
+     */
+    public async deleteIrrigationSlotConfigAction(id: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "DELETE FROM irrigation_device_output_config WHERE id=" + id + ";"
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log(results)
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: 'There is no irrigation device output with this ID'
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        result: results[0]
+                    })
+                })
+            })
+        })
+    }
+
+    public async UpdateIrrigationOutputValveStatusModeAction(id: number,sensorIndex: number,valvestatusMode: any): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            db.getConnection((err: any, conn: any) => {
+
+                let query = "UPDATE irrigation_device_output SET output_status_mode = '" + valvestatusMode + "' WHERE sensorId = " + id +" AND  sensorIndex = "+sensorIndex+";"
+                console.log(query, 'update the status Mode of Valve');
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 406,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+                    console.log("results del update", results)
+                    if (results) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            message: 'Irrigation device output valve statusMode updated succesfully'
+                        })
+                    } else {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            message: "Irrigation device output valve statusMode  could not be updated",
+                            result: results
+                        })
+                    }
+                })
+            })
+        })
+    }
+
 
 }
 

@@ -150,7 +150,7 @@ class CapacityDevicesController {
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
-                var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE capacity_devices.id=" + id + ";";
+                var query = "SELECT capacity_devices.* ,capacity_type_spot.parkingId as parkingId , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices INNER JOIN capacity_type_spot  ON capacity_type_spot.capacityDeviceId = capacity_devices.id LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE capacity_devices.id=" + id + ";";
 
                 conn.query(query, async (err: any, results: any) => {
                     conn.release()

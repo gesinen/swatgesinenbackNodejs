@@ -255,7 +255,7 @@ class IrrigationDeviceController {
 
             db.getConnection((err: any, conn: any) => {
                 //let query = "SELECT * FROM irrigation_device INNER JOIN irrigation_device_output ON irrigation_device_output.irrigationDeviceId = irrigation_device.id WHERE userId=" + userId + " AND irrigation_device_output.status=1 ORDER BY irrigation_device.id DESC LIMIT " + first_value + ', ' + pageSize;
-                let query = "SELECT irrigation_device.*, users.first_name, irrigation_device_type.name AS deviceTypeName FROM irrigation_device INNER JOIN users ON users.id=irrigation_device.userId INNER JOIN irrigation_device_type ON irrigation_device_type.id=irrigation_device.deviceTypeId WHERE userId=" + userId + " ORDER BY irrigation_device.id DESC LIMIT " + first_value + ', ' + pageSize;
+                let query = "SELECT irrigation_device.*, users.first_name, irrigation_device_type.name AS deviceTypeName FROM irrigation_device INNER JOIN users ON users.id=irrigation_device.userId INNER JOIN irrigation_device_type ON irrigation_device_type.id=irrigation_device.deviceTypeId  WHERE userId=" + userId + " ORDER BY irrigation_device.id DESC LIMIT " + first_value + ', ' + pageSize;
                 //let query = "SELECT irrigation_device.*, COUNT(*) as openIrrigationOutputs FROM irrigation_device INNER JOIN irrigation_device_output ON irrigation_device_output.irrigationDeviceId = irrigation_device.id WHERE userId=" + userId + " AND irrigation_device_output.status=1 GROUP BY irrigation_device.id" + " ORDER BY irrigation_device.id DESC LIMIT " + first_value + ', ' + pageSize;
                 console.log(query)
                 conn.query(query, async (error: any, results: any) => {
@@ -407,7 +407,7 @@ class IrrigationDeviceController {
         })
     }
 
-    public async updateIrrigationDeviceRelatedSensorValves(irrigationDeviceId: number, valveNumber: number, humidityLimit: number, humidityLimitInferior: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
+    public async updateIrrigationDeviceRelatedSensorValves(irrigationDeviceId: number, valveNumber: number, humidityLimit: number,humidityLimitTime: number, humidityLimitInferior: number,humidityLimitInferiorTime: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -426,10 +426,10 @@ class IrrigationDeviceController {
                     }
                     console.log("results", results)
                     if (results.length == 0) {
-                        results = await this.createNewTempHum(irrigationDeviceId, valveNumber, humidityLimit, humidityLimitInferior, relatedSensorDevEui, active)
+                        results = await this.createNewTempHum(irrigationDeviceId, valveNumber, humidityLimit,humidityLimitTime, humidityLimitInferior,humidityLimitInferiorTime, relatedSensorDevEui, active)
                         console.log('entro en crear');
                     } else {
-                        results = await this.updateTempHum(irrigationDeviceId, valveNumber, humidityLimit, humidityLimitInferior, relatedSensorDevEui, active)
+                        results = await this.updateTempHum(irrigationDeviceId, valveNumber, humidityLimit,humidityLimitTime, humidityLimitInferior,humidityLimitInferiorTime, relatedSensorDevEui, active)
                         console.log('entro en update');
                     }
                     resolve({
@@ -443,13 +443,13 @@ class IrrigationDeviceController {
         })
     }
 
-    public async createNewTempHum(irrigationDeviceId: number, valveNumber: number, humidityLimit: number, humidityLimitInferior: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
+    public async createNewTempHum(irrigationDeviceId: number, valveNumber: number, humidityLimit: number, humidityLimitTime: number,humidityLimitInferior: number,humidityLimitInferiorTime: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "INSERT INTO irrigation_device_temphum (sensorId, valveNumber, humidityLimit, humidityLimitInferior, sensorDevEui, active)" + "VALUES (" + irrigationDeviceId + "," + valveNumber + "," + humidityLimit + "," + humidityLimitInferior + ",'" + relatedSensorDevEui + "'," + active + ");"
+                let query = "INSERT INTO irrigation_device_temphum (sensorId, valveNumber, humidityLimit,humidityLimitTime, humidityLimitInferior,humidityLimitInferiorTime ,sensorDevEui, active)" + "VALUES (" + irrigationDeviceId + "," + valveNumber + "," + humidityLimit + "," + humidityLimitTime + "," + humidityLimitInferior + "," + humidityLimitInferiorTime + ",'" + relatedSensorDevEui + "'," + active + ");"
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
 
@@ -480,13 +480,13 @@ class IrrigationDeviceController {
         })
     }
 
-    public async updateTempHum(irrigationDeviceId: number, valveNumber: number, humidityLimit: number, humidityLimitInferior: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
+    public async updateTempHum(irrigationDeviceId: number, valveNumber: number, humidityLimit: number,humidityLimitTime: number, humidityLimitInferior: number,humidityLimitInferiorTime: number, relatedSensorDevEui: string, active: boolean): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
-                let query = "UPDATE irrigation_device_temphum SET humidityLimit = " + humidityLimit + ", humidityLimitInferior = " + humidityLimitInferior + ", active = " + active + ", sensorDevEui = '" + relatedSensorDevEui + "' WHERE sensorId = " + irrigationDeviceId + " AND valveNumber = " + valveNumber + ";"
+                let query = "UPDATE irrigation_device_temphum SET humidityLimit = " + humidityLimit + ", humidityLimitTime = " + humidityLimitTime + ", humidityLimitInferior = " + humidityLimitInferior + ", humidityLimitInferiorTime = " + humidityLimitInferiorTime +", active = " + active + ", sensorDevEui = '" + relatedSensorDevEui + "' WHERE sensorId = " + irrigationDeviceId + " AND valveNumber = " + valveNumber + ";"
                 console.log(query, 'query del update');
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
@@ -517,7 +517,6 @@ class IrrigationDeviceController {
             })
         })
     }
-
     /**
      * GET ('/information/:id')
      * Getting the information about the user
@@ -681,7 +680,7 @@ class IrrigationDeviceController {
      *
      * @return
      */
-    public async updateIrrigationDevice(id: number, sensorId: number, name: string, nameSentilo: string, latitude: number,
+    public async updateIrrigationDevice(id: number, sensorId: number, name: string,parametersSensorDevEui:string, nameSentilo: string, latitude: number,
                                         longitude: number, description: string, status: boolean, userId: number, deviceTypeId: number,
                                         valves: any[], sensors: any[]): Promise<object> {
         let valvesUpdate: any[] = []
@@ -726,7 +725,7 @@ class IrrigationDeviceController {
                         lng = null
                     }
 
-                    let query = "UPDATE irrigation_device SET name='" + name + "', nameSentilo='" + nameSentilo +
+                    let query = "UPDATE irrigation_device SET name='" + name + "', parametersSensorDevEui = '"+parametersSensorDevEui+"' , nameSentilo='" + nameSentilo +
                         "',sensorId=" + sensorId + ",latitude=" + lat + ",longitude=" + lng + ", description='" + description + "', status=" + status +
                         ", userId=" + userId + ",deviceTypeId=" + deviceTypeId + " WHERE id=" + id + ";"
                     console.log(query)
