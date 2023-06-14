@@ -30,8 +30,11 @@ class WaterDevicesColumnConfigRouter {
           params.numContador,
           params.numModuleLora,
           params.provider,
-          params.authToken
-          
+          params.authToken,
+          params.municipality,
+          params.sewer_rate,
+          params.coeficiente_corrector
+
         )
         .then((response) => {
           res.send(response);
@@ -61,7 +64,10 @@ class WaterDevicesColumnConfigRouter {
           params.numContador,
           params.numModuleLora,
           params.provider,
-          params.authToken
+          params.authToken,
+          params.municipality,
+          params.sewer_rate,
+          params.coeficiente_corrector
         )
         .then((response) => {
           res.send(response);

@@ -525,7 +525,7 @@ console.log(json_file_data);
         var select_query = "";
         if (userColumnSelection == "contract_number") {
           select_query =
-            "SELECT water_devices." +
+            "SELECT water_devices.units as units,water_devices." +
             userColumnSelection +
             " AS user_column_selection, water_module_observation.device_id, ANY_VALUE(water_module_observation.observation_value) AS observation_value, " +
             "water_module_observation.message_timestamp " +
@@ -580,6 +580,94 @@ console.log(json_file_data);
             " water_max_date INNER JOIN water_devices ON water_devices.id=water_max_date.device_id LEFT JOIN water_module_users ON water_module_users.id=water_devices.water_user_id LEFT JOIN sensor_info ON water_devices.sensor_id=sensor_info.id WHERE water_module_observation.device_id = water_max_date.device_id AND " +
             "water_module_observation.message_timestamp = water_max_date.last_message_timestamp GROUP BY water_module_observation.device_id;";
         } else {
+          resolve({
+            http: 204,
+            status: "Success",
+            result: "Error: no user column selected",
+          });
+        }
+        console.log(select_query);
+        conn.query(select_query, async (err: any, results: any) => {
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          } else {
+            if (results && results.length == 0) {
+              resolve({
+                http: 204,
+                status: "Success",
+                result: [],
+              });
+            } else {
+              resolve({
+                http: 200,
+                status: "Success",
+                result: results,
+              });
+            }
+          }
+        });
+      });
+    });
+  } // getObservationValuesByContractNum()
+
+  /**
+   * POST ('/getObservationValuesByDeviceIdForExcelExport')
+   * Getting al the observation records by device id in a range date
+   *
+   * @param devicesIdArray array storing the water_device ids
+   * @param fromDate date of the observations
+   * @param userColumnSelection column user has selected to be shown
+   * @return
+   */
+  public async getObservationValuesByDeviceIdForExcelExport(devicesIdArray: any, fromDate: any, userColumnSelection: any): Promise<object> {
+    return new Promise((resolve, reject) => {
+      var date = new Date(fromDate);
+
+      var fromDateFormated =
+        date.getFullYear() +
+        "-" +
+        (parseInt(String(date.getMonth())) + 1) +
+        "-" +
+        date.getDate();
+      var devicesIdPreparedSql = "";
+      devicesIdArray.forEach(
+        (deviceId: any) => (devicesIdPreparedSql += deviceId + ",")
+      );
+      console.log("controller()");
+      db.getConnection((err: any, conn: any) => {
+        if (err) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: err,
+          });
+        }
+        console.log("connected");
+        var select_query = "";
+        if (userColumnSelection == "*") {
+          select_query =
+            "SELECT water_devices." +
+            userColumnSelection +
+            ",  water_module_observation.device_id, ANY_VALUE(water_module_observation.observation_value) AS observation_value, " +
+            "water_module_observation.message_timestamp " +
+            "FROM `water_module_observation`, (SELECT water_module_observation.device_id, " +
+            "MAX(water_module_observation.message_timestamp) as last_message_timestamp FROM " +
+            "water_module_observation WHERE water_module_observation.device_id IN (" +
+            devicesIdPreparedSql.slice(0, -1) +
+            ") " +
+            " AND water_module_observation.message_timestamp <= '" +
+            fromDateFormated +
+            
+            "' GROUP BY water_module_observation.device_id)" +
+            " water_max_date INNER JOIN water_devices ON water_devices.id=water_max_date.device_id WHERE water_module_observation.device_id = water_max_date.device_id AND " +
+            "water_module_observation.message_timestamp = water_max_date.last_message_timestamp GROUP BY water_module_observation.device_id;";
+
+          
+        }  else {
           resolve({
             http: 204,
             status: "Success",

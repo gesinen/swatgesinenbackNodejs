@@ -27,6 +27,9 @@ class WaterDevicesColumnConfigController {
    * @param numModuleLora
    * @param provider
    * @param authToken
+   * @param municipality
+   * @param sewer_rate
+   * @param coeficiente_corrector
    *
    * @returns
    */
@@ -47,12 +50,15 @@ class WaterDevicesColumnConfigController {
     numContador: boolean = false,
     numModuleLora: boolean = false,
     provider: boolean = false,
-    authToken: boolean = false
+    authToken: boolean = false,
+    municipality: boolean = false,
+    sewer_rate: boolean = false,
+    coeficiente_corrector: boolean = false
     ): Promise<object> {
     
 
     var query =
-      "INSERT INTO water_module_device_column_config (name, user_id, description, units, contract_number, use_for,installation_address,device_diameter,device_eui,sensor_name,user_name,numContador,numModuleLora,provider,authToken) VALUES (" +
+      "INSERT INTO water_module_device_column_config (name, user_id, description, units, contract_number, use_for,installation_address,device_diameter,device_eui,sensor_name,user_name,numContador,numModuleLora,provider,authToken,coeficiente_corrector,municipality,sewer_rate) VALUES (" +
       name +
       "," +
       user_id +
@@ -82,6 +88,12 @@ class WaterDevicesColumnConfigController {
       provider +
       "," +
       authToken +
+      "," +
+      coeficiente_corrector +
+      "," +
+      municipality +
+      "," +
+      sewer_rate +
       ")";
     console.log(query)
     return new Promise((resolve: any, reject: any) => {
@@ -140,6 +152,9 @@ class WaterDevicesColumnConfigController {
    * @param numModuleLora
    * @param provider
    * @param authToken
+   * @param municipality
+   * @param sewer_rate
+   * @param coeficiente_corrector
    *
    * @returns
    */
@@ -161,7 +176,10 @@ class WaterDevicesColumnConfigController {
     numContador: boolean = false,
     numModuleLora: boolean = false,
     provider: boolean = false,
-    authToken: boolean = false
+    authToken: boolean = false,
+    municipality: boolean = false,
+    sewer_rate: boolean = false,
+    coeficiente_corrector: boolean = false
     ): Promise<object> {
     
 
@@ -195,6 +213,12 @@ class WaterDevicesColumnConfigController {
       provider +
       ", authToken = " +
       authToken +
+      ", coeficiente_corrector = " +
+      coeficiente_corrector +
+      ", municipality = " +
+      municipality +
+      ", sewer_rate = " +
+      sewer_rate +
       " where user_id ="+ user_id;
     console.log(query)
     return new Promise((resolve: any, reject: any) => {

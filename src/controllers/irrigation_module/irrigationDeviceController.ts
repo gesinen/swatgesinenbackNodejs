@@ -593,7 +593,7 @@ class IrrigationDeviceController {
                                     console.log(" ***** 1 *****")
                                     let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
                                         irrigationDeviceInsertId, irrigationDeviceOutput.inputSensorName, index, "", false, irrigationDeviceOutput.name,
-                                        sensorId, irrigationDeviceOutput.description)
+                                        sensorId, irrigationDeviceOutput.description, irrigationDeviceOutput.deviceTypeId)
                                     console.log(" ***** 2 *****")
                                     console.log("deviceOutputRes", deviceOutputRes)
                                     if (deviceOutputRes.http == 200) {
@@ -779,29 +779,31 @@ class IrrigationDeviceController {
                                 let valvesUpdated: number = 0
                                 console.log(" SENSORID IBOX ", sensorId)
                                 if (valvesUpdate.length != 0) {
-
+                                    console.log('valves to update',valvesUpdate);
                                     for (const irrigationDeviceOutput of valvesUpdate) {
                                         let indexRes: any = await irrigationDeviceOutputController.getOutputIndexUPDATE(irrigationDeviceOutput._id)
                                         let index: any = indexRes.result.sensorIndex
 
                                         console.log("updateIndex", index)
                                         let deviceOutputRes: any = await irrigationDeviceOutputController.updateIrrigationOutputDevice(id,
-                                            irrigationDeviceOutput.inputSensorName, index, irrigationDeviceOutput.name, sensorId, irrigationDeviceOutput.description)
+                                            irrigationDeviceOutput.id,  index, irrigationDeviceOutput.name,sensorId,  irrigationDeviceOutput.description,irrigationDeviceOutput.deviceTypeId)
                                         console.log("updateIrrigationDeviceOutputRes", deviceOutputRes)
                                         if (deviceOutputRes.http == 200) {
                                             valvesUpdated++
                                             let resOutputGet: any = await irrigationDeviceOutputController.getByIrrigationDeviceIdAndIndex(id, index)
                                             let irrigationInputDeviceId: any = 'NULL';
-                                            if (sensorId != undefined) {
+                                            console.log("update resOutputGet", resOutputGet)
+                                            // this is commented we check the code and improve the logic here(shesh)
+                                           /* if (sensorId != undefined) {
                                                 let resInput: any = await irrigationDeviceInputController.getIrrigationInputDeviceByIrrigationDeviceIdAndName(irrigationDeviceOutput.inputSensorName, id)
-                                                console.log("resInput", resInput)
+                                                console.log("update resInput", resInput)
                                                 irrigationInputDeviceId = resInput.result.id
                                             }
-                                            console.log("resOutputGet", resOutputGet)
+                                            //console.log("update resOutputGet", resOutputGet)
                                             await irrigationDeviceLinkController.deleteIrrigationLinkDeviceByOutputId(resOutputGet.result.id)
                                             if (sensorId != undefined) {
                                                 await irrigationDeviceLinkController.storeIrrigationDeviceLink(irrigationInputDeviceId, resOutputGet.result.id, id)
-                                            }
+                                            }*/
                                         }
                                     }
                                 }
@@ -825,7 +827,7 @@ class IrrigationDeviceController {
                                         console.log(" ***** 1 *****")
                                         let deviceOutputRes: any = await irrigationDeviceOutputController.storeIrrigationOutputDevice(
                                             id, irrigationDeviceOutput.id, index, "", false, irrigationDeviceOutput.name,
-                                            sensorId, irrigationDeviceOutput.description)
+                                            sensorId, irrigationDeviceOutput.description,irrigationDeviceOutput.deviceTypeId)
                                         console.log(" ***** 2 *****")
                                         console.log("deviceOutputRes", deviceOutputRes)
                                         if (deviceOutputRes.http == 200) {

@@ -137,7 +137,8 @@ class IrrigationDeviceOutputRouter {
           params.status,
           params.name,
           params.sensorIdInput,
-          params.description
+          params.description,
+          params.deviceTypeId
         )
         .then((response: any) => {
           res.send(response);
@@ -225,7 +226,8 @@ class IrrigationDeviceOutputRouter {
           params.index,
           params.name,
           params.inputSensorId,
-          params.description
+          params.description,
+          params.deviceTypeId
         )
         .then((response: any) => {
           res.send(response);

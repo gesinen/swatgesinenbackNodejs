@@ -163,7 +163,7 @@ class IrrigationDeviceOutputController {
             db.getConnection((err: any, conn: any) => {
 
                 //let query = "SELECT irrigation_device_output.name,irrigation_device_output.description,irrigation_device_output.id,irrigation_device_output.sensorIdInput as inputSensorId FROM irrigation_device_output WHERE irrigation_device_output.irrigationDeviceId = " + irrigationDeviceId;
-                let query = "SELECT irrigation_device_output.name,irrigation_device_output.description,irrigation_device_output.id,irrigation_device_output.sensorIdInput as inputSensorId, irrigation_device_input.name as inputSensorName,irrigation_device_output.sensorId as outputSensorId  FROM irrigation_device_output LEFT JOIN irrigation_device_link ON irrigation_device_link.irrigationDeviceOutputId=irrigation_device_output.id LEFT JOIN irrigation_device_input ON irrigation_device_input.id=irrigation_device_link.irrigationDeviceInputId WHERE irrigation_device_output.irrigationDeviceId = " + irrigationDeviceId;
+                let query = "SELECT irrigation_device_output.name,irrigation_device_output.description,irrigation_device_output.id,irrigation_device_output.sensorIdInput as inputSensorId, irrigation_device_input.name as inputSensorName,irrigation_device_output.sensorId as outputSensorId,irrigation_device_output.deviceTypeId as outputDeviceTypeId  FROM irrigation_device_output LEFT JOIN irrigation_device_link ON irrigation_device_link.irrigationDeviceOutputId=irrigation_device_output.id LEFT JOIN irrigation_device_input ON irrigation_device_input.id=irrigation_device_link.irrigationDeviceInputId WHERE irrigation_device_output.irrigationDeviceId = " + irrigationDeviceId;
 
                 console.log(query)
                 conn.query(query, (error: any, results: any) => {
@@ -392,7 +392,7 @@ class IrrigationDeviceOutputController {
      * @return 
      */
     public async storeIrrigationOutputDevice(irrigationDeviceId: number, sensorId: number,
-        sensorIndex: number, intervals: string, status: boolean, name: string, sensorIdInput: number, description: string): Promise<object> {
+        sensorIndex: number, intervals: string, status: boolean, name: string, sensorIdInput: number, description: string,deviceTypeId:number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
             try {
@@ -403,9 +403,9 @@ class IrrigationDeviceOutputController {
                     if (sensorIdInput == undefined) {
                         sensorIdInputCheck = 'NULL'
                     }
-                    let query = "INSERT INTO irrigation_device_output (irrigationDeviceId,sensorId,sensorIndex,intervals,status,name,sensorIdInput,description)" +
+                    let query = "INSERT INTO irrigation_device_output (irrigationDeviceId,sensorId,sensorIndex,intervals,status,name,sensorIdInput,description,deviceTypeId)" +
                         " VALUES (" + irrigationDeviceId + "," + sensorId + "," + sensorIndex + ",'" +
-                        intervals + "'," + status + ",'" + name + "'," + sensorIdInputCheck + ",'" + description + "');"
+                        intervals + "'," + status + ",'" + name + "'," + sensorIdInputCheck + ",'" + description + "',"+deviceTypeId+");"
                     console.log("query", query)
                     conn.query(query, (error: any, results: any) => {
                         conn.release()
@@ -455,7 +455,7 @@ class IrrigationDeviceOutputController {
      * 
      * @return 
      */
-    public async updateIrrigationOutputDevice(irrigationDeviceId: number, sensorId: number, index: number, name: string, sensorIdInput: number, description: string): Promise<object> {
+    public async updateIrrigationOutputDevice(irrigationDeviceId: number, sensorId: number, index: number, name: string, sensorIdInput: number, description: string, deviceTypeId: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -468,7 +468,7 @@ class IrrigationDeviceOutputController {
                     sensorIdInputCheck = sensorIdInput
                 }
 
-                let query = "UPDATE irrigation_device_output SET sensorId=" + sensorId + ",sensorIdInput=" + sensorIdInputCheck + ",name='" + name + "',description='" + description + "' WHERE `sensorIndex`=" + index + " AND irrigationDeviceId=" + irrigationDeviceId + ";"
+                let query = "UPDATE irrigation_device_output SET sensorId=" + sensorId + ",sensorIdInput=" + sensorIdInputCheck + ",name='" + name + "',description='" + description + "' ,deviceTypeId=" + deviceTypeId + " WHERE `sensorIndex`=" + index + " AND irrigationDeviceId=" + irrigationDeviceId + ";"
                 console.log("queryUpdOutput", query);
 
                 conn.query(query, (error: any, results: any) => {

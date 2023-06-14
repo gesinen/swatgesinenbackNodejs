@@ -8,6 +8,7 @@ class WaterObservationsRouter {
   constructor() {
     this.importFileAction();
     this.getObservationsByDeviceId();
+    this.getObservationsByDeviceIdForExcelExport();
     this.getWaterDeviceObservationsMediumValueInRange();
     this.getGroupsHydricBalance()
     this.getGroupsHydricBalanceOnRange()
@@ -47,6 +48,31 @@ class WaterObservationsRouter {
         console.log("PARAMS", params)
         waterObservationsController
           .getObservationValuesByDeviceId(
+            params.devicesIdArray,
+            params.fromDate,
+            params.userColSelection
+          )
+          .then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      }
+    );
+
+  /**
+   * Get observations by device id in date range
+   * POST ('/observationsByDeviceIdForExcelExport')
+   */
+  public getObservationsByDeviceIdForExcelExport = () =>
+    this.router.post(
+      "/observationsByDeviceIdForExcelExport/",
+      (req: Request, res: Response) => {
+        const params = req.body;
+        console.log("PARAMS", params)
+        waterObservationsController
+          .getObservationValuesByDeviceIdForExcelExport(
             params.devicesIdArray,
             params.fromDate,
             params.userColSelection
