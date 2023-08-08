@@ -624,6 +624,12 @@ console.log(json_file_data);
    * @return
    */
   public async getObservationValuesByDeviceIdForExcelExport(devicesIdArray: any, fromDate: any, userColumnSelection: any): Promise<object> {
+    
+    var devicesIdPreparedSql = "";
+      devicesIdArray.forEach(
+        (deviceId: any) => (devicesIdPreparedSql += deviceId + ",")
+      );
+      let noObservationDevices  = await this.GetAllDeviceWithNoObservationVal(devicesIdPreparedSql);
     return new Promise((resolve, reject) => {
       var date = new Date(fromDate);
 
@@ -633,11 +639,9 @@ console.log(json_file_data);
         (parseInt(String(date.getMonth())) + 1) +
         "-" +
         date.getDate();
-      var devicesIdPreparedSql = "";
-      devicesIdArray.forEach(
-        (deviceId: any) => (devicesIdPreparedSql += deviceId + ",")
-      );
+      
       console.log("controller()");
+      
       db.getConnection((err: any, conn: any) => {
         if (err) {
           reject({
@@ -652,7 +656,7 @@ console.log(json_file_data);
           select_query =
             "SELECT water_devices." +
             userColumnSelection +
-            ",  water_module_observation.device_id, ANY_VALUE(water_module_observation.observation_value) AS observation_value, " +
+            ",  water_module_observation.device_id, sensor_info.device_eui, ANY_VALUE(water_module_observation.observation_value) AS observation_value, " +
             "water_module_observation.message_timestamp " +
             "FROM `water_module_observation`, (SELECT water_module_observation.device_id, " +
             "MAX(water_module_observation.message_timestamp) as last_message_timestamp FROM " +
@@ -662,8 +666,8 @@ console.log(json_file_data);
             " AND water_module_observation.message_timestamp <= '" +
             fromDateFormated +
             
-            "' GROUP BY water_module_observation.device_id)" +
-            " water_max_date INNER JOIN water_devices ON water_devices.id=water_max_date.device_id WHERE water_module_observation.device_id = water_max_date.device_id AND " +
+            "' AND water_module_observation.observation_type = 'normal' AND water_module_observation.alert_type = 'normal'  GROUP BY water_module_observation.device_id)" +
+            " water_max_date INNER JOIN water_devices ON water_devices.id=water_max_date.device_id  Inner Join sensor_info On sensor_info.id = water_devices.sensor_id WHERE water_module_observation.device_id = water_max_date.device_id AND " +
             "water_module_observation.message_timestamp = water_max_date.last_message_timestamp GROUP BY water_module_observation.device_id;";
 
           
@@ -687,6 +691,54 @@ console.log(json_file_data);
               resolve({
                 http: 204,
                 status: "Success",
+                result: results,
+                noObservationDevices:noObservationDevices
+              });
+            } else {
+              resolve({
+                
+                http: 200,
+                status: "Success",
+                result: results,
+                noObservationDevices:noObservationDevices
+              });
+            }
+          }
+        });
+      });
+    });
+  } // getObservationValuesByContractNum()
+
+  public async GetAllDeviceWithNoObservationVal(devicesIdPreparedSql:any) {
+    return new Promise((resolve, reject) => {
+      var selectSQL = " select water_devices.*, sensor_info.device_eui  from water_devices Inner Join sensor_info on sensor_info.id = water_devices.sensor_id  where water_devices.id IN ("+devicesIdPreparedSql.slice(0, -1)+") and water_devices.last_observation IS NULL;"
+     // var selectSQL = " select water_devices.* , sensor_info.device_eui  from water_devices  Inner Join sensor_info on sensor_info.id = water_devices.sensor_id where water_devices.id IN ("+devicesIdPreparedSql.slice(0, -1)+") and water_devices.last_observation IS NULL;"
+      console.log("selectSQL", selectSQL)
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(selectSQL, (err: any, results: any) => {
+          conn.release();
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          else {
+            if (results && results.length == 0) {
+              resolve({
+                http: 204,
+                status: "Success",
                 result: [],
               });
             } else {
@@ -697,10 +749,10 @@ console.log(json_file_data);
               });
             }
           }
-        });
-      });
-    });
-  } // getObservationValuesByContractNum()
+        })
+      })
+    })
+  }
 }
 
 export default new WaterObservationsController();

@@ -621,6 +621,12 @@ class WaterDevicesController {
           " AND  `contract_number` like'%" +
           value + "%'";
         break;
+        case 'installation_address':
+        query = "SELECT w.*,msr.usefor, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id LEFT JOIN municipality_sewer_rate msr on msr.id = w.sewer_rate_id WHERE w.user_id = " +
+          user_id +
+          " AND  `installation_address` like'%" +
+          value + "%'";
+        break;
       case 'numModuleLora':
         query = "SELECT w.*,msr.usefor, o.observation_value, o.message_timestamp, s.device_e_u_i, s.sensor_name, water_module_users.first_name as user_name, water_module_users.address as user_address FROM water_devices w LEFT JOIN (SELECT observation_value, message_timestamp, device_id FROM water_module_observation ORDER BY id DESC LIMIT 1) o ON (o.device_id = w.id) LEFT JOIN (SELECT device_EUI AS device_e_u_i, id, name as sensor_name FROM sensor_info) s ON (w.sensor_id = s.id) LEFT JOIN water_module_users ON water_module_users.id=w.water_user_id LEFT JOIN municipality_sewer_rate msr on msr.id = w.sewer_rate_id WHERE w.user_id = " +
           user_id +
@@ -672,6 +678,20 @@ class WaterDevicesController {
           " " +
           direction;
         break;
+        case 'name':
+          query +=
+            " ORDER BY w." +
+            sortByCol +
+            " " +
+            direction;
+          break;
+          case 'installation_address':
+            query +=
+              " ORDER BY w." +
+              sortByCol +
+              " " +
+              direction;
+            break;
       case 'device_EUI':
         query +=
           " ORDER BY s.device_e_u_i " +
@@ -781,6 +801,28 @@ class WaterDevicesController {
         page_size;
     }
     else if (sortByCol == "contract_number") {
+      query +=
+        "  ORDER BY w." +
+        sortByCol +
+        " " +
+        direction +
+        " LIMIT " +
+        first_value +
+        ", " +
+        page_size;
+    }
+    else if (sortByCol == "name") {
+      query +=
+        "  ORDER BY w." +
+        sortByCol +
+        " " +
+        direction +
+        " LIMIT " +
+        first_value +
+        ", " +
+        page_size;
+    }
+    else if (sortByCol == "installation_address") {
       query +=
         "  ORDER BY w." +
         sortByCol +
@@ -1362,6 +1404,9 @@ class WaterDevicesController {
     }
     if(water_user_id == -1){
       water_user_id = null
+    }
+    if(municipality_id == -1){
+      municipality_id = null
     }
   
     var query =

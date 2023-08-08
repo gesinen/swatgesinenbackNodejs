@@ -582,7 +582,7 @@ class CapacityDevicesController {
             if (description) {
                 query += " description = '" + description + "',"
             }
-            if (currentCapacity) {
+            if (currentCapacity  >= 0 ) {
                 query += " currentCapacity = '" + currentCapacity + "',"
             }
             if (maxCapacity) {

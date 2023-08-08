@@ -2,11 +2,12 @@ import db from "../../database";
 import irrigationDeviceInputController from "./irrigationDeviceInputController";
 import irrigationDeviceLinkController from "./irrigationDeviceLinkController";
 import irrigationDeviceOutputController from "./irrigationDeviceOutputController";
+import MqttRouter from "../../MqttRouter";
 
 /*
  * /users
  */
-class IrrigationDeviceController {
+class IrrigationDeviceController  extends MqttRouter{
     /**
      * GET ('/information/:id')
      * Getting the information about the user
@@ -147,6 +148,38 @@ class IrrigationDeviceController {
             })
         })
     }
+
+    public async sendIrrigationMqttMessageForPlansAction(gatewaymac:string,deviceEui:string): Promise<object> {
+
+        return new Promise(async (resolve: any, reject: any) => {
+
+            let getplans = ['/0wB','/0wC','/0wD','/0wE','/0wF','/0wG','/0wH','/0wI','/0wJ','/0wQ']
+            this.connect();
+            for (const plan of getplans) {
+                
+                let msg = JSON.stringify({
+                    confirmed: true,
+                    fPort: 85,
+                    data: plan
+                });
+                let topic = gatewaymac + "/application/2/device/" + deviceEui + "/tx"
+                console.log('topic msg',topic,msg)
+                
+                this.publish(topic, msg)
+                
+                await this.timer(10000);
+                resolve({
+                    http: 200,
+                    status: 'Success',
+                    result: 'message are publishing now'
+                })
+            
+            };
+            this.close();
+            
+        })
+    }
+    timer = (ms: number) => new Promise(res => setTimeout(res, ms))
 
     /**
      * GET ('/information/:id')

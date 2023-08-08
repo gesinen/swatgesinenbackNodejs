@@ -26,7 +26,9 @@ import capacityTypeSpotRouter from './routes/capacity_module/capacityTypeSpotRou
 import boilerRouter from './routes/boiler_module/boilerRouter';
 import waterDevicesColumnConfigRouter from './routes/water_module/waterDevicesColumnConfigRouter'
 import historicRouter from './routes/historic_module/historicRouter';
-
+import AlarmRouter from "./routes/Alarm/alarm.router";
+import Alarm from "./models/Alarm/Alarm.model";
+//import AlarmChecker from "../services/Alarms/alarms.service";//"./Services/Alarms/alarms.service";
 class Server {
 
     public app: Application;
@@ -67,14 +69,21 @@ class Server {
         this.app.use('/v2/irrigation/devices/input/history', irrigationDeviceInputHistoryRouter);
         this.app.use('/v2/boiler/devices', boilerRouter);
         this.app.use('/v2/historic', historicRouter);
+        this.app.use('/v2/service/alarm', AlarmRouter);
     }
 
     start(): void {
         this.app.listen(this.app.get('port'), () => {
             console.log('Server on port', this.app.get('port'))
         })
+       // this.startServices()
 
     }
+    /*startServices(): void {
+        const alarmChecker = new AlarmChecker();
+        alarmChecker.startCronJob();
+        alarmChecker.checkAlarms()
+      }*/
 }
 
 

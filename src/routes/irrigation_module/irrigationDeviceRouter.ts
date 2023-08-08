@@ -16,6 +16,7 @@ class IrrigationDeviceRouter {
     this.getGeswatInterval();
     this.updateIrrigationDeviceRelatedSensorIdValves();
     this.getIrrigationDeviceTempHumById();
+    this.sendIrrigationMqttMessageForPlans();
   }
 
   /**
@@ -42,6 +43,23 @@ class IrrigationDeviceRouter {
 
             irrigationController
                 .getIrrigationDeviceTempHum(id)
+                .then((response) => {
+                    res.send(response);
+                })
+                .catch((err) => {
+                    res.send(err);
+                });
+        });
+
+        public sendIrrigationMqttMessageForPlans = () =>
+        this.router.post("/mqtt/plans", (req: Request, res: Response) => {
+          console.log(req.body)
+          const params=  req.body;
+            const gatewaymac = params.gatewaymac;
+            const deviceEui = params.deviceEui;
+
+            irrigationController
+                .sendIrrigationMqttMessageForPlansAction(gatewaymac,deviceEui)
                 .then((response) => {
                     res.send(response);
                 })
