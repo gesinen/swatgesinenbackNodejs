@@ -28,6 +28,8 @@ import waterDevicesColumnConfigRouter from './routes/water_module/waterDevicesCo
 import historicRouter from './routes/historic_module/historicRouter';
 import AlarmRouter from "./routes/Alarm/alarm.router";
 import Alarm from "./models/Alarm/Alarm.model";
+import BlockChainRouter from './routes/blockchain_module/blockchainRouter';
+
 //import AlarmChecker from "../services/Alarms/alarms.service";//"./Services/Alarms/alarms.service";
 class Server {
 
@@ -40,7 +42,7 @@ class Server {
     }
 
     config(): void {
-        this.app.set('port', process.env.PORT || 8080);//8080
+        this.app.set('port', process.env.PORT || 8082);//8080
         this.app.use(morgan('dev'));
         this.app.use(cors());
         this.app.use(express.json());
@@ -70,6 +72,7 @@ class Server {
         this.app.use('/v2/boiler/devices', boilerRouter);
         this.app.use('/v2/historic', historicRouter);
         this.app.use('/v2/service/alarm', AlarmRouter);
+        this.app.use('/v2/blockchain', BlockChainRouter);
     }
 
     start(): void {
