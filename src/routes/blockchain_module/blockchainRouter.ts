@@ -15,6 +15,29 @@ class BlockchainRouter {
     this.deletePDFHistoryAction();
     this.getAllPDFHistoryAction(); 
     this.getTheRealBalaceFromDirectAPIAction(); 
+    // All the routes for event_up postgres
+    // get the all devices by application_name
+    this.getAllDeviceFromEventAction();
+    // get the all device types
+    this.getAllDeviceTypeFromEventAction();
+    // get all the objects of device by device type
+    this.getAllDeviceObjectByTypeFromEventAction();
+
+    this.getDeviceObjectByDeviceNameLastValueFromEventAction();
+    this.getDeviceObjectByDeviceNamePeriodicValueFromEventAction();
+
+    this.findtheAssetswitheFilenameAndHashAction();
+
+    // these are change in config.json
+    this.readInfoFromFileAction();
+    this.WriteInfoToFileAction();
+
+    // these are change and read from production.json
+    this.readInfoFromProdFileAction();
+    this.WriteInfoToProdFileAction();
+
+    // this is method to command stop docker container and remove image, remove container, build new, run again hash-nft
+    this.dockerImageAppStopAndStart();
 
   }
 
@@ -30,7 +53,9 @@ class BlockchainRouter {
           params.status,
           params.valuetype,
           params.devices,
-          params.user_id
+          params.user_id,
+          params.device_type,
+          params.objects_name
         )
         .then((response) => {
           res.send(response);
@@ -162,6 +187,154 @@ class BlockchainRouter {
           res.send(response);
         })
         .catch((err) => {
+          res.send(err);
+        });
+    });
+
+    public getAllDeviceFromEventAction = () =>
+    this.router.post("/pgEventAll", (req: Request, res: Response) => {
+      const params = req.body;
+      
+      blockchainController.getAllDeviceFromEvent(params.application_name)
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    public getAllDeviceTypeFromEventAction = () =>
+    this.router.get("/pgDeviceTypeEventAll", (req: Request, res: Response) => {
+      blockchainController.getAllDeviceTypeFromEvent()
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    
+
+    public getAllDeviceObjectByTypeFromEventAction = () =>
+    this.router.post("/pgDeviceObjectsByTypeEventAll", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.getAllDeviceObjectByTypeFromEvent(params.application_name)
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    public getDeviceObjectByDeviceNameLastValueFromEventAction= () =>
+    this.router.post("/pgDeviceObjectsByNameLastValueEventup", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.getDeviceObjectByDeviceNameLastValueFromEvent(params.device_name)
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    public getDeviceObjectByDeviceNamePeriodicValueFromEventAction= () =>
+    this.router.post("/pgDeviceObjectsByNamePeriodValueEventup", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.getDeviceObjectByDeviceNamePeriodicValueFromEvent(params.device_name,params.start_time,params.end_time)
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    public findtheAssetswitheFilenameAndHashAction= () =>
+    this.router.post("/findtheAssetOnBlockchain", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.findtheAssetswitheFilenameAndHash(params.fileName,params.hash)
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+    
+    // this is only for production file to read the info 
+    public readInfoFromProdFileAction= () =>
+    this.router.post("/readfromprodfile", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.readInfoFromProdFile(params.fileName)
+        .then((r: any) => {
+          
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    // this is only for production file to update the info but the value 
+
+    public WriteInfoToProdFileAction= () =>
+    this.router.post("/writetoprodfile", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.WriteInfoToProdFile(params.fileName,params.token,params.mnemonic,params.networkvalue)
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    public readInfoFromFileAction= () =>
+    this.router.post("/readfromfile", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.readInfoFromFile(params.fileName)
+        .then((r: any) => {
+          
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    public WriteInfoToFileAction= () =>
+    this.router.post("/writetofile", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.WriteInfoToFile(params.fileName,params.token,params.mnemonic,params.networkvalue)
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
+          res.send(err);
+        });
+    });
+
+    public dockerImageAppStopAndStart= () =>
+    this.router.post("/dockerRestartProcess", (req: Request, res: Response) => {
+      const params = req.body;
+      blockchainController.dockerRestartProcess()
+        .then((r: any) => {
+          //console.log('R',r);
+          res.send(r);
+        })
+        .catch((err: any) => {
           res.send(err);
         });
     });
