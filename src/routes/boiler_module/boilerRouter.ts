@@ -11,6 +11,7 @@ class BoilerRouter {
     this.getBoilersPaginatedAction();
     this.getBoilerByIdAction();
     this.updateBoilerStatusAction();
+    this.updateBoilerScheduleAction();
     this.updateBoilerPingDataV2();
     this.updateBoilerPingDataActionTempDistV1();
     this.updateBoilerPingDataActionTempDistBySensorId();
@@ -94,6 +95,18 @@ class BoilerRouter {
       console.log(params)
       boilerController.updateBoilerDevicePingDataScheduleV1(params.id, params.relayState,
         params.hourOn, params.minuteOn, params.hourOff, params.minuteOff, params.schedulerMode)
+        .then(response => {
+          res.send(response)
+        })
+        .catch(err => {
+          res.send(err)
+        })
+    });
+    public updateBoilerScheduleAction = () =>
+    this.router.put("/schedule", (req: Request, res: Response) => {
+      const params = req.body;
+
+      boilerController.updateBoilerSchedule(params.id, params.config)
         .then(response => {
           res.send(response)
         })

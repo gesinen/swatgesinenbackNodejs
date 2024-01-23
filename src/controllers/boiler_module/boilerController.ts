@@ -153,7 +153,46 @@ class BoilerController {
   }
 
   public async changeBoilerStatus(id: number, status: boolean): Promise<object> {
-    let insertSql = "UPDATE `boiler_device` SET releStatus=" + status + " WHERE id=" + id + ";"
+    let insertSql = "UPDATE `boiler_device` SET releStatus=" + status + " WHERE sensorId=" + id + ";"
+    console.log(insertSql)
+
+    return new Promise((resolve: any, reject: any) => {
+      db.getConnection((error: any, conn: any) => {
+        // If the connection with the database fails
+        if (error) {
+          reject({
+            http: 401,
+            status: "Failed",
+            error: error,
+          });
+        }
+
+        conn.query(insertSql, (err: any, results: any) => {
+          conn.release();
+
+          // If the query fails
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          }
+          console.log(results)
+          // Response
+          resolve({
+            http: 200,
+            status: "Success",
+            response: "The boiler device has been updated successfully.",
+          });
+        });
+      });
+    });
+  }
+
+
+  public async updateBoilerSchedule(id: number, config: any): Promise<object> {
+    let insertSql = "UPDATE `boiler_device` SET schedule=" + config + " WHERE id=" + id + ";"
     console.log(insertSql)
 
     return new Promise((resolve: any, reject: any) => {

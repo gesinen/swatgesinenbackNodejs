@@ -457,7 +457,7 @@ class SensorController {
 
   public async getNetworkServerMacAndApplication(macnumber: string) {
     var query_servers =
-      "SELECT mac, application, name FROM gateways WHERE mac = " + macnumber;
+      "SELECT mac, application, name FROM gateways WHERE mac = '" + macnumber+"'";
 
     return new Promise((resolve, reject) => {
       db.getConnection((error: any, conn: any) => {

@@ -8,6 +8,7 @@ import { exec } from 'child_process';
 
 class BlockchainController {
   
+  
   /**
    * POST ('/')
    * Create a new water device
@@ -463,23 +464,23 @@ public async deletePDFHistory(userId:number,id: number): Promise<object> {
 
 public async getAllDeviceFromEvent(application_name:any) {  
       //   return  await pgdb.query("SELECT DISTINCT dev_eui, device_name as name FROM event_up where application_name =  '"+application_name+"'");
-      let query = "SELECT DISTINCT e.device_name as name FROM event_up e WHERE e.application_name = '"+application_name+"' AND (e.device_name, e.dev_eui) IN (  SELECT device_name, dev_eui   FROM event_up   WHERE application_name = '"+application_name+"'   AND (dev_eui, time) IN ( SELECT dev_eui, MAX(time) FROM event_up WHERE application_name = '"+application_name+"' GROUP BY dev_eui))";
-      return  await pgdb.query(query);
+      let query = "SELECT DISTINCT e.device_name as name, FROM event_up e WHERE e.application_name = '"+application_name+"' AND (e.device_name, e.dev_eui) IN (  SELECT device_name, dev_eui   FROM event_up   WHERE application_name = '"+application_name+"'   AND (dev_eui, time) IN ( SELECT dev_eui, MAX(time) FROM event_up WHERE application_name = '"+application_name+"' GROUP BY dev_eui))";
+     // return  await pgdb.query(query);
 }
 public async getAllDeviceTypeFromEvent() {  
-    return  await pgdb.query('SELECT DISTINCT application_name  FROM event_up');
+    //return  await pgdb.query('SELECT DISTINCT application_name  FROM event_up');
 }
 
 public async getAllDeviceObjectByTypeFromEvent(application_name:any) {  
-    return  await pgdb.query("SELECT DISTINCT object,time  FROM event_up where application_name = '"+application_name+"' order by time DESC limit 1");
+    //return  await pgdb.query("SELECT DISTINCT object,time  FROM event_up where application_name = '"+application_name+"' order by time DESC limit 1");
 }
 
 public async getDeviceObjectByDeviceNameLastValueFromEvent(device_name:any) {  
-    return  await pgdb.query("SELECT  object,time,device_name,dev_eui,application_name  FROM event_up where device_name = '"+device_name+"' order by time DESC limit 1");
+    //return  await pgdb.query("SELECT  object,time,device_name,dev_eui,application_name  FROM event_up where device_name = '"+device_name+"' order by time DESC limit 1");
 }
 
 public async getDeviceObjectByDeviceNamePeriodicValueFromEvent(device_name:any,start_time :any,end_time:any) {  
-    return  await pgdb.query("SELECT  object,time,device_name,dev_eui,application_name  FROM event_up where device_name = '"+device_name+"' AND time >= timestamp '"+start_time+"' and time <  timestamp '"+end_time+"'");
+    // return  await pgdb.query("SELECT  object,time,device_name,dev_eui,application_name  FROM event_up where device_name = '"+device_name+"' AND time >= timestamp '"+start_time+"' and time <  timestamp '"+end_time+"'");
 }
 
 public async findtheAssetswitheFilenameAndHash(filename:string,hash:string) {
