@@ -20,6 +20,7 @@ import irrigationDeviceInputHistoryRouter from './routes/irrigation_module/irrig
 import capacityCartelRouter from './routes/capacity_module/capacityCartelRouter';
 import capacityCartelLineRouter from './routes/capacity_module/capacityCartelLineRouter';
 import capacityParking from './controllers/capacity_module/capacityParking';
+import cameraParkingRouter from './routes/capacity_module/cameraParkingRouter'
 import capacityParkingRouter from './routes/capacity_module/capacityParkingRouter';
 import capacityTypeRibbonRouter from './routes/capacity_module/capacityTypeRibbonRouter';
 import capacityTypeSpotRouter from './routes/capacity_module/capacityTypeSpotRouter';
@@ -52,6 +53,7 @@ class Server {
 
     routes(): void {
         this.app.use('/v2/users', usersRouter);
+        this.app.use('/v2/camera/parking', cameraParkingRouter);
         this.app.use('/v2/capacity/devices', capacityDevicesRouter);
         this.app.use('/v2/capacity/panels', capacityCartelRouter);
         this.app.use('/v2/capacity/panels/line', capacityCartelLineRouter);
