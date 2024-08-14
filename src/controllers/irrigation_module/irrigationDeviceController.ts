@@ -288,7 +288,7 @@ class IrrigationDeviceController  extends MqttRouter{
 
             db.getConnection((err: any, conn: any) => {
                 //let query = "SELECT * FROM irrigation_device INNER JOIN irrigation_device_output ON irrigation_device_output.irrigationDeviceId = irrigation_device.id WHERE userId=" + userId + " AND irrigation_device_output.status=1 ORDER BY irrigation_device.id DESC LIMIT " + first_value + ', ' + pageSize;
-                let query = "SELECT irrigation_device.*, users.first_name, irrigation_device_type.name AS deviceTypeName FROM irrigation_device INNER JOIN users ON users.id=irrigation_device.userId INNER JOIN irrigation_device_type ON irrigation_device_type.id=irrigation_device.deviceTypeId  WHERE userId=" + userId + " ORDER BY irrigation_device.id DESC LIMIT " + first_value + ', ' + pageSize;
+                let query = "SELECT irrigation_device.*, sensor_info.network_server_mac as gatewayMac,users.first_name, irrigation_device_type.name AS deviceTypeName FROM irrigation_device   INNER JOIN users ON users.id=irrigation_device.userId LEFT JOIN  sensor_info ON sensor_info.id = irrigation_device.sensorId  INNER JOIN irrigation_device_type ON irrigation_device_type.id=irrigation_device.deviceTypeId  WHERE userId=" + userId + " ORDER BY irrigation_device.id DESC LIMIT " + first_value + ', ' + pageSize;
                 //let query = "SELECT irrigation_device.*, COUNT(*) as openIrrigationOutputs FROM irrigation_device INNER JOIN irrigation_device_output ON irrigation_device_output.irrigationDeviceId = irrigation_device.id WHERE userId=" + userId + " AND irrigation_device_output.status=1 GROUP BY irrigation_device.id" + " ORDER BY irrigation_device.id DESC LIMIT " + first_value + ', ' + pageSize;
                 console.log(query)
                 conn.query(query, async (error: any, results: any) => {
@@ -703,7 +703,52 @@ class IrrigationDeviceController  extends MqttRouter{
         })
     }
 
+ /**
+  * put ('/device/:id')
+ * update the reporting interval
+ *
+ * @async
+ * @param id - The user Id
+ *
+ * @return
+ */
+public async updateIrrigationDeviceReportingInterval(id: number, reportingInterval: number): Promise<object> {
+    return new Promise((resolve: any, reject: any) => {
 
+        db.getConnection((err: any, conn: any) => {
+            try {
+                let query = "UPDATE irrigation_device SET reportingInterval=" + reportingInterval + " WHERE id=" + id + ";"
+                    console.log(query)
+                    conn.query(query, async (error: any, results: any) => {
+                        conn.release()
+                        if (results && results.affectedRows != 0) {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: 'Irrigation device Reporting Interval updated succesfully',
+                            
+                        })
+                    }
+                        if (error) {
+                            reject({
+                                http: 406,
+                                status: 'Failed',
+                                error: error
+                            })
+                        }
+                    })
+            }
+            catch (error) {
+                reject({
+                    http: 406,
+                    status: 'Failed',
+                    error: error
+                })
+            
+            }
+        })
+    })
+                                    }
     /**
      * GET ('/information/:id')
      * Getting the information about the user

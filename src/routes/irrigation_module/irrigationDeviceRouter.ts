@@ -17,6 +17,7 @@ class IrrigationDeviceRouter {
     this.updateIrrigationDeviceRelatedSensorIdValves();
     this.getIrrigationDeviceTempHumById();
     this.sendIrrigationMqttMessageForPlans();
+    this.updateIrrigationDeviceReportingInterval();
   }
 
   /**
@@ -194,6 +195,21 @@ class IrrigationDeviceRouter {
         });
     });
 
+    public updateIrrigationDeviceReportingInterval =() =>{
+      this.router.put("/reportingInterval/:irrigationDeviceId", (req: Request, res: Response) => {
+        const params = req.body;
+        const irrigationDeviceId = parseInt(req.params.irrigationDeviceId);
+        irrigationController
+        .updateIrrigationDeviceReportingInterval(
+          irrigationDeviceId,
+          params.reportingInterval).then((response) => {
+            res.send(response);
+          })
+          .catch((err) => {
+            res.send(err);
+          });
+      })
+    }
   /**
    * Get user related municipality_id
    * GET ('/municipality/{user_id}')

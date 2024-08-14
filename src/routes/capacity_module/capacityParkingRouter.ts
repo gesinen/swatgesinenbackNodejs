@@ -10,11 +10,12 @@ class CapacityParkingRouter {
     this.createParking();
     this.deleteParking();
     this.updateParkingCapacity();
-    this.updateCapacityDeviceAction();
+    this.updateCapacityParkingAction();//this.updateCapacityDeviceAction();
     this.updateParkingActualCapacity();
     this.getParkingSensors();
     this.getParkingUserByGateway();
     this.getParkingMessages();
+    this.updateParkingLimitMinMaxCapacity();
 
     //for Mobile Application
     this.getParkingByIdUsingAuthToken();
@@ -36,6 +37,9 @@ class CapacityParkingRouter {
           params.description,
           params.currentCapacity,
           params.maxCapacity,
+          params.limiteminimo,
+          params.limitemaximo,
+          params.type,
           params.address,
           params.userId
         )
@@ -177,6 +181,25 @@ class CapacityParkingRouter {
     });
 
   /**
+   * Update a capacity parking limit max min for parking area loop
+   * PUT ('/:id')
+   */
+  public updateParkingLimitMinMaxCapacity = () =>
+    this.router.put("/spacesLimitMinMax/:id", (req: Request, res: Response) => {
+      const id = parseInt(req.params.id);
+      const params = req.body;
+
+      capacityParkingController
+        .updateParkingCapacityLimitMinMax(id, params.limitminimo, params.limitmaximo,params.mode)
+        .then((response) => {
+          res.send(response);
+        })
+        .catch((err) => {
+          res.send(err);
+        });
+    });
+
+  /**
    * Update a capacity device
    * PUT ('/:id')
    */
@@ -218,7 +241,7 @@ class CapacityParkingRouter {
    * Update a capacity device
    * PUT ('/:id')
    */
-  public updateCapacityDeviceAction = () =>
+  public updateCapacityParkingAction = () =>
     this.router.put("/:id", (req: Request, res: Response) => {
       const id = parseInt(req.params.id);
       const params = req.body;
@@ -230,6 +253,9 @@ class CapacityParkingRouter {
           params.description,
           params.currentCapacity,
           params.maxCapacity,
+          params.limiteminimo,
+          params.limitemaximo,
+          params.type,
           params.address
         )
         .then((response) => {

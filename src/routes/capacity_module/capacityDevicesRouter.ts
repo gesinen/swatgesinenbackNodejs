@@ -15,6 +15,9 @@ class CapacityDevicesRouter {
     this.getCapacityDeviceServiceInfo();
     //this.importCapacityDevicesAction();
     //this.importCapacityDevicesParkingAreaAction();
+    this.getCapacityDeviceParkingHourlyGraph();
+    this.getCapacityDeviceParkingMonthlyGraph();
+
   }
 
   /**
@@ -230,6 +233,39 @@ class CapacityDevicesRouter {
           res.send(err);
         });
     });
+
+  /**
+   * Get hourlyGraph capacity devices of a user
+   * GET ('/hourlyGraph')
+   */
+  public getCapacityDeviceParkingHourlyGraph = () =>
+    this.router.get("/hourlyGraph/:userId", (req: Request, res: Response) => {
+      capacityDevicesController
+        .getCapacityDeviceParkingHourlyGraph(parseInt(req.params.userId))
+        .then((response) => {
+          res.send(response);
+        })
+        .catch((err) => {
+          res.send(err);
+        });
+    });
+
+   /**
+   * Get monthlyGraph capacity devices of a user
+   * GET ('/monthlyGraph')
+   */
+   public getCapacityDeviceParkingMonthlyGraph = () =>
+    this.router.get("/monthlyGraph/:userId", (req: Request, res: Response) => {
+      capacityDevicesController
+        .getCapacityDeviceParkingMonthlyGraph(parseInt(req.params.userId))
+        .then((response) => {
+          res.send(response);
+        })
+        .catch((err) => {
+          res.send(err);
+        });
+    });
+
 }
 
 const capacityDevicesRoutes = new CapacityDevicesRouter();

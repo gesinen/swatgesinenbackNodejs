@@ -133,7 +133,8 @@ class IrrigationDeviceOutputController {
                         resolve({
                             http: 204,
                             status: 'Success',
-                            result: 'There is no irrigation device output with this ID'
+                            result: [],
+                            message:'There is no irrigation device output with this ID'
                         })
                     }
 

@@ -323,7 +323,7 @@ class CapacityDevicesController {
      *
      * @return
      */
-    public async createParking(name: string, description: string, currentCapacity: number, maxCapacity: number = 0, address: string, userId: number): Promise<object> {
+    public async createParking(name: string, description: string, currentCapacity: number, maxCapacity: number = 0,limitminimo:number = null,limitmaximo:number=null, type:string, address: string, userId: number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -336,7 +336,7 @@ class CapacityDevicesController {
                     })
                 }
 
-                conn.query("INSERT INTO `capacity_parking` (`name`, `description`, `currentCapacity`, `maxCapacity`, `address`, `userId`) VALUES ('" + name + "', '" + description + "', " + currentCapacity + ", " + maxCapacity + ",'" + address + "'," + userId + ");",
+                conn.query("INSERT INTO `capacity_parking` (`name`, `description`, `currentCapacity`, `maxCapacity`,`limitminimo`,`limitmaximo`,`type`, `address`, `userId`) VALUES ('" + name + "', '" + description + "', " + currentCapacity + ", " + maxCapacity + ", " + limitminimo + ", " + limitmaximo + ",'" + type + "','" + address + "'," + userId + ");",
                     (error: any, results: any, fields: any) => {
                         conn.release()
 
@@ -543,6 +543,69 @@ class CapacityDevicesController {
         })
     } // ()
 
+    public async updateParkingCapacityLimitMinMax(id: number, limitminimo: number, limitmaximo: number,mode:string): Promise<object> {
+
+        return new Promise((resolve, reject) => {
+
+
+            var query = "UPDATE capacity_parking SET"
+
+            // Checking if each param is not empty and adding it to the query
+            if (limitminimo) {
+                query += " limitminimo = '" + limitminimo + "',"
+            }
+            if (limitmaximo) {
+                query += " limitmaximo = '" + limitmaximo + "',"
+            }
+            if (mode) {
+                query += " mode = '" + mode + "',"
+            }
+
+            // Removing the last comma
+            query = query.slice(0, -1);
+
+            // Adding the WHERE condition 
+            query += " WHERE id = " + id;
+
+            // Running the query
+            db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: err
+                        })
+                    }
+
+                    if (results.length == 0) {
+                        resolve({
+                            http: 204,
+                            status: 'Success',
+                            result: "There are no parkings with this ID",
+                        })
+                    } else {
+                        resolve({
+                            http: 200,
+                            status: 'Success',
+                            result: "The parking capacity limit max min  has been updated successfully"
+                        })
+                    }
+                })
+            })
+        })
+    } // ()
+
 
     /**
      * PUT ('/:id')
@@ -561,7 +624,7 @@ class CapacityDevicesController {
      * 
      * @returns 
      */
-    public async updateCapacityParking(id: number, name?: string, description?: string, currentCapacity?: number, maxCapacity?: number, address?: string): Promise<object> {
+    public async updateCapacityParking(id: number, name?: string, description?: string, currentCapacity?: number, maxCapacity?: number,limitminimo?:number,limitmaximo?:number,type?:string, address?: string): Promise<object> {
 
         return new Promise((resolve, reject) => {
 
@@ -587,6 +650,15 @@ class CapacityDevicesController {
             }
             if (maxCapacity) {
                 query += " maxCapacity = '" + maxCapacity + "',"
+            }
+            if(limitminimo){
+                query += " limitminimo = '"+ limitminimo +"',"
+            }
+            if(limitmaximo){
+                query += " limitmaximo = '"+ limitmaximo +"',"
+            }
+            if(type){
+                query += " type = '"+ type +"',"
             }
             if (address) {
                 query += " address = '" + address + "',"

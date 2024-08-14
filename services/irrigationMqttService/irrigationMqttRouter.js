@@ -410,6 +410,29 @@ async function main() {
                         })
                             //200 79 129 66
                     }
+					else if(messageJSON.object.DecodeDataHex.substring(0, 4).toLowerCase() == "0x03"){
+						let topicSplit = topic.split("/")
+                        let gatewayMac = topicSplit[0]
+                        let relatedSensorDeviceEui = topicSplit[4]
+						
+						let splitMsg = messageJSON.object.DecodeDataHex.split(",")
+                        let bytesVolveStatus = 	hexToIntStr(splitMsg[2]);
+						let VolveId = 	hexToIntStr(splitMsg[1]);
+                       console.log('bytesVolveStatus',bytesVolveStatus,VolveId)
+                        
+						let queryGetIrrigationDevices = "SELECT * FROM `irrigation_device` WHERE parametersSensorDevEui='" + relatedSensorDeviceEui + "';"
+                        console.log('porque no está funcionando esto');
+                        query(queryGetIrrigationDevices).then(async function(rows) {
+							console.log("getDeviceEuiBySensorId RES", rows);
+							for (const row of rows) {
+								let irrigationDeviceId = row.id
+								
+                                
+						let updateRecordRes = await UpdateTheVolveStatus(irrigationDeviceId, VolveId, bytesVolveStatus);
+						console.log('updateRecordRes',updateRecordRes);
+							}
+						});
+					}
                 }
             }
         })
@@ -427,6 +450,22 @@ async function insertLoraHistoryRecord(irrigationDeviceId, humedad, temperatura)
         console.log("POST RECORD QUERY => " + queryAddSensorValuesLora)
         query(queryAddSensorValuesLora).then(rows => {
             console.log("insertLoraHistoryRecord RES", rows)
+            resolve(rows)
+        })
+    })
+}
+
+async function UpdateTheVolveStatus(irrigationDeviceId, volveId, Volvestatus) {
+    return new Promise((resolve, reject) => {
+        let date = new Date(Date.now())
+        date.setHours(date.getHours() + 2);
+        // DATE_TIME FORMAT
+        let dateStr = date.toISOString().split("T")[0] + " " + date.toISOString().split("T")[1].substring(0, 8)
+        let queryUpdateVolveStatus = "update  irrigation_device_output set status = " +
+            + Volvestatus+ " where  irrigationDeviceId = "+ irrigationDeviceId + " and sensorIndex ="+volveId;
+        console.log("POST RECORD QUERY => " + queryUpdateVolveStatus)
+        query(queryUpdateVolveStatus).then(rows => {
+            console.log("queryUpdateVolveStatus RES", rows)
             resolve(rows)
         })
     })

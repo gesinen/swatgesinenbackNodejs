@@ -150,8 +150,9 @@ class CapacityDevicesController {
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
-                var query = "SELECT capacity_devices.* ,capacity_type_spot.parkingId as parkingId , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices INNER JOIN capacity_type_spot  ON capacity_type_spot.capacityDeviceId = capacity_devices.id LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE capacity_devices.id=" + id + ";";
-
+                //var query = "SELECT capacity_devices.* ,capacity_type_spot.parkingId as parkingId , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices INNER JOIN capacity_type_spot  ON capacity_type_spot.capacityDeviceId = capacity_devices.id LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE capacity_devices.id=" + id + ";";
+                // the new query is changed 07-05-2024 by shesh
+                var query = "SELECT capacity_devices.* , sensor_info.device_EUI, sensor_info.name as sensorName, sensor_gateway_pkid.mac_number FROM capacity_devices  LEFT JOIN sensor_info ON sensor_info.id = capacity_devices.sensorId LEFT JOIN sensor_gateway_pkid ON sensor_gateway_pkid.sensor_id=sensor_info.id WHERE capacity_devices.id=" + id + ";";
                 conn.query(query, async (err: any, results: any) => {
                     conn.release()
 
@@ -186,6 +187,9 @@ class CapacityDevicesController {
                                 if(res.capacity_devices.length > 0) {
                                     results[0].status = res.capacity_devices[0].status
                                     results[0].spotDeviceId = res.capacity_devices[0].id
+                                    // this new line is added by shesh 7-05-2024
+                                    results[0].parkingId = res.capacity_devices[0].parkingId
+                                    
                                 }
                             } else {
                                 let res: any = await capacityTypeRibbonController.getCapacityRibbonDeviceById(results[0].id).catch(err => {
@@ -197,8 +201,15 @@ class CapacityDevicesController {
                                         response: "Capacity ribbon device could not be retrieved"
                                     })
                                 })
-                                console.log(res.capacity_devices, 'HOLAAAA 2')
+                                /*console.log(res.capacity_devices, 'HOLAAAA 2')
                                 if(res.capacity_devices != undefined && res.capacity_devices.length > 0) {
+                                    results[0].parkingId = res.result[0].parkingId
+                                    results[0].ribbonDeviceId = res.result[0].id
+                                }*/
+
+                                // the below code is replace by above on 07-05-2024 by shesh
+                                console.log(res.result, 'HOLAAAA 2')
+                                if(res.result != undefined && res.result.length > 0) {
                                     results[0].parkingId = res.result[0].parkingId
                                     results[0].ribbonDeviceId = res.result[0].id
                                 }
@@ -702,6 +713,102 @@ class CapacityDevicesController {
                 })
             })
         }*/
+
+
+    /**
+     *  GET ('/hourlyGraph/:userId')
+     * Getting the hourlyGraph capacity devices from a user
+     * 
+     * @async
+     * @param hourlyGraph - The hourly Graph
+     * 
+     * @returns 
+     */
+    public async getCapacityDeviceParkingHourlyGraph(userId: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            var query = "select cdl.id, AVG( cdl.currentCapacity) as capacity, cdl.timestamp,cdl.capacityDeviceEUI, cdl.parkingId, AVG(cdl.maxCapacity) as maxCapacity, capacity_parking.userId, capacity_parking.name as parkingName from capacity_devices_log as cdl inner join capacity_parking on capacity_parking.id = cdl.parkingId  where capacity_parking.userId = "+userId+"  AND DATE_SUB(`timestamp`,INTERVAL 1 HOUR) And timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)  group by date(cdl.timestamp), Hour(cdl.timestamp),cdl.parkingId order by cdl.id ASC;";
+
+            db.getConnection((err: any, conn: any) => {
+
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release();
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        capacity_devices: results
+                    })
+                })
+            })
+
+        })
+    } // ()
+
+    /**
+     *  GET ('/monthlyGraph/:userId')
+     * Getting the monthlyGraph capacity devices from a user
+     * 
+     * @async
+     * @param monthlyGraph - The monthly Graph
+     * 
+     * @returns 
+     */
+    public async getCapacityDeviceParkingMonthlyGraph(userId: number): Promise<object> {
+
+        return new Promise((resolve: any, reject: any) => {
+
+            //var query = "select  AVG(currentCapacity), Month(timestamp) from capacity_devices_log  where capacityDeviceEUI = '181f3c71bff07000'  group by year(timestamp),  Month(timestamp)";
+            var query =   "select cdl.id, AVG( cdl.currentCapacity) as capacity, cdl.timestamp , cdl.capacityDeviceEUI, cdl.parkingId, AVG(cdl.maxCapacity) as maxCapacity, capacity_parking.name as parkingName  from capacity_devices_log as cdl inner join capacity_parking on capacity_parking.id = cdl.parkingId  where capacity_parking.userId = "+userId+"  group by Date(timestamp) ,cdl.parkingId order by cdl.id ASC;"
+            db.getConnection((err: any, conn: any) => {
+
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+
+                conn.query(query, (error: any, results: any) => {
+                    conn.release();
+
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve({
+                        http: 200,
+                        status: 'Success',
+                        capacity_devices: results
+                    })
+                })
+            })
+
+        })
+    } // ()
+
 }
 
 export default new CapacityDevicesController();

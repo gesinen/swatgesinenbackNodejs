@@ -36,15 +36,17 @@ public getCameraParkingMessage = () =>
   this.router.post(
     "/message",
     (req: Request, res: Response) => {
-      console.log('snapshot',req.body.snapshot);
+      console.log('snapshot',req.body);
+      let detectionLine = req.body.detection_line == undefined ? null:req.body.detection_line;
         CameraParkingController
         .saveCameraParking(
             req.body.event,
             req.body.device,
             req.body.time,
-            parseInt(req.body.detectionLine),
+            detectionLine,
             req.body.direction,
-            req.body.snapshot,
+            null
+           //req.body.snapshot,
 
             )
         .then((response) => {

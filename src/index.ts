@@ -31,6 +31,7 @@ import AlarmRouter from "./routes/Alarm/alarm.router";
 import Alarm from "./models/Alarm/Alarm.model";
 import BlockChainRouter from './routes/blockchain_module/blockchainRouter';
 import ControlCabinetRouter from './routes/controlCabinet_module/controlCabinetRouter';
+import publicLightingRouter from './routes/PublicLighting_module/publicLightingRouter';
 
 //import AlarmChecker from "../services/Alarms/alarms.service";//"./Services/Alarms/alarms.service";
 class Server {
@@ -77,6 +78,7 @@ class Server {
         this.app.use('/v2/service/alarm', AlarmRouter);
         this.app.use('/v2/blockchain', BlockChainRouter);
         this.app.use('/v2/controlCabinetColor', ControlCabinetRouter);
+        this.app.use('/v2/publicLighting', publicLightingRouter);
     }
 
     start(): void {
