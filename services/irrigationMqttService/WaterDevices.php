@@ -1,0 +1,735 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Criteria;
+
+/**
+ * WaterDevices
+ *
+ * @ORM\Table(name="water_devices")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\WaterDevicesRepository")
+ * @ORM\HasLifecycleCallbacks() 
+ */
+class WaterDevices
+{
+	/**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255, unique=true)
+     */
+    private $name;
+	
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="variable_name", type="string", length=255)
+     */
+    private $variableName;
+	
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=255)
+     */
+    private $description;
+	
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="contract_number", type="string", length=64)
+     */
+    private $contractNumber;
+	
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="coeficiente_corrector", type="string", length=64)
+     */
+    private $coeficienteCorrector;
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="numContador", type="string", length=125)
+     */
+    private $numContador;
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="numModuleLora", type="string", length=125)
+     */
+    private $numModuleLora;
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="provider", type="string", length=255)
+     */
+    private $provider;
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="authToken", type="string", length=255)
+     */
+    private $authToken;
+	
+	/**
+     * @var integer
+     *
+     * @ORM\Column(name="device_diameter", type="string", length=64)
+     */
+    private $deviceDiameter;
+	
+	/**
+     * @var integer
+     *
+     * @ORM\Column(name="sewer_rate_id", type="string", length=64)
+     */
+    private $sewerRateId;
+	
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="units", type="string", length=32)
+     */
+    private $units;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="sensor_id", type="integer")
+     */
+    private $sensorId;
+	
+	/**
+     * @var int
+     *
+     * @ORM\Column(name="user_id", type="integer")
+     */
+    private $userId;
+	
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="installation_address", type="string", length=500)
+     */
+    private $installationAddress;
+	
+	
+	
+    /**
+     * @var \AppBundle\Entity\SensorInfo
+     */
+    private $sensor;
+	
+	/**
+     * @var \AppBundle\Entity\Gateways
+     */
+    private $gateways;
+
+    /**
+     * @var string
+     *
+     * @ORM\ManyToOne(targetEntity="WaterGroup")
+     * @ORM\JoinColumn(name="water_group_id", referencedColumnName="id")
+     */
+    private $waterGroup;
+	
+	/**
+    * @ORM\ManyToMany(targetEntity="WaterDefineAlarm", mappedBy="waterDevicess")
+    */
+   private $waterDefineAlarms;
+   
+	
+	/**
+     * @var string
+     *
+     * @ORM\ManyToOne(targetEntity="WaterUsers")
+     * @ORM\JoinColumn(name="water_user_id", referencedColumnName="id")
+     */
+    private $waterUsers;
+	
+	
+/**
+     * @var string
+     *
+     * @ORM\ManyToOne(targetEntity="WaterMunicipalityInfo")
+     * @ORM\JoinColumn(name="municipality_id", referencedColumnName="id")
+     */
+    private $waterMunicipality;
+	
+	/**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_Dt", type="datetime")
+     */
+    private $createdDt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_Dt", type="datetime", nullable=true)
+     */
+    private $updatedDt;
+	
+	public function __construct()
+   {
+       $this->waterDefineAlarms = new ArrayCollection();
+   }
+	
+	
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedDtValue()
+    {
+        $this->createdDt = new \DateTime();
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setUpdatedDtValue()
+    {
+        $this->updatedDt = new \DateTime();
+    }
+
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     *
+     * @return WaterDevices
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+	
+	/**
+     * Set variableName
+     *
+     * @param string $variableName
+     *
+     * @return WaterDevices
+     */
+    public function setVariableName($variableName)
+    {
+        $this->variableName = $variableName;
+
+        return $this;
+    }
+
+    /**
+     * Get variableName
+     *
+     * @return string
+     */
+    public function getVariableName()
+    {
+        return $this->variableName;
+    }
+	
+	/**
+     * Set installationAddress
+     *
+     * @param string $installationAddress
+     *
+     * @return WaterDevices
+     */
+    public function setInstallationAddress($installationAddress)
+    {
+        $this->installationAddress = $installationAddress;
+
+        return $this;
+    }
+
+    /**
+     * Get installationAddress
+     *
+     * @return string
+     */
+    public function getInstallationAddress()
+    {
+        return $this->installationAddress;
+    }
+	
+	/**
+     * Set description
+     *
+     * @param string $description
+     *
+     * @return WaterDevices
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+	
+	/**
+     * Set units
+     *
+     * @param string $units
+     *
+     * @return WaterDevices
+     */
+    public function setUnits($units)
+    {
+        $this->units = $units;
+
+        return $this;
+    }
+
+    /**
+     * Get units
+     *
+     * @return string
+     */
+    public function getUnits()
+    {
+        return $this->units;
+    }
+	
+	/**
+     * Set contractNumber
+     *
+     * @param string $contractNumber
+     *
+     * @return WaterDevices
+     */
+    public function setContractNumber($contractNumber)
+    {
+        $this->contractNumber = $contractNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get contractNumber
+     *
+     * @return string
+     */
+    public function getContractNumber()
+    {
+        return $this->contractNumber;
+    }
+	
+	/**
+     * Set coeficienteCorrector
+     *
+     * @param string $coeficienteCorrector
+     *
+     * @return WaterDevices
+     */
+    public function setCoeficienteCorrector($coeficienteCorrector)
+    {
+        $this->coeficienteCorrector = $coeficienteCorrector;
+
+        return $this;
+    }
+
+    /**
+     * Get coeficienteCorrector
+     *
+     * @return string
+     */
+    public function getCoeficienteCorrector()
+    {
+        return $this->coeficienteCorrector;
+    }
+	
+	/**
+     * Set numContador
+     *
+     * @param string $numContador
+     *
+     * @return WaterDevices
+     */
+    public function setNumContador($numContador)
+    {
+        $this->numContador = $numContador;
+
+        return $this;
+    }
+
+    /**
+     * Get numContador
+     *
+     * @return string
+     */
+    public function getNumContador()
+    {
+        return $this->numContador;
+    }
+	
+	/**
+     * Set numModuleLora
+     *
+     * @param string $numModuleLora
+     *
+     * @return WaterDevices
+     */
+    public function setNumModuleLora($numModuleLora)
+    {
+        $this->numModuleLora = $numModuleLora;
+
+        return $this;
+    }
+
+    /**
+     * Get numModuleLora
+     *
+     * @return string
+     */
+    public function getNumModuleLora()
+    {
+        return $this->numModuleLora;
+    }
+	
+	/**
+     * Set provider
+     *
+     * @param string $provider
+     *
+     * @return WaterDevices
+     */
+    public function setProvider($provider)
+    {
+        $this->provider = $provider;
+
+        return $this;
+    }
+
+    /**
+     * Get provider
+     *
+     * @return string
+     */
+    public function getProvider()
+    {
+        return $this->provider;
+    }
+	
+	/**
+     * Set authToken
+     *
+     * @param string $authToken
+     *
+     * @return WaterDevices
+     */
+    public function setAuthToken($authToken)
+    {
+        $this->authToken = $authToken;
+
+        return $this;
+    }
+
+    /**
+     * Get authToken
+     *
+     * @return string
+     */
+    public function getAuthToken()
+    {
+        return $this->authToken;
+    }
+	
+	/**
+     * Set deviceDiameter
+     *
+     * @param integer $deviceDiameter
+     *
+     * @return WaterDevices
+     */
+    public function setDeviceDiameter($deviceDiameter)
+    {
+        $this->deviceDiameter = $deviceDiameter;
+
+        return $this;
+    }
+
+    /**
+     * Get deviceDiameter
+     *
+     * @return int
+     */
+    public function getDeviceDiameter()
+    {
+        return $this->deviceDiameter;
+    }
+	
+	/**
+     * Set sewerRateId
+     *
+     * @param integer $sewerRateId
+     *
+     * @return WaterDevices
+     */
+    public function setSewerRateId($sewerRateId)
+    {
+        $this->sewerRateId = $sewerRateId;
+
+        return $this;
+    }
+
+    /**
+     * Get sewerRateId
+     *
+     * @return int
+     */
+    public function getSewerRateId()
+    {
+        return $this->sewerRateId;
+    }
+
+    /**
+     * Set sensorId
+     *
+     * @param integer $sensorId
+     *
+     * @return WaterDevices
+     */
+    public function setSensorId($sensorId)
+    {
+        $this->sensorId = $sensorId;
+
+        return $this;
+    }
+
+    /**
+     * Get sensorId
+     *
+     * @return int
+     */
+    public function getSensorId()
+    {
+        return $this->sensorId;
+    }
+	
+	/**
+     * Set userId
+     *
+     * @param integer $userId
+     *
+     * @return WaterDevices
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
+
+    /**
+     * Get userId
+     *
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }	
+
+    /**
+     * Set waterGroup
+     *
+     * @param string $waterGroup
+     *
+     * @return WaterDevices
+     */
+    public function setWaterGroup($waterGroup)
+    {
+        $this->waterGroup = $waterGroup;
+
+        return $this;
+    }
+
+    /**
+     * Get waterGroup
+     *
+     * @return string
+     */
+    public function getWaterGroup()
+    {
+        return $this->waterGroup;
+    }
+	
+	/**
+     * Set waterUsers
+     *
+     * @param string $waterUsers
+     *
+     * @return WaterDevices
+     */
+    public function setWaterUsers($waterUsers)
+    {
+        $this->waterUsers = $waterUsers;
+
+        return $this;
+    }
+
+    /**
+     * Get waterUsers
+     *
+     * @return string
+     */
+    public function getWaterUsers()
+    {
+        return $this->waterUsers;
+    }
+	
+	/**
+     * Set waterMunicipality
+     *
+     * @param string $waterMunicipality
+     *
+     * @return WaterDevices
+     */
+    public function setWaterMunicipality($waterMunicipality)
+    {
+        $this->waterMunicipality = $waterMunicipality;
+
+        return $this;
+    }
+
+    /**
+     * Get waterMunicipality
+     *
+     * @return string
+     */
+    public function getWaterMunicipality()
+    {
+        return $this->waterMunicipality;
+    }
+	/**
+     * Set createdDt
+     *
+     * @param \DateTime $createdDt
+     *
+     * @return WaterDevices
+     */
+    public function setCreatedDt($createdDt)
+    {
+        $this->createdDt = $createdDt;
+
+        return $this;
+    }
+
+    /**
+     * Get createdDt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedDt()
+    {
+        return $this->createdDt;
+    }
+
+    /**
+     * Set updatedDt
+     *
+     * @param \DateTime $updatedAt
+     *
+     * @return WaterDevices
+     */
+    public function setUpdatedDt($updatedDt)
+    {
+        $this->updatedDt = $updatedDt;
+
+        return $this;
+    }
+
+    /**
+     * Get updatedDt
+     *
+     * @return \DateTime
+     */
+    public function getUpdatedDt()
+    {
+        return $this->updatedDt;
+    }
+	
+	public function addWaterDefineAlarm(WaterDefineAlarm $waterDefineAlarm): self
+   {
+       $this->waterDefineAlarms[] = $waterDefineAlarm;
+ 
+       return $this;
+   }
+ 
+   public function removeWaterDefineAlarm(WaterDefineAlarm $waterDefineAlarm): bool
+   {
+       return $this->waterDefineAlarms->removeElement($WaterDefineAlarm);
+   }
+ 
+   public function getWaterDefineAlarms(): Collection
+   {
+       return $this->waterDefineAlarms;
+   }
+   
+
+    public function setSensor(\AppBundle\Entity\SensorInfo $sensor) {
+        $this->sensor = $sensor;
+    }
+
+    public function getSensor() {
+        return $this->sensor;
+    }
+	
+	public function setGateways(\AppBundle\Entity\Gateways $gateways) {
+        $this->gateways = $gateways;
+    }
+
+    public function getGateways() {
+        return $this->gateways;
+    }
+	
+}
+?>

@@ -11,6 +11,7 @@ class SensorRouter {
     this.getSensorGatewayMacAction();
     this.getSensorDevEuiAndGatewayMacAction();
     this.getSensorByDevEui();
+    this.getGatewaySensorPkId();
   }
 
   public createSensorAction = () =>
@@ -84,6 +85,22 @@ class SensorRouter {
           });
       }
     );
+
+    public getGatewaySensorPkId = () =>
+      this.router.get(
+        "/sensorPkIdByGateway/:gatewayMac",
+        (req: Request, res: Response) => {
+          sensorController
+            .getGatewaySensorPkIdAction(req.params.gatewayMac)
+            .then((response) => {
+              res.send(response);
+            })
+            .catch((err) => {
+              res.send(err);
+            });
+        }
+      );
+  
 
   public getSensorSentiloObservationsAction = () =>
     this.router.get(

@@ -342,6 +342,48 @@ class SensorController {
     });
   }
 
+
+    /**
+ * GET ('/sensorGatewayId/:sensorId')
+ * Gets sensor relater gateway id
+ *
+ * @param json_file_data xls file info formated on json
+ *
+ * @return
+ */
+  // get sensor gateway pkid 
+  public async getGatewaySensorPkIdAction(gatewayMacNumber: any) {
+    return new Promise((resolve, reject) => {
+      db.getConnection((err: any, conn: any) => {
+        var select_query =
+          "SELECT `sensor_gateway_pkid`.mac_number, `sensor_gateway_pkid`.pk_id,`sensor_gateway_pkid`.sensor_id FROM `sensor_gateway_pkid` WHERE `sensor_gateway_pkid`.`mac_number`='" + gatewayMacNumber + "';";
+        conn.query(select_query, (err: any, results: any) => {
+          if (err) {
+            reject({
+              http: 401,
+              status: "Failed",
+              error: err,
+            });
+          } else {
+            if (results && results.length == 0) {
+              resolve({
+                http: 204,
+                status: "Success",
+                result: [],
+              });
+            } else {
+              resolve({
+                http: 200,
+                status: "Success",
+                result: results,
+              });
+            }
+          }
+        });
+      });
+    });
+  }
+
   // Get sensor device eui and gateway mac
   public async getSensorDevEuiGatewayMac(sensorId: any) {
     return new Promise(async (resolve, reject) => {

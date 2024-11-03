@@ -32,6 +32,7 @@ import Alarm from "./models/Alarm/Alarm.model";
 import BlockChainRouter from './routes/blockchain_module/blockchainRouter';
 import ControlCabinetRouter from './routes/controlCabinet_module/controlCabinetRouter';
 import publicLightingRouter from './routes/PublicLighting_module/publicLightingRouter';
+import waterImstRouter from './routes/water_module/waterImstRouter';
 
 //import AlarmChecker from "../services/Alarms/alarms.service";//"./Services/Alarms/alarms.service";
 class Server {
@@ -66,6 +67,7 @@ class Server {
         this.app.use('/v2/water/users', waterUsersRouter);
         this.app.use('/v2/water/observations', waterObservationsRouter);
         this.app.use('/v2/water/groups', waterGroupsRouter);
+        this.app.use('/v2/water/imst', waterImstRouter);
         this.app.use('/v2/server/', serverRouter);
         this.app.use('/v2/sensor/', sensorRouter);
         this.app.use('/v2/lora/dashboard', loraDashboardRouter);
