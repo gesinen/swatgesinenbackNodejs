@@ -323,7 +323,7 @@ class CapacityDevicesController {
      *
      * @return
      */
-    public async createParking(name: string, description: string, currentCapacity: number, maxCapacity: number = 0,limitminimo:number = null,limitmaximo:number=null, type:string, address: string, userId: number): Promise<object> {
+    public async createParking(name: string, description: string, currentCapacity: number, maxCapacity: number = 0,limitminimo:number = null,limitmaximo:number=null, type:string, address: string, userId: number,subArea:string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -336,7 +336,7 @@ class CapacityDevicesController {
                     })
                 }
 
-                conn.query("INSERT INTO `capacity_parking` (`name`, `description`, `currentCapacity`, `maxCapacity`,`limitminimo`,`limitmaximo`,`type`, `address`, `userId`) VALUES ('" + name + "', '" + description + "', " + currentCapacity + ", " + maxCapacity + ", " + limitminimo + ", " + limitmaximo + ",'" + type + "','" + address + "'," + userId + ");",
+                conn.query("INSERT INTO `capacity_parking` (`name`, `description`, `currentCapacity`, `maxCapacity`,`limitminimo`,`limitmaximo`,`type`, `address`, `userId`,`parking_sub_area`) VALUES ('" + name + "', '" + description + "', " + currentCapacity + ", " + maxCapacity + ", " + limitminimo + ", " + limitmaximo + ",'" + type + "','" + address + "'," + userId + ",'"+subArea+"');",
                     (error: any, results: any, fields: any) => {
                         conn.release()
 

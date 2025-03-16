@@ -3,6 +3,7 @@ import express, { Application } from 'express';
 import morgan from 'morgan';
 import app from 'insure-express';
 import cors from 'cors';
+//import bodyParser from 'body-parser';
 
 import usersRouter from './routes/usersRouter';
 import waterDevicesRouter from './routes/water_module/waterDevicesRouter';
@@ -49,8 +50,11 @@ class Server {
         this.app.set('port', process.env.PORT || 8080);//8080,8082
         this.app.use(morgan('dev'));
         this.app.use(cors());
-        this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: false }))
+       // this.app.use(express.json({limit: '50mb'}));
+        this.app.use(express.json())
+        this.app.use(express.urlencoded({extended: false}))
+        //this.app.use(bodyParser.json({ limit: "50mb" }))
+        this.app.use(express.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000}))
     }
 
     routes(): void {

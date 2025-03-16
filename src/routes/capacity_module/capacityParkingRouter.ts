@@ -41,7 +41,8 @@ class CapacityParkingRouter {
           params.limitemaximo,
           params.type,
           params.address,
-          params.userId
+          params.userId,
+          params.subArea
         )
         .then((response) => {
           res.send(response);

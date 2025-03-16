@@ -28,6 +28,10 @@ class CapacityCartelRouter {
           params.latitude,
           params.longitude,
           parseInt(params.userId),
+          params.url,
+          params.port,
+          params.type,
+          params.displayType,
           params.cartelLines
         )
         .then((response) => {
@@ -108,7 +112,11 @@ class CapacityCartelRouter {
           params.latitude,
           params.longitude,
           params.authToken,
-          params.provider
+          params.provider,
+          params.url,
+          params.port,
+          params.type,
+          params.displayType,
         )
         .then((response) => {
           res.send(response);

@@ -1,4 +1,5 @@
 import db from "../database";
+var moment = require('moment-timezone');
 
 /*
  * /users
@@ -106,6 +107,17 @@ class UsersController {
     });
   }
 
+  /*public async createUsersAccessLog(email:string): Promise<object> {
+    return new Promise((resolve: any, reject: any) => {
+      let dateStr  = moment().tz("Europe/Madrid").format('YYYY-MM-DD hh:mm:ss');
+      db.getConnection((err: any, conn: any) => {
+        let query = "insert into user_access_log(email, login_time) value ('"+email+"', ) ;";
+        console.log("QUERY", query);
+
+        conn.query(query, (error: any, results: any) => {
+          conn.release();
+
+  }*/
   /**
    * POST ('/login')
    * Getting the information about the user

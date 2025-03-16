@@ -39,7 +39,13 @@ class CapacityDevicesRouter {
           params.provider,
           parseInt(params.userId),
           params.type,
-          params.parkingId
+          params.parkingId,
+          params.username,
+          params.password,
+          params.region1,
+          params.region2,
+          params.region3,
+          params.region4
         )
         .then((response) => {
           res.send(response);

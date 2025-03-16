@@ -28,15 +28,15 @@ class CapacityDevicesController {
      *
      * @return
      */
-    public async createCapacityDevice(sensorId: number, name: string, description: string, latitude: number, longitude: number, authToken: string, provider: string, userId: number, type: string, parkingId: number): Promise<object> {
+    public async createCapacityDevice(sensorId: number, name: string, description: string, latitude: number, longitude: number, authToken: string, provider: string, userId: number, type: string, parkingId: number, username: string, password: string, region1: string, region2: string, region3: string, region4: string): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             db.getConnection((err: any, conn: any) => {
 
                 let query = "INSERT INTO `capacity_devices` (`sensorId`, `name`, `description`, `latitude`, `longitude`, " +
-                    "`authToken`, `provider`, `userId`, `type`) VALUES (" + sensorId + ", '" + name + "', '" + description + "', " + latitude +
-                    ", " + longitude + ", '" + authToken + "', '" + provider + "', " + userId + ", '" + type + "');"
+                    "`authToken`, `provider`, `userId`, `type`,`username`,`password`,`region_one`,`region_two`,`region_three`,`region_four`) VALUES (" + sensorId + ", '" + name + "', '" + description + "', " + latitude +
+                    ", " + longitude + ", '" + authToken + "', '" + provider + "', " + userId + ", '" + type + "', '" + username + "', '" + password + "', '" + region1 + "', '" + region2 + "', '" + region3 + "', '" + region4 + "');"
                 console.log(query)
                 conn.query(query,
                     async (error: any, results: any, fields: any) => {

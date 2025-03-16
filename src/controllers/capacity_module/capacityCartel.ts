@@ -200,15 +200,15 @@ class CapacityCartelDevicesController {
      *
      * @return
      */
-    public async createCapacityCartel(sensorId: number, name: string, description: string, latitude: number, longitude: number = 0, userId: number, cartelLines: any[]): Promise<object> {
+    public async createCapacityCartel(sensorId: number, name: string, description: string, latitude: number, longitude: number = 0, userId: number, url:string,port:string,type:string,displayType:string,cartelLines: any[]): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
             try {
                 db.getConnection((err: any, conn: any) => {
-                    let query = "INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, `userId`)" +
-                        " VALUES (" + sensorId + ", '" + name + "','" + description + "', " + latitude + ", " + longitude + "," + userId + ");"
-
+                    let query = "INSERT INTO `capacity_cartel` (`sensorId`, `name`, `description`, `latitude`, `longitude`, `userId`, `url`, `port`,`type`,`displayType`)" +
+                        " VALUES (" + sensorId + ", '" + name + "','" + description + "', " + latitude + ", " + longitude + "," + userId + ",'" + url + "','" + port + "','" + type + "','" + displayType + "');"
+                    console.log('query',query);
                     conn.query(query, async (error: any, results: any, fields: any) => {
                         conn.release()
                         if (results && results.length == 0) {
@@ -276,7 +276,7 @@ class CapacityCartelDevicesController {
      * 
      * @returns 
      */
-    public async updateCapacityCartel(id: number, cartelLines: any[], name?: string, description?: string, sensorId?: number, latitude?: number, longitude?: number, authToken?: string, provider?: string): Promise<object> {
+    public async updateCapacityCartel(id: number, cartelLines: any[], name?: string, description?: string, sensorId?: number, latitude?: number, longitude?: number, authToken?: string, provider?: string,url?:string,port?:string, type?:string,displayType?:string): Promise<object> {
 
         return new Promise((resolve, reject) => {
 
@@ -311,6 +311,18 @@ class CapacityCartelDevicesController {
             }
             if (provider) {
                 query += " provider = '" + provider + "',"
+            }
+            if (url) {
+                query += " url = '" + url + "',"
+            }
+            if (port) {
+                query += " port = '" + port + "',"
+            }
+            if (type) {
+                query += " type = '" + type + "',"
+            }
+            if (displayType) {
+                query += " displayType = '" + displayType + "',"
             }
 
             // Removing the last comma

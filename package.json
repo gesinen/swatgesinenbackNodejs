@@ -19,6 +19,7 @@
     },
     "homepage": "https://github.com/Losina24/swat-gesinen-back#readme",
     "dependencies": {
+        "@types/ffi-napi": "^4.0.10",
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "insure-express": "^12.3.4",
