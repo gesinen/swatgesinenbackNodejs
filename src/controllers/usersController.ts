@@ -61,7 +61,8 @@ class UsersController {
    * @return
    */
   public async getUserLogin(mail: string, pass: string): Promise<object> {
-    return new Promise((resolve: any, reject: any) => {
+    return new Promise(async (resolve: any, reject: any) => {
+       let logCreate =await this.createUserLoginLog(mail);
       db.getConnection((err: any, conn: any) => {
         let query =
           "SELECT * FROM users WHERE email = '" +
@@ -96,11 +97,12 @@ class UsersController {
               user_data: {},
             });
           }
-
+          
           resolve({
             http: 200,
             status: "Success",
             user_data: results[0],
+            log:logCreate
           });
         });
       });
@@ -162,6 +164,35 @@ class UsersController {
       });
     });
   }
+
+  public async createUserLoginLog(mail: string): Promise<object> {
+    return new Promise((resolve: any, reject: any) => {
+     let  timestramp   = moment().tz("Europe/Madrid").format('YYYY-MM-DD hh:mm:ss');
+      db.getConnection((err: any, conn: any) => {
+        let query = "insert into user_access_log (user_email, login_time) value ('"+mail+"','"+timestramp+"')";
+        console.log("QUERY", query);
+
+        conn.query(query, (error: any, results: any) => {
+          conn.release();
+
+          if (error) {
+            reject({
+              http: 406,
+              status: "Failed",
+              error: error,
+            });
+          }
+        resolve({
+            http: 200,
+            status: "Success",
+            insert_record: results,
+          });
+        });
+      });
+    });
+  }
 }
+
+
 
 export default new UsersController();

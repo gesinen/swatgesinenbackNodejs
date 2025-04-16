@@ -47,8 +47,11 @@ class CapacityDevicesController {
     public async getParkingMessages(parkingId: number, pageSize: number, pageIndex: number): Promise<any> {
         return new Promise((resolve, reject) => {
             const first_value = (pageSize * pageIndex) - pageSize;
-            var query = "SELECT * FROM capacity_devices_log WHERE parkingId = " + parkingId +
-                " ORDER BY timestamp DESC LIMIT " + first_value + ', ' + pageSize + ";"
+            /*var query = "SELECT * FROM capacity_devices_log WHERE parkingId = " + parkingId +
+                " ORDER BY timestamp DESC LIMIT " + first_value + ', ' + pageSize + ";"*/
+                // new query because by the previouse query time are not accurate from the camera we recieved;
+                var query = "SELECT * FROM capacity_devices_log WHERE parkingId = " + parkingId +
+                " ORDER BY id DESC LIMIT " + first_value + ', ' + pageSize + ";"
 
             db.getConnection((err: any, conn: any) => {
                 if (err) {
@@ -323,7 +326,7 @@ class CapacityDevicesController {
      *
      * @return
      */
-    public async createParking(name: string, description: string, currentCapacity: number, maxCapacity: number = 0,limitminimo:number = null,limitmaximo:number=null, type:string, address: string, userId: number,subArea:string): Promise<object> {
+    public async createParking(name: string, description: string, currentCapacity: number, maxCapacity: number = 0,limitminimo:number = null,limitmaximo:number=null, type:string, address: string, userId: number,subArea:string,availableLimit:number,densoLimit:number,occupidoLimit:number): Promise<object> {
 
         return new Promise((resolve: any, reject: any) => {
 
@@ -336,7 +339,7 @@ class CapacityDevicesController {
                     })
                 }
 
-                conn.query("INSERT INTO `capacity_parking` (`name`, `description`, `currentCapacity`, `maxCapacity`,`limitminimo`,`limitmaximo`,`type`, `address`, `userId`,`parking_sub_area`) VALUES ('" + name + "', '" + description + "', " + currentCapacity + ", " + maxCapacity + ", " + limitminimo + ", " + limitmaximo + ",'" + type + "','" + address + "'," + userId + ",'"+subArea+"');",
+                conn.query("INSERT INTO `capacity_parking` (`name`, `description`, `currentCapacity`, `maxCapacity`,`limitminimo`,`limitmaximo`,`type`, `address`, `userId`,`parking_sub_area`,`available_limit`,`denso_limit`,`occupido_limit`) VALUES ('" + name + "', '" + description + "', " + currentCapacity + ", " + maxCapacity + ", " + limitminimo + ", " + limitmaximo + ",'" + type + "','" + address + "'," + userId + ",'"+subArea+"'," + availableLimit + "," + densoLimit + "," + occupidoLimit + ");",
                     (error: any, results: any, fields: any) => {
                         conn.release()
 
@@ -624,7 +627,7 @@ class CapacityDevicesController {
      * 
      * @returns 
      */
-    public async updateCapacityParking(id: number, name?: string, description?: string, currentCapacity?: number, maxCapacity?: number,limitminimo?:number,limitmaximo?:number,type?:string, address?: string): Promise<object> {
+    public async updateCapacityParking(id: number, name?: string, description?: string, currentCapacity?: number, maxCapacity?: number,limitminimo?:number,limitmaximo?:number,type?:string, address?: string,availableLimit?:number,densoLimit?:number,occupidoLimit?:number,subArea?:string): Promise<object> {
 
         return new Promise((resolve, reject) => {
 
@@ -662,6 +665,18 @@ class CapacityDevicesController {
             }
             if (address) {
                 query += " address = '" + address + "',"
+            }
+            if (availableLimit) {
+                query += " available_limit = " + availableLimit + ","
+            }
+            if (densoLimit) {
+                query += " denso_limit = " + densoLimit + ","
+            }
+            if (occupidoLimit) {
+                query += " occupido_limit = " + occupidoLimit + ","
+            }
+            if(subArea){
+                query += " parking_sub_area = '" + subArea + "',"
             }
 
             // Removing the last comma
@@ -813,6 +828,9 @@ class CapacityDevicesController {
             })
         })
     }
+
+    
+        
 }
 
 export default new CapacityDevicesController();

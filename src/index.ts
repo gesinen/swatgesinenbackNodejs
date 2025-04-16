@@ -34,6 +34,8 @@ import BlockChainRouter from './routes/blockchain_module/blockchainRouter';
 import ControlCabinetRouter from './routes/controlCabinet_module/controlCabinetRouter';
 import publicLightingRouter from './routes/PublicLighting_module/publicLightingRouter';
 import waterImstRouter from './routes/water_module/waterImstRouter';
+import panelSchedulingRouter from "./routes/capacity_module/panelSchedulingRouter"
+import bigPanelFixedTextRouter from "./routes/capacity_module/bigPanelFixedTextRouter"
 
 //import AlarmChecker from "../services/Alarms/alarms.service";//"./Services/Alarms/alarms.service";
 class Server {
@@ -60,6 +62,8 @@ class Server {
     routes(): void {
         this.app.use('/v2/users', usersRouter);
         this.app.use('/v2/camera/parking', cameraParkingRouter);
+        this.app.use('/v2/capacity/panelScheduling', panelSchedulingRouter);
+        this.app.use('/v2/capacity/bigPanelFixed', bigPanelFixedTextRouter);
         this.app.use('/v2/capacity/devices', capacityDevicesRouter);
         this.app.use('/v2/capacity/panels', capacityCartelRouter);
         this.app.use('/v2/capacity/panels/line', capacityCartelLineRouter);

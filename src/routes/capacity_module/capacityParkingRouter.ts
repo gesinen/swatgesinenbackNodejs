@@ -16,6 +16,7 @@ class CapacityParkingRouter {
     this.getParkingUserByGateway();
     this.getParkingMessages();
     this.updateParkingLimitMinMaxCapacity();
+   
 
     //for Mobile Application
     this.getParkingByIdUsingAuthToken();
@@ -42,7 +43,10 @@ class CapacityParkingRouter {
           params.type,
           params.address,
           params.userId,
-          params.subArea
+          params.subArea,
+          params.availableLimit,
+          params.densoLimit,
+          params.occupidoLimit
         )
         .then((response) => {
           res.send(response);
@@ -257,7 +261,11 @@ class CapacityParkingRouter {
           params.limiteminimo,
           params.limitemaximo,
           params.type,
-          params.address
+          params.address,
+          params.availableLimit,
+          params.densoLimit,
+          params.occupidoLimit,
+          params.subArea
         )
         .then((response) => {
           res.send(response);
@@ -294,6 +302,9 @@ class CapacityParkingRouter {
                   res.send(err);
               })
       })
+
+     
+
 }
 
 const capacityParkingRouter = new CapacityParkingRouter();

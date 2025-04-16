@@ -9,19 +9,20 @@ import { Utils } from "../../utils/Utils";
  */
 class CameraParkingController {
 
-    public async saveAlteaCameraParking(event:string,device:string,time:string,direction:string,snapshot:string,user:string,pass:string,line:number,vehicalIn:number,vehicalOut:number,fullMessaage:string): Promise<any> {
+    public async saveAlteaCameraParking(event:string,device:string,time:string,direction:string,snapshot:string,user:string,pass:string,line:number,vehicalIn:number,vehicalOut:number,fullMessaage:string,cameraType:string,lprCameraInOut:number): Promise<any> {
        
         return new Promise( async (resolve, reject) => {
             let device_info_arr =  device.split(" ");
             let detectionLine = null;
-            console.log('controller caleed',vehicalIn,vehicalOut,line,fullMessaage)
+            //console.log('controller caleed',vehicalIn,vehicalOut,line,fullMessaage)
             var query = "Insert Into camera_parking (`event`,`device`,`time`,`detectionLine`,`direction`,`place_name`,`camera_number`,`vehicleIn`,`vehicleOut`,`line`,`full_message`) values('"+event+"','"+device+"','"+time+"',"+detectionLine+",'"+direction+"','"+device_info_arr[0]+"','"+device_info_arr[2]+"',"+vehicalIn+","+vehicalOut+","+line+",'"+fullMessaage+"')";
             let cameraName =  device_info_arr[0].toLowerCase()+'_'+'camera'+'_'+device_info_arr[2]
+            
             let capacityparkingInfo  = await this.getThePakingandCapacityDeviceInfo(cameraName);   
             let lastCapacityLogRes = await this.getCapacityDevicesLogLastMessageByDevice(device,line);
             let lastCapacityLog = lastCapacityLogRes.capacity_device_log[0];
-            //console.log('capacityInfo',capacityparkingInfo);
-            console.log('capacityLog',lastCapacityLog);
+           // console.log('capacityInfo',capacityparkingInfo);
+            //console.log('capacityLog',lastCapacityLog);
            // if the user and password matched
           // if(capacityparkingInfo.username == user && capacityparkingInfo.password == pass){
 
@@ -34,24 +35,36 @@ class CameraParkingController {
            let capacitypercent = (capacityInfo.maxCapacity/100);
            let increase = 0;
            let descrease  = 0; 
+           let totalchange = 0;
+                if(cameraType == 'LPRCamera'){
+                    totalchange = lprCameraInOut;
+                    console.log(totalchange,cameraType,lprCameraInOut)
+                }
+                else{
+
+                
            if(vehicalIn > lastCapacityLog.vehicleIn){
             increase = vehicalIn -lastCapacityLog.vehicleIn
            }
             if( vehicalOut > lastCapacityLog.vehicleOut){
-                descrease =  lastCapacityLog.vehicleOut - vehicalOut;
+                descrease =  vehicalOut - lastCapacityLog.vehicleOut;
             }
-             let totalchange = increase - descrease;
-            
-           let calculatedVal = (capacityInfo.currentCapacity + totalchange) ;//direction === 'B->A'?capacityInfo.currentCapacity - 1:direction == 'A->B'?capacityInfo.currentCapacity + 1:capacityInfo.currentCapacity;
-           let emptySpaces = (capacityInfo.maxCapacity - calculatedVal)
+              totalchange = increase - descrease;
+            }
+            let calculatedVal = capacityInfo.currentCapacity;
+            let emptySpaces = (capacityInfo.maxCapacity - calculatedVal)
+            if(capacityInfo.cameraInOutManage == 1 ){
+            calculatedVal = (capacityInfo.currentCapacity + totalchange) ;//direction === 'B->A'?capacityInfo.currentCapacity - 1:direction == 'A->B'?capacityInfo.currentCapacity + 1:capacityInfo.currentCapacity;
+            emptySpaces = (capacityInfo.maxCapacity - calculatedVal)
+            }
            console.log('all changes',vehicalIn,lastCapacityLog.vehicleIn,increase,vehicalOut,lastCapacityLog.vehicleOut,descrease,totalchange,calculatedVal,emptySpaces);
-           let messageInt =  'Altea';//detectionLine+" "+event;
+           let messageInt =  capacityInfo.cameraInOutManage == 1 ? (totalchange > 0)?'In':(totalchange == 0)?'No Change':'Out':(totalchange > 0) ?'Sub Area In':(totalchange == 0)?'Sub Area No Change':'Sub Area Out';//detectionLine+" "+event;
            let panelMessageTestType = capacityInfo.displayType;//"OnlyText";
            let textAlingment = 1;//(0 = means horizontly left) (1 = means horizontly center) (2 = means horizontly right )
           let textToPanel = "LIBRES:     25";
           let textColor = 255;
 
-          if(emptySpaces > (capacitypercent*4)){
+          if(emptySpaces > (capacitypercent*25)){
             if(panelMessageTestType == "onlyText"){
                 textAlingment = 1; 
                 textToPanel = "LIBRES";
@@ -63,7 +76,7 @@ class CameraParkingController {
             
             textColor = 65280;
           }
-          else if(emptySpaces < (capacitypercent*4) && emptySpaces > (capacitypercent/2)){
+          else if(emptySpaces < (capacitypercent*25) && emptySpaces > (capacitypercent/5)){
             if(panelMessageTestType == "onlyText"){
             textToPanel = "DENSO";
             textAlingment = 1; 
@@ -86,14 +99,30 @@ class CameraParkingController {
             textColor = 255;
           }
           
-         /*if(capacityInfo.panleType == 'rotuloselectronicos'){
-           responseResFromPanel = await this.SendInfoToPanel(capacityInfo.panelUrl, capacityInfo.panelPort, textToPanel,textColor,textAlingment)
+         if(capacityInfo.panleType == 'rotuloselectronicos'){
+            capacityparkingInfo.data.forEach(async (element:any) => {
+                //responseResFromPanel = await this.SendInfoToPanel(element.panelUrl, element.panelPort, textToPanel,textColor,textAlingment)
+            });
+           
          // console.log('response from panel',responseResFromPanel,capacityInfo,calculatedVal) 
-          }*/
+          }
           //await this.saveCapacityDevicesLog(capacityInfo.currentCapacity,capacityInfo.maxCapacity,parkingId,device,messageInt,direction,1,time);
           await this.saveCapacityDevicesLogAltea(calculatedVal,capacityInfo.maxCapacity,parkingId,device,messageInt,direction,1,time,vehicalIn,vehicalOut,line,fullMessaage);
-           let  updatedCapacity = await this.UpdateParkingByCamera(parkingId,calculatedVal)
-           }
+          console.log('parking Sub Area',capacityInfo.subArea)
+           let subArea = JSON.parse(capacityInfo.subArea)
+          if(subArea.SubAreaFormArray.length > 0){
+            
+            console.log('subarea before update',subArea.SubAreaFormArray)
+            subArea.SubAreaFormArray.map((item:any)=>{
+                if(item.selectCamera.includes(capacityInfo.id)){
+                    item.subActualCapacity = Number(item.subActualCapacity) + Number(totalchange);
+                }
+            })
+            console.log('subArea Updated',JSON.stringify(subArea));
+          }
+          let  updatedCapacity = await this.UpdateParkingByCamera(parkingId,calculatedVal)
+        await this.UpdateParkingSubAreaByCamera(parkingId,JSON.stringify(subArea))   
+        }
            db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
@@ -103,7 +132,7 @@ class CameraParkingController {
                         panelResponse:responseResFromPanel,
                     })
                 }
-                console.log("query",query)
+                //console.log("query",query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
                    
@@ -208,10 +237,10 @@ class CameraParkingController {
             textColor = 255;
           }
           
-          /*if(capacityInfo.panleType == 'rotuloselectronicos'){
+          if(capacityInfo.panleType == 'rotuloselectronicos'){
            responseResFromPanel = await this.SendInfoToPanel(capacityInfo.panelUrl, capacityInfo.panelPort, textToPanel,textColor,textAlingment)
          // console.log('response from panel',responseResFromPanel,capacityInfo,calculatedVal) 
-          }*/
+          }
           //await this.saveCapacityDevicesLog(capacityInfo.currentCapacity,capacityInfo.maxCapacity,parkingId,device,messageInt,direction,1,time);
           await this.saveCapacityDevicesLog(calculatedVal,capacityInfo.maxCapacity,parkingId,device,messageInt,direction,1,time);
            let  updatedCapacity = await this.UpdateParkingByCamera(parkingId,calculatedVal)
@@ -273,7 +302,7 @@ class CameraParkingController {
             var request = require("request");
             var options = {
                 'method': 'POST',
-                'url':'http://95.19.73.47:5000/api/Camera',//'http://5.250.190.230/api/Camera',
+                'url':'https://8b48-95-19-73-47.ngrok-free.app/api/Camera',//'http://95.19.73.47:5000/api/Camera',//'http://5.250.190.230/api/Camera',
                 'headers': {
                 // "x-token":"test",
                   'Content-Type': 'application/json',
@@ -286,13 +315,13 @@ class CameraParkingController {
                     "textAlingment":textAlingment,
                 })
               };
-              console.log('options',options)
+              //console.log('options',options)
               request(options, function (error: string, response: { body: any }) {
                 if (error) {
                   reject(error);
                 }
-                console.log("***** response ******")
-                //console.log(response.body)
+                //console.log("***** response ******")
+                console.log('panel Response',options,response.body)
                 let observations: any;
                 try {
                   observations = response.body;
@@ -375,7 +404,7 @@ class CameraParkingController {
         return new Promise((resolve, reject) => {
             //camera_name= 'chulia_camera_1';
             //var query = "select c.*, p.maxCapacity,p.currentCapacity,p.id as parkingID,ctr.parkingId as crtParkingId,ctr.capacityDeviceId as ctrcapacityDeviceId from capacity_devices as c inner join capacity_type_ribbon as ctr  On ctr.capacityDeviceId = c.id inner join capacity_parking as p ON p.id = ctr.parkingId where c.name='" +camera_name+"';";
-           var query = "select c.*, p.maxCapacity,p.currentCapacity,p.id as parkingID,ctr.parkingId as crtParkingId,ctr.capacityDeviceId as ctrcapacityDeviceId, capacity_cartel.url as panelUrl, capacity_cartel.port as panelPort, capacity_cartel.type as panleType, capacity_cartel.displayType as displayType from capacity_devices as c inner join capacity_type_ribbon as ctr  On ctr.capacityDeviceId = c.id inner join capacity_parking as p ON p.id = ctr.parkingId inner join capacity_cartel_line on capacity_cartel_line.parkingId = ctr.parkingId inner join capacity_cartel on capacity_cartel.id = capacity_cartel_line.cartelId where c.name= '" +camera_name+"';";
+           var query = "select c.*, p.maxCapacity,p.currentCapacity,p.id as parkingID,p.parking_sub_area as subArea,ctr.parkingId as crtParkingId,ctr.capacityDeviceId as ctrcapacityDeviceId, capacity_cartel.url as panelUrl, capacity_cartel.port as panelPort, capacity_cartel.type as panleType, capacity_cartel.displayType as displayType from capacity_devices as c inner join capacity_type_ribbon as ctr  On ctr.capacityDeviceId = c.id inner join capacity_parking as p ON p.id = ctr.parkingId inner join capacity_cartel_line on capacity_cartel_line.parkingId = ctr.parkingId inner join capacity_cartel on capacity_cartel.id = capacity_cartel_line.cartelId where c.name= '" +camera_name+"';";
             db.getConnection((err: any, conn: any) => {
                 if (err) {
                     reject({
@@ -411,6 +440,47 @@ class CameraParkingController {
         return new Promise( async (resolve, reject) => {
             
             var query = "UPDATE capacity_parking SET `currentCapacity`=" +  calculatedVal + " WHERE id=" + parkingId + ";";
+            
+              
+
+            db.getConnection((err: any, conn: any) => {
+                if (err) {
+                    reject({
+                        http: 401,
+                        status: 'Failed',
+                        error: err
+                    })
+                }
+                console.log("query",query)
+                conn.query(query, (error: any, results: any) => {
+                    conn.release()
+                   
+                    if (error) {
+                        reject({
+                            http: 401,
+                            status: 'Failed',
+                            error: error
+                        })
+                    }
+
+                    resolve(
+                        
+                        {
+                        http: 200,
+                        status: 'Success',
+                        capacity_devices: results
+                    }
+                )
+                })
+            })
+        })
+    }
+
+    public async UpdateParkingSubAreaByCamera(parkingId:string,subArea:string): Promise<any> {
+       
+        return new Promise( async (resolve, reject) => {
+            
+            var query = "UPDATE capacity_parking SET `parking_sub_area`='" +  subArea + "' WHERE id=" + parkingId + ";";
             
               
 
@@ -500,7 +570,7 @@ class CameraParkingController {
                         error: err
                     })
                 }
-                console.log("query",query)
+                //console.log("query",query)
                 conn.query(query, (error: any, results: any) => {
                     conn.release()
                    
